@@ -44,7 +44,7 @@ bash loop_checkLists.sh -h
 ```
 ### Example
 
-There are two mock files for testing the shell:
+There are two mock files available for testing:
 ```Shell
 head list_*
 ```
