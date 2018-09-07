@@ -2,7 +2,7 @@
 
 **Warning:** These shells only work inside the installed repository
 
-These shells generate check list with currently accepted names of species from [OBIS database](http://iobis.org/) and these names are both compared and matched with check list with currently accepted names of species from [BOLD database](http://www.boldsystems.org/). The [WORMS database](http://www.marinespecies.org/) is used for validating species names.
+These shells generate check list with currently accepted names of species from [OBIS database](http://iobis.org/) and these names are both compared and matched with check list with currently accepted names of species from [BOLD database](http://www.boldsystems.org/). The [WoRMS database](http://www.marinespecies.org/) is used for validating species names.
 
 Software requieremnts:
 
