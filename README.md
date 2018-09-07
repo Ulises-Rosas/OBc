@@ -33,8 +33,8 @@ bash loop_checkLists.sh -h
 --list-of-geo  <filename>  
                 List of geographical to search for. This list must contain both
                 Area ID and Area Name separated by a comma (e.g. 70,Peru). Area ID is
-                used for mining names from OBIS database and, likewise, Area Name is 
-                used for mining names from BOLD database.
+                used for mining names from OBIS database (please see: http://api.iobis.org/area) 
+                and, likewise, Area Name is used for mining names from BOLD database.
                 
 --output-prefix <string>
                 Output prefix which will be used for naming validated names from both
