@@ -222,3 +222,5 @@ class Worms:
         return  re.sub('.*"rank":"' + spell[0] + '","scientificname":"([A-Za-z ]+)".*',
                        "\\1",
                        self.classification_page)
+
+    ## added line from pycharm
