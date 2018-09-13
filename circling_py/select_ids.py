@@ -1,7 +1,7 @@
 import re
 import os
 import argparse
-from worms import *
+from .worms import *
 
 parser = argparse.ArgumentParser(description="Utility for dealing with ids and ecopcr results")
 

@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import re
+import urllib.error
 import urllib.request
 
 
@@ -8,8 +9,6 @@ class Worms:
     def __init__(self, taxon):
 
         self.taxon = taxon.replace(" ", "%20")
-        self.taxonomic_ranges = []
-        self.classification_page = ""
 
         aphiaID_url = "http://www.marinespecies.org/rest/AphiaIDByName/" + \
                       self.taxon + \
@@ -23,11 +22,20 @@ class Worms:
             except urllib.error.HTTPError:
                 pass
 
+        ##...variables to fill in...##
+        self.taxonomic_ranges = []
+        self.classification_page = ""
+        self.synonym_list = []
+        ##...variables to fill in...##
+
+        ##...urls...##
         self.records_url = "http://www.marinespecies.org/rest/AphiaChildrenByAphiaID/" + \
                       self.aphiaID + \
                       "?marine_only=true&offset=1"
         self.accepted_name = ""
         self.classfication_url = "http://www.marinespecies.org/rest/AphiaClassificationByAphiaID/"
+        self.synonym_url = "http://www.marinespecies.org/rest/AphiaSynonymsByAphiaID/"
+        ##...urls...##
 
     def get_children_names(self, till = "Species"):
 
@@ -167,6 +175,18 @@ class Worms:
 
                 self.accepted_name = re.sub(".*</i><i>(.*)</i>.*", "\\1", line.replace("\n", ""))
 
+                aphiaID_url = "http://www.marinespecies.org/rest/AphiaIDByName/" + \
+                              re.sub(" ","%20",self.accepted_name) +\
+                              "?marine_only=true"
+
+                self.aphiaID = None
+                # make sure aphiaID will be available for downstream analyses
+                while self.aphiaID is None:
+                    try:
+                        self.aphiaID = urllib.request.urlopen(aphiaID_url).read().decode('utf-8')
+                    except urllib.error.HTTPError:
+                        pass
+
                 return self.accepted_name
 
             else:
@@ -182,7 +202,26 @@ class Worms:
 
         page = urllib.request.urlopen(complete_url).read().decode('utf-8')
 
-        self.accepted_name = re.sub('.*"valid_name":"(.*)","valid_.*',"\\1", page )
+        valid_name = re.sub('.*"valid_name":"(.*)","valid_.*',"\\1", page )
+        #valid_name = "Mobula birostris"
+
+        if valid_name == re.sub("%20"," ",self.taxon):
+            self.accepted_name = re.sub("%20"," ",self.taxon)
+
+        else:
+            self.accepted_name = valid_name
+
+            aphiaID_url = "http://www.marinespecies.org/rest/AphiaIDByName/" + \
+                          re.sub(" ","%20",self.accepted_name) + \
+                          "?marine_only=true"
+
+            self.aphiaID = None
+            # make sure aphiaID will be available for downstream analyses
+            while self.aphiaID is None:
+                try:
+                    self.aphiaID = urllib.request.urlopen(aphiaID_url).read().decode('utf-8')
+                except urllib.error.HTTPError:
+                    pass
 
         return self.accepted_name
 
@@ -223,4 +262,23 @@ class Worms:
                        "\\1",
                        self.classification_page)
 
-    ## added line from pycharm
+    def get_synonyms(self):
+
+        if self.accepted_name == '':
+            self.get_accepted_name()
+
+        complete_url = self.synonym_url + self.aphiaID
+        synonym_page = None
+
+        while synonym_page is None:
+            try:
+                synonym_page = urllib.request.urlopen(complete_url).read().decode('utf-8')
+
+            except urllib.error.HTTPError:
+                pass
+
+        pre_syn = re.findall('"scientificname":"[A-Z][a-z]+ [a-z]+"', synonym_page)
+
+        self.synonym_list = [re.sub('"scientificname":"([A-Za-z ]+)"', "\\1", i) for i in pre_syn]
+
+        return self.synonym_list
