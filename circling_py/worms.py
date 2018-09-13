@@ -263,6 +263,9 @@ class Worms:
                        self.classification_page)
 
     def get_synonyms(self):
+        """
+        wrapper for synonyms method of WoRMS API
+        """
 
         if self.accepted_name == '':
             self.get_accepted_name()
@@ -282,4 +285,4 @@ class Worms:
         self.synonym_list = [re.sub('"scientificname":"([A-Za-z ]+)"', "\\1", i) for i in pre_syn]
 
         return self.synonym_list
-    
+
