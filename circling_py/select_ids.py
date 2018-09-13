@@ -1,7 +1,7 @@
 import re
 import os
 import argparse
-from .worms import *
+from worms import *
 
 parser = argparse.ArgumentParser(description="Utility for dealing with ids and ecopcr results")
 
@@ -134,7 +134,6 @@ class Minbar:
     def validate_tax(self):
 
         pattern1 = "^[A-Z][a-z]+ [a-z]+$"
-
         validated_name = Worms(self.term).get_accepted_name()
 
         if not re.findall(pattern1, validated_name):
@@ -145,6 +144,22 @@ class Minbar:
 
         return validated_name
 
+    def synonyms(self):
+
+        name = Worms(self.term)
+
+        valid = name.get_accepted_name()
+        syns = name.get_synonyms()
+
+        ## joining valid and syns in a single list
+        joined_list = []
+
+        for syn in syns:
+            #print(syn + "," +valid)
+            joined_list.append(syn + "," + valid)
+
+        return joined_list
+
 if args.sub is False and args.type == "fasta":
 
     Minbar(term=str(args.string),input=str(args.input)).select_id()
@@ -154,7 +169,14 @@ elif args.sub is True and args.type == "ecopcr":
     for i in Minbar(input=str(args.input)).substitute():
         f.write(i)
     f.close()
+
 elif args.tax is True and args.type == "validate":
     print(Minbar(term=str(args.string)).validate_tax())
     #print(Minbar(term="Anolis ventrimaculatus").validate_tax())
+
+elif args.tax is True and args.type == "synonyms":
+    lines = Minbar( term=str(args.string) ).synonyms()
+    
+    for i in lines:
+        print(i)
 
