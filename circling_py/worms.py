@@ -282,3 +282,4 @@ class Worms:
         self.synonym_list = [re.sub('"scientificname":"([A-Za-z ]+)"', "\\1", i) for i in pre_syn]
 
         return self.synonym_list
+    
