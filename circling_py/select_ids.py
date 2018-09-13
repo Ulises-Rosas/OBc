@@ -176,7 +176,7 @@ elif args.tax is True and args.type == "validate":
 
 elif args.tax is True and args.type == "synonyms":
     lines = Minbar( term=str(args.string) ).synonyms()
-    
+
     for i in lines:
         print(i)
 
