@@ -122,7 +122,7 @@ for i in $(cat ${POSITIONAL[@]}'_obis'); do
         obi_val=""
 
         while [[ $obi_val = "" ]]; do
-            obi_val=$(python3 ./circling_py/select_ids.py -tax -type validate -string $i)
+            obi_val=$(python3 ./circling_py/select_ids.py -tax -type validate -string "$i")
         done
 
         echo -e "$obi_val" >> $obi_file 
@@ -133,7 +133,7 @@ for i in $(cat ${POSITIONAL[@]}'_obis'); do
             obi_val=""
 
             while [[ $obi_val = "" ]]; do
-                obi_val=$(python3 ./circling_py/select_ids.py -tax -type validate -string $i)
+                obi_val=$(python3 ./circling_py/select_ids.py -tax -type validate -string "$i")
             done
 
             echo -e "$obi_val" >> $obi_file
@@ -181,7 +181,7 @@ else
 
             while [[ $bold_val = "" ]]; do
 
-                bold_val=$(python3 ./circling_py/select_ids.py -tax -type validate -string $j)
+                bold_val=$(python3 ./circling_py/select_ids.py -tax -type validate -string "$j")
             done
 
             echo -e "$bold_val" >> $bold_file 
@@ -193,7 +193,7 @@ else
 
                 while [[ $bold_val = "" ]]; do
 
-                    bold_val=$(python3 ./circling_py/select_ids.py -tax -type validate -string $j)
+                    bold_val=$(python3 ./circling_py/select_ids.py -tax -type validate -string "$j")
                 done
                 
                 echo -e "$bold_val" >> $bold_file
