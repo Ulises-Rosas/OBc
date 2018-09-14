@@ -21,7 +21,7 @@ Software requierements:
 * wget
 * R
 
-### Installing OBc:
+## Installing OBc:
 
 ```Shell
 git clone https://github.com/Ulises-Rosas/OBc.git
