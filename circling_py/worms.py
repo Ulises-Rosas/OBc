@@ -117,7 +117,10 @@ class Worms:
                     n1 = sum([len(c) for c in matches])
 
                     # since it can appear a large string with multiple matches from just a part of it,
-                    # n1/d1 is just a measure of quality in matches
+                    # n1/d1 is the number of matches between substrings (pieces) of length "index + 1" 
+                    # of an epitope (string) and "a",  pieced `species_binary[1]`, divided by the number of 
+                    # possible substrings (pieces) of an epitope (string) of length "index + 1". 
+                    # Just a measure of quality in matches.
 
 
                     # d2 is the number of pieces of `a`.
