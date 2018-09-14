@@ -21,7 +21,7 @@ Software requierements:
 * wget
 * R
 
-## Installing OBc
+### Installing OBc
 
 ```Shell
 git clone https://github.com/Ulises-Rosas/OBc.git
@@ -35,7 +35,7 @@ Then you can run `loop_checkLists.sh` shell and print help documentation with:
 bash loop_checkLists.sh -h
 ```
 
-## Specific options
+### Specific options
 
 ```
 --list-of-taxa <filename>  
@@ -53,7 +53,7 @@ bash loop_checkLists.sh -h
                 by Geographical parameters, taxonomic group and databases names 
                 (e.i. <Area Name>_<Area ID>_<Taxa>_<obis|bold>_validated.txt).
 ```
-## Example
+### Example
 
 There are two mock files available for testing:
 ```Shell
@@ -74,7 +74,7 @@ Therefore, the `loop_checkLists.sh` shell can run it with:
 bash loop_checkLists.sh --list-of-taxa list_invert --list-of-geo list_geo
 ```
 
-## Output 
+### Output 
 
 ```Shell
 ls *.txt
