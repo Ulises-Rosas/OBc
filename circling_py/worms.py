@@ -124,8 +124,8 @@ class Worms:
 
 
                     # d2 is the number of pieces of `a`.
-                    # n2 is the number of pieces that did not have any match with pieces a string
-                    # therefore, 1 - n2/d2 is a measure of coverage on a, or `species_binary[1]`
+                    # n2 is the number of pieces of "a" that did not have any match with epitope (string)
+                    # therefore, 1 - n2/d2 is a measure of coverage of epitope matches over "a"
                     d2 = len(set(a))
                     n2 = len(set(a) - set(["".join(set(b)) for b in matches if len(b) > 0])) #len(b) filter just matches
 
