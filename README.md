@@ -15,7 +15,7 @@ Please cite the following article when using `OBc`:
 
 ------------------------------------------------------------------------
 
-Software requieremnts:
+Software requierements:
 
 * Python3
 * wget
