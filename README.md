@@ -4,6 +4,17 @@
 
 These shells generate check list with currently accepted names of species from [OBIS database](http://iobis.org/) and these names are both compared and matched with check list with currently accepted names of species from [BOLD database](http://www.boldsystems.org/). The [WoRMS database](http://www.marinespecies.org/) is used for validating species names.
 
+
+------------------------------------------------------------------------
+Please cite the following article when using `OBc`:
+
+**J. Ramirez**<sup>\*</sup>, U. Rosas & X. Velez-Zuazo. DNA Barcoding and its contribution to the knowledge of the Southeast Pacific biodiversity. ***PLOS ONE***. X (2018): Y-Z.
+
+
+[![doi](https://img.shields.io/badge/doi-in/progress-green.svg?style=flat)](http://dx.doi.org)
+
+------------------------------------------------------------------------
+
 Software requieremnts:
 
 * Python3
