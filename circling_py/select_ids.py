@@ -151,14 +151,18 @@ class Minbar:
         valid = name.get_accepted_name()
         syns = name.get_synonyms()
 
-        ## joining valid and syns in a single list
-        joined_list = []
+        if len(syns) == 0:
+            return [valid + "," + valid]
 
-        for syn in syns:
-            #print(syn + "," +valid)
-            joined_list.append(syn + "," + valid)
+        else:
+            ## joining valid and syns in a single list
+            joined_list = []
 
-        return joined_list
+            for syn in syns:
+                # print(syn + "," +valid)
+                joined_list.append(syn + "," + valid)
+
+            return joined_list
 
 if args.sub is False and args.type == "fasta":
 
