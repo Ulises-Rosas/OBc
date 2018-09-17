@@ -198,6 +198,7 @@ class Worms:
                 return self.accepted_name
 
     def taxamatch(self):
+        #self = Worms("Schizodon jacuiensis").taxamatch()
 
         complete_url = "http://www.marinespecies.org/rest/AphiaRecordsByMatchNames?scientificnames%5B%5D=" + \
                        self.taxon + \
@@ -212,19 +213,24 @@ class Worms:
             self.accepted_name = re.sub("%20"," ",self.taxon)
 
         else:
-            self.accepted_name = valid_name
 
-            aphiaID_url = "http://www.marinespecies.org/rest/AphiaIDByName/" + \
-                          re.sub(" ","%20",self.accepted_name) + \
-                          "?marine_only=true"
+            if valid_name == "":
+                self.accepted_name = valid_name
 
-            self.aphiaID = None
-            # make sure aphiaID will be available for downstream analyses
-            while self.aphiaID is None:
-                try:
-                    self.aphiaID = urllib.request.urlopen(aphiaID_url).read().decode('utf-8')
-                except urllib.error.HTTPError:
-                    pass
+            else:
+
+                self.accepted_name = valid_name
+                aphiaID_url = "http://www.marinespecies.org/rest/AphiaIDByName/" + \
+                              re.sub(" ", "%20", self.accepted_name) + \
+                              "?marine_only=true"
+
+                self.aphiaID = None
+                # make sure aphiaID will be available for downstream analyses
+                while self.aphiaID is None:
+                    try:
+                        self.aphiaID = urllib.request.urlopen(aphiaID_url).read().decode('utf-8')
+                    except urllib.error.HTTPError:
+                        pass
 
         return self.accepted_name
 
@@ -269,6 +275,8 @@ class Worms:
         """
         wrapper for synonyms method of WoRMS API
         """
+        #self = Worms("Anchoa nasus")
+        #self = Worms("Schizodon jacuiensis")
 
         if self.accepted_name == '':
             self.get_accepted_name()

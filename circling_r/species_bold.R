@@ -77,6 +77,8 @@ SpecimenData <- function(taxon, ids, bin, container,
   
 }
 
+
+
 main_table = SpecimenData(taxon = opt$`taxa`, geo = opt$`area-name`)
 
 if(is.null( nrow(main_table) ) ){
