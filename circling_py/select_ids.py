@@ -1,7 +1,7 @@
 import re
 import os
 import argparse
-from worms import *
+from circling_py.worms import *
 
 parser = argparse.ArgumentParser(description="Utility for dealing with ids and ecopcr results")
 
@@ -146,28 +146,36 @@ class Minbar:
 
     def synonyms(self):
 
-        name = Worms(self.term)
+        valid = Minbar(self.term).validate_tax()
 
-        valid = name.get_accepted_name()
-        syns = name.get_synonyms()
-
-        if len(syns) == 0:
-
-            if self.term != valid:
-                return [self.term + "," + valid, valid + "," + valid]
-
-            else:
-                return [valid + "," + valid]
+        if valid == "Check your taxon!":
+            return [self.term + "," + valid]
 
         else:
-            ## joining valid and syns in a single list
-            joined_list = []
+            name = Worms(self.term)
+            name.accepted_name = valid
 
-            for syn in syns:
-                # print(syn + "," +valid)
-                joined_list.append(syn + "," + valid)
+            syns = name.get_synonyms()
 
-            return joined_list
+            if len(syns) == 0:
+
+                if self.term != valid:
+                    return [self.term + "," + valid, valid + "," + valid]
+
+                else:
+                    return [valid + "," + valid]
+
+            else:
+                ## joining valid and syns in a single list
+                joined_list = []
+
+                for syn in syns:
+                    # print(syn + "," +valid)
+                    joined_list.append(syn + "," + valid)
+
+                joined_list.append(valid + "," + valid)
+
+                return joined_list
 
 if args.sub is False and args.type == "fasta":
 
@@ -175,6 +183,7 @@ if args.sub is False and args.type == "fasta":
 
 elif args.sub is True and args.type == "ecopcr":
     f = open("edited_" + str(args.input), "w")
+
     for i in Minbar(input=str(args.input)).substitute():
         f.write(i)
     f.close()
