@@ -152,7 +152,12 @@ class Minbar:
         syns = name.get_synonyms()
 
         if len(syns) == 0:
-            return [valid + "," + valid]
+
+            if self.term != valid:
+                return [self.term + "," + valid, valid + "," + valid]
+
+            else:
+                return [valid + "," + valid]
 
         else:
             ## joining valid and syns in a single list
