@@ -15,9 +15,9 @@ option_list = list(
               default=NULL,
               help="Target taxa",
               metavar="character"),
-  make_option(c("-g", "--area-name"), type="character",
-              help="Geographical area for downloading species",
-              metavar="character"),
+  #make_option(c("-g", "--area-name"), type="character",
+  #            help="Geographical area for downloading species",
+  #            metavar="character"),
   make_option(c("-o", "--output-name"), type="character",
               help="Output name",
               metavar="character")
@@ -77,24 +77,34 @@ SpecimenData <- function(taxon, ids, bin, container,
   
 }
 
+#opt$taxa = "Chelonia mydas"
+#opt$taxa ="Schizodon jacuiensis"
 
+taxon_search_url = "http://www.boldsystems.org/index.php/API_Tax/TaxonSearch?taxName="
 
-main_table = SpecimenData(taxon = opt$`taxa`, geo = opt$`area-name`)
-
-if(is.null( nrow(main_table) ) ){
+taxon_search = opt$taxa %>% 
+  gsub(" ", "%20", x = .) %>%
+  paste(taxon_search_url, . ,sep = "") %>%
+  RCurl::getURL(.) %>% 
+  gsub(".*\"total_matched_names\":([0-9]+)}", "\\1", x = .)
   
-  write.table(NULL, file = opt$`output-name`, quote = F,row.names = F, col.names = F)
-  }else{
+if ( taxon_search == "1" ) {
+  main_table = SpecimenData(taxon = opt$`taxa`)
+  if( is.null( nrow( main_table ) ) ){
     
-    main_table$species_name %>% 
-      unique(.) %>% lapply(., function(x){
-        if (grepl("[A-Z][a-z]+ [a-z]+$", x) && 
-            !grepl("[A-Z][a-z]+ sp[p|\\.]{0,2}$", x) &&
-            !grepl("[A-Z][a-z]+ cf\\. .*", x) ){
-          return(x)
-          }
-        }) %>% 
-      unlist(.) %>% 
-      write.table(., file = opt$`output-name`, quote = F,row.names = F, col.names = F)
+    paste(opt$taxa, "private", sep = ",") %>% 
+      writeLines(.)
+  }else{
+
+      main_table$country %>% 
+      unique(.) %>% 
+      paste(., collapse = "_") %>%
+      paste(opt$taxa, ., sep = ",") %>%
+      writeLines(.)
   }
+}else{
   
+  paste(opt$taxa, "unavailable", sep = ",") %>% 
+    writeLines(.)
+  
+}
