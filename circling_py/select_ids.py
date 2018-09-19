@@ -5,20 +5,20 @@ from circling_py.worms import *
 
 parser = argparse.ArgumentParser(description="Utility for dealing with ids and ecopcr results")
 
-parser.add_argument('-string', metavar='Term',
+parser.add_argument('--string', metavar='<string>',
                     help='String used to search between files if taxids is requested')
-parser.add_argument('-type', metavar="type",
+parser.add_argument('--type', metavar="<string>",
                     default = "fasta",
-                    help='Type of file to deal with <fasta, ecopcr, validate>. Default: fasta')
-parser.add_argument('-sub',
+                    help='Type of file to deal with <fasta, ecopcr, validate, synonyms>. Default: fasta')
+parser.add_argument('--sub',
                     action = 'store_true',
                     help='''Substitute species name on results if there were conflicting ids. This is due to 
                     species without taxids take ids of other species. Therefore this function restores this temporal
                     substitution''')
-parser.add_argument('-tax',
+parser.add_argument('--tax',
                     action = 'store_true',
-                    help='''Validate name''')
-parser.add_argument('-input', metavar="file",
+                    help='''Validate name, Synonyms''')
+parser.add_argument('--input', metavar="<string>",
                     default = "",
                     help='''Input  file''')
 args = parser.parse_args()
