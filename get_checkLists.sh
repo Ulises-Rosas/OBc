@@ -62,10 +62,15 @@ done
 
 set -- "${POSITIONAL[@]}" # restore positional parameters
 
+POSITIONAL="Reptilia"
+AREA_ID="38"
+AREA_NAME="Colombia"
+
 uuid=$(
     curl -sL 'http://api.iobis.org/taxa/download?areaid='$AREA_ID'&scientificname='${POSITIONAL[@]} |\
         sed -Ee 's/\{ "uuid" : "([0-9A-Za-z\-]+)" \}/\1/g'
     )
+
 
 status=""
 
@@ -86,7 +91,6 @@ cat ${POSITIONAL[@]}'.csv' |\
     uniq > ${POSITIONAL[@]}'_obis'
 
 rm ${POSITIONAL[@]}'.csv'
-
 
 if [[ $PREFIX = "TAXA" ]]; then
 
@@ -115,33 +119,36 @@ IFS=$'\n'
 for i in $(cat ${POSITIONAL[@]}'_obis'); do
 
     echo $i
-
+    
     #i="Ophelina hachaensis"
-    if [[ -z $(ls . | grep "backUp_obis_bold") ]]; then
+    if [[ -z $(ls . | grep "backUp_obis") ]]; then
 
+        # single entry results
         obi_val=""
 
         while [[ $obi_val = "" ]]; do
             obi_val=$(python3 ./circling_py/select_ids.py -tax -type validate -string "$i")
         done
 
-        echo -e "$obi_val" >> $obi_file 
+        echo -e "$obi_val" >> $obi_file
+
     else
 
-        if [[ -z $(cat "backUp_obis_bold" | awk -F',' '{print $1}'| grep -Ee "$i") ]]; then
+        if [[ -z $(cat "backUp_obis" | grep -e "$i," ) ]]; then
 
-            obi_val=""
+            touch obi_syns
+            while [[ $(cat obi_syns | wc -l ) -lt 1 ]]; do
 
-            while [[ $obi_val = "" ]]; do
-                obi_val=$(python3 ./circling_py/select_ids.py -tax -type validate -string "$i")
+                python3 ./circling_py/select_ids.py -tax -type synonyms -string "$i" >> obi_syns
             done
 
-            echo -e "$obi_val" >> $obi_file
-            echo -e "$i,$obi_val" >> backUp_obis_bold
+            grep -e "$i," obi_syns | awk -F',' 'NR==1 {print $2}' >> $obi_file
+            cat obi_syns >> backUp_obis
+
+            rm obi_syns
         else
 
-            obi_val=$(cat "backUp_obis_bold" | grep -Ee "^$i,[A-Z][a-z]+ [a-z]+$" | awk -F',' '{print $2}')
-            echo -e "$obi_val" >> $obi_file
+            cat "backUp_obis" | grep -Ee "^$i,[A-Z][a-z]+ [a-z]+$" | awk -F',' '{print $2}' >> $obi_file
         fi
     fi
     
@@ -154,9 +161,32 @@ rm $obi_file
 mv $obi_file'_2' $obi_file
 
 
+
+for spps_valid in $(cat $obi_file); do
+
+    spps_valid="Anchoa nasus"
+
+    for spps_syns in $(grep ",$spps_valid" backUp_obis | awk -F',' '{print $1}'); do
+
+        main_string=$(Rscript --vanilla ./circling_r/species_bold.R --taxa "$spps_syns")
+
+
+        ## can two synonyms  crash when they are compared at broad-scale taxonomic groups?
+    
+    done
+    
+done
+
+
+
+
+
 ## BOLD mining
-Rscript --vanilla ./circling_r/species_bold.R --taxa ${POSITIONAL[@]} \
- --area-name "$AREA_NAME" --output-name ${POSITIONAL[@]}'_bold'
+Rscript --vanilla ./circling_r/species_bold.R --taxa ${POSITIONAL[@]} 
+
+
+
+
 
 
 if [[ $(cat ${POSITIONAL[@]}'_bold' | wc -l) -eq 0 ]]; then

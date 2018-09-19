@@ -64,7 +64,8 @@ done
 
 set -- "${POSITIONAL[@]}" # restore positional parameters
 
-touch backUp_obis_bold
+touch backUp_obis
+touch backUp_bold
 
 
 IFS=$'\n'
@@ -91,4 +92,5 @@ for geo in $(cat $LIST_GEO); do
     done
 done
 
-rm backUp_obis_bold
+rm backUp_obis
+rm backUp_bold

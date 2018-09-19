@@ -108,8 +108,8 @@ class Worms:
                         # the string, you will always have zero matches. That is, `n1` will
                         # be always zero. So, it does not care what value takes d1. In this
                         # case it will take 1 so as to avoid emerging conflicts from division
-
                         d1 = 1
+
                     else:
                         d1 = len(get_pieces(string, index + 1))
                     # number of matches. Since inside sum function there is just a list of lists,
@@ -275,25 +275,36 @@ class Worms:
         """
         wrapper for synonyms method of WoRMS API
         """
-        #self = Worms("Anchoa nasus")
-        #self = Worms("Schizodon jacuiensis")
+        # self = Worms("Anchoa nasus")
+        # self = Worms("Schizodon jacuiensis")
+        # self = Worms("Dasyatis dipterura").get_synonyms()
 
-        if self.accepted_name == '':
+        pattern1 = "^[A-Z][a-z]+ [a-z]+$"
+
+        if not re.findall(pattern1, self.accepted_name):
             self.get_accepted_name()
 
-        complete_url = self.synonym_url + self.aphiaID
-        synonym_page = None
+        if not re.findall(pattern1, self.accepted_name):
+            self.taxamatch()
 
-        while synonym_page is None:
-            try:
-                synonym_page = urllib.request.urlopen(complete_url).read().decode('utf-8')
+        if self.aphiaID == '':
+            return "Check your taxon!"
 
-            except urllib.error.HTTPError:
-                pass
+        else:
 
-        pre_syn = re.findall('"scientificname":"[A-Z][a-z]+ [a-z]+"', synonym_page)
+            complete_url = self.synonym_url + self.aphiaID
+            synonym_page = None
 
-        self.synonym_list = [re.sub('"scientificname":"([A-Za-z ]+)"', "\\1", i) for i in pre_syn]
+            while synonym_page is None:
+                try:
+                    synonym_page = urllib.request.urlopen(complete_url).read().decode('utf-8')
 
-        return self.synonym_list
+                except urllib.error.HTTPError:
+                    pass
+
+            pre_syn = re.findall('"scientificname":"[A-Z][a-z]+ [a-z]+"', synonym_page)
+
+            self.synonym_list = [re.sub('"scientificname":"([A-Za-z ]+)"', "\\1", i) for i in pre_syn]
+
+            return self.synonym_list
 
