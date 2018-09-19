@@ -17,7 +17,11 @@ parser.add_argument('--sub',
                     substitution''')
 parser.add_argument('--tax',
                     action = 'store_true',
-                    help='''Validate name, Synonyms''')
+                    help='''Actions: Validate names, Get synonyms''')
+parser.add_argument('--prefix', metavar='<string>',
+                    action='store',
+                    help='''Prefix string added at the beginning of output. The way how it is added may vary 
+                    according to `--type` argument''')
 parser.add_argument('--input', metavar="<string>",
                     default = "",
                     help='''Input  file''')
@@ -217,6 +221,13 @@ elif args.tax is True and args.type == "validate":
 elif args.tax is True and args.type == "synonyms":
     lines = Minbar( term=str(args.string) ).synonyms()
 
-    for i in lines:
-        print(i)
+    if args.prefix is None:
+        for i in lines:
+            print(i)
+
+    else:
+        for i in lines:
+            print(args.prefix + "," + i)
+
+
 
