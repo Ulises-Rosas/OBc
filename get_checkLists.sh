@@ -223,4 +223,4 @@ done
 if [[ $(cat $bold_file | wc -l) -eq 0 ]]; then
 
     echo -e "\n${RED}There are not species available in BOLD by given parameters\n${NC}"
-else
+fi
