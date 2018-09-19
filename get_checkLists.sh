@@ -62,9 +62,9 @@ done
 
 set -- "${POSITIONAL[@]}" # restore positional parameters
 
-POSITIONAL="Reptilia"
-AREA_ID="38"
-AREA_NAME="Colombia"
+#POSITIONAL="Reptilia"
+#AREA_ID="38"
+#AREA_NAME="Colombia"
 
 uuid=$(
     curl -sL 'http://api.iobis.org/taxa/download?areaid='$AREA_ID'&scientificname='${POSITIONAL[@]} |\
@@ -119,137 +119,108 @@ IFS=$'\n'
 for i in $(cat ${POSITIONAL[@]}'_obis'); do
 
     echo $i
-    
-    #i="Ophelina hachaensis"
-    if [[ -z $(ls . | grep "backUp_obis") ]]; then
+    if [[ -z $(cat "backUp_obis" | grep -e "${POSITIONAL[@]},$i,") ]]; then
 
-        # single entry results
-        obi_val=""
+        touch obi_syns
+        while [[ $(cat obi_syns | wc -l) -lt 1 ]]; do
 
-        while [[ $obi_val = "" ]]; do
-            obi_val=$(python3 ./circling_py/select_ids.py -tax -type validate -string "$i")
+            python3 ./circling_py/select_ids.py\
+                    --tax \
+                    --type synonyms\
+                    --string "$i"\
+                    --prefix "${POSITIONAL[@]}" >> obi_syns
+
         done
 
-        echo -e "$obi_val" >> $obi_file
+        grep -e "${POSITIONAL[@]},$i," obi_syns | awk -F',' 'NR==1 {print $3}' >> $obi_file
+        cat obi_syns >> backUp_obis
 
+        rm obi_syns
     else
 
-        if [[ -z $(cat "backUp_obis" | grep -e "$i," ) ]]; then
-
-            touch obi_syns
-            while [[ $(cat obi_syns | wc -l ) -lt 1 ]]; do
-
-                python3 ./circling_py/select_ids.py -tax -type synonyms -string "$i" >> obi_syns
-            done
-
-            grep -e "$i," obi_syns | awk -F',' 'NR==1 {print $2}' >> $obi_file
-            cat obi_syns >> backUp_obis
-
-            rm obi_syns
-        else
-
-            cat "backUp_obis" | grep -Ee "^$i,[A-Z][a-z]+ [a-z]+$" | awk -F',' '{print $2}' >> $obi_file
-        fi
+        cat "backUp_obis" | grep -Ee "^${POSITIONAL[@]},$i," | awk -F',' '{print $3}' >> $obi_file
     fi
-    
+
 done
 
 rm ${POSITIONAL[@]}'_obis'
 
-sort -k 1 $obi_file | uniq > $obi_file'_2'
+sort -k 1 $obi_file | uniq | sed '/Check your taxon\!/d' > $obi_file'_2'
 rm $obi_file
 mv $obi_file'_2' $obi_file
 
 
+touch $bold_file
 
+echo -e "\nValidating names from BOLD and storing them at: ${BROWN}"$bold_file"\n${NC}"
+
+IFS=$'\n'
 for spps_valid in $(cat $obi_file); do
 
-    spps_valid="Anchoa nasus"
+    ## take one validated species 
+    ## then, obtain all synonyms
+    echo $spps_valid
 
-    for spps_syns in $(grep ",$spps_valid" backUp_obis | awk -F',' '{print $1}'); do
+    for spps_syns in $(grep -Ee "^${POSITIONAL[@]},.*,$spps_valid$" backUp_obis | awk -F',' '{print $2}'); do
 
-        main_string=$(Rscript --vanilla ./circling_r/species_bold.R --taxa "$spps_syns")
+        check_inBackUp=$(cat backUp_bold | grep -Ee "^${POSITIONAL[@]},$spps_syns," )
 
+        if [[ -z $check_inBackUp ]]; then
 
-        ## can two synonyms  crash when they are compared at broad-scale taxonomic groups?
-    
+            main_string_bold=""
+            while [[ $main_string_bold = "" ]]; do
+
+                main_string_bold=$( Rscript --vanilla ./circling_r/species_bold.R\
+                                            --taxa    "$spps_syns"\
+                                            --prefix  "${POSITIONAL[@]}" )
+            done
+
+            echo $main_string_bold >> backUp_bold
+
+            main_string_bold=$(echo $main_string_bold | sed -Ee "s/${POSITIONAL[@]}/$spps_valid/g")
+
+            if [[ -z $(echo $main_string_bold | grep "unavailable") ]]; then
+
+                if [[ -z $(echo $main_string_bold | grep "private") ]]; then
+
+                    if [[ -z $(echo $main_string_bold | grep -e "$AREA_NAME") ]]; then
+
+                        echo $main_string_bold | sed -Ee "s/($spps_valid,$spps_syns,).*/\\1public_outside/g" >> $bold_file
+                    else
+
+                        echo $main_string_bold | sed -Ee "s/($spps_valid,$spps_syns,).*/\\1public_inside/g" >> $bold_file
+                    fi
+                else
+
+                    echo $main_string_bold >> $bold_file
+                fi
+            fi
+        else
+
+            main_string_bold=$(echo $check_inBackUp | sed -Ee "s/${POSITIONAL[@]}/$spps_valid/g")
+
+            if [[ -z $(echo $main_string_bold | grep "unavailable") ]]; then
+
+                if [[ -z $(echo $main_string_bold | grep "private") ]]; then
+
+                    if [[ -z $(echo $main_string_bold | grep -e "$AREA_NAME") ]]; then
+
+                        echo $main_string_bold | sed -Ee "s/($spps_valid,$spps_syns,).*/\\1public_outside/g" >> $bold_file
+                    else
+
+                        echo $main_string_bold | sed -Ee "s/($spps_valid,$spps_syns,).*/\\1public_inside/g" >> $bold_file
+                    fi
+                else
+
+                    echo $main_string_bold >> $bold_file
+                fi
+            fi
+        fi
     done
-    
 done
 
 
-
-
-
-## BOLD mining
-Rscript --vanilla ./circling_r/species_bold.R --taxa ${POSITIONAL[@]} 
-
-
-
-
-
-
-if [[ $(cat ${POSITIONAL[@]}'_bold' | wc -l) -eq 0 ]]; then
+if [[ $(cat $bold_file | wc -l) -eq 0 ]]; then
 
     echo -e "\n${RED}There are not species available in BOLD by given parameters\n${NC}"
-    rm ${POSITIONAL[@]}'_bold'
-    #rm ${POSITIONAL[@]}'_obis'
-    touch $bold_file
 else
-
-    touch $bold_file
-    echo -e "\nValidating names from BOLD and storing them at: ${BROWN}"$bold_file"\n${NC}"
-
-    IFS=$'\n'
-    for j in $(cat ${POSITIONAL[@]}'_bold'); do
-
-        echo $j
-        #j="Eretmochelys imbricata"
-        if [[ -z $(ls . | grep "backUp_obis_bold") ]]; then
-
-            bold_val=""
-
-            while [[ $bold_val = "" ]]; do
-
-                bold_val=$(python3 ./circling_py/select_ids.py -tax -type validate -string "$j")
-            done
-
-            echo -e "$bold_val" >> $bold_file 
-        else
-
-            if [[ -z $(cat "backUp_obis_bold" | awk -F',' '{print $1}'| grep -Ee "$j") ]]; then
-
-                bold_val=""
-
-                while [[ $bold_val = "" ]]; do
-
-                    bold_val=$(python3 ./circling_py/select_ids.py -tax -type validate -string "$j")
-                done
-                
-                echo -e "$bold_val" >> $bold_file
-                echo -e "$j,$bold_val" >> backUp_obis_bold
-            else
-
-                bold_val=$(cat "backUp_obis_bold" | grep -Ee "^$j,[A-Z][a-z]+ [a-z]+$" | awk -F',' '{print $2}')
-                echo -e "$bold_val" >> $bold_file
-            fi
-        fi
-        #python3 ./circling_py/select_ids.py -tax -type validate -string $j >> $bold_file
-    done
-
-    ## Merging BOLD results with OBIS results
-    Rscript --vanilla ./circling_r/merging_tables.R \
-     --original-bold ${POSITIONAL[@]}'_bold' \
-      --validated-bold $bold_file \
-       --validated-obis $obi_file \
-        --output-name $bold_file'_2'
-
-    rm ${POSITIONAL[@]}'_bold' 
-    rm $bold_file
-    mv $bold_file'_2' $bold_file
-fi
-
-
-
-
-
