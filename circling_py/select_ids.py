@@ -145,24 +145,46 @@ class Minbar:
         return validated_name
 
     def synonyms(self):
+        #...self = Minbar("Scieane wieneri")...#
+
+        # upon validating names, this name is used for getting
+        # synonyms
+        # self = Minbar("Scieane wieneri")
+        # self = Minbar("Scieane wii").synonyms()
 
         valid = Minbar(self.term).validate_tax()
 
+        # if this name does not have any match with WoRMS database,
+        # stop searching synonyms and return a single string as:
         if valid == "Check your taxon!":
             return [self.term + "," + valid]
 
         else:
-            name = Worms(self.term)
+            # however, if string is different to "Check your taxon!"
+            # get synonyms.
+            # Name is used for this purpose as this starts with
+            # a validated name and aphiaID, needed for having synonyms_url,
+            # is updated or created (e.i. when species name is miswritten)
+            name = Worms(valid)
+            # this is coupled with `worms.py`. Since synonyms are obtained
+            # by starting with a validated_name
             name.accepted_name = valid
 
+            # name.aphiaID = Worms(valid).aphiaID
             syns = name.get_synonyms()
 
             if len(syns) == 0:
+                # if species is does not have any synonyms,
+                # assess if this valid name is equal to self.term
 
+                # if the following is true
                 if self.term != valid:
+                    # return that rare self.term in order to avoid it in
+                    # another search. This was added because of some `Thais` cases
                     return [self.term + "," + valid, valid + "," + valid]
 
                 else:
+
                     return [valid + "," + valid]
 
             else:
