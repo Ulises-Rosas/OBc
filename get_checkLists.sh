@@ -62,7 +62,7 @@ done
 
 set -- "${POSITIONAL[@]}" # restore positional parameters
 
-#POSITIONAL="Reptilia"
+#POSITIONAL="Anchoa"
 #AREA_ID="38"
 #AREA_NAME="Colombia"
 
@@ -70,7 +70,6 @@ uuid=$(
     curl -sL 'http://api.iobis.org/taxa/download?areaid='$AREA_ID'&scientificname='${POSITIONAL[@]} |\
         sed -Ee 's/\{ "uuid" : "([0-9A-Za-z\-]+)" \}/\1/g'
     )
-
 
 status=""
 
@@ -119,6 +118,7 @@ IFS=$'\n'
 for i in $(cat ${POSITIONAL[@]}'_obis'); do
 
     echo $i
+
     if [[ -z $(cat "backUp_obis" | grep -e "${POSITIONAL[@]},$i,") ]]; then
 
         touch obi_syns
@@ -159,9 +159,20 @@ for spps_valid in $(cat $obi_file); do
 
     ## take one validated species 
     ## then, obtain all synonyms
-    echo $spps_valid
+
+    ####### delete!! #########
+    #spps_valid="Anchoa hepsetus"
+    ####### delete!! #########
+
+    echo -e "${BROWN}"$spps_valid"${NC}"
 
     for spps_syns in $(grep -Ee "^${POSITIONAL[@]},.*,$spps_valid$" backUp_obis | awk -F',' '{print $2}'); do
+
+        ####### delete!! #########
+        #spps_syns="Anchoa hepsetus"
+        ####### delete!! #########
+
+        echo -e "synonym: $spps_syns"
 
         check_inBackUp=$(cat backUp_bold | grep -Ee "^${POSITIONAL[@]},$spps_syns," )
 
@@ -177,7 +188,10 @@ for spps_valid in $(cat $obi_file); do
 
             echo $main_string_bold >> backUp_bold
 
-            main_string_bold=$(echo $main_string_bold | sed -Ee "s/${POSITIONAL[@]}/$spps_valid/g")
+            #echo ${POSITIONAL[@]}
+            #echo $spps_valid
+
+            main_string_bold=$(echo $main_string_bold | sed -Ee "s/^${POSITIONAL[@]},/$spps_valid,/g")
 
             if [[ -z $(echo $main_string_bold | grep "unavailable") ]]; then
 
@@ -185,19 +199,20 @@ for spps_valid in $(cat $obi_file); do
 
                     if [[ -z $(echo $main_string_bold | grep -e "$AREA_NAME") ]]; then
 
-                        echo $main_string_bold | sed -Ee "s/($spps_valid,$spps_syns,).*/\\1public_outside/g" >> $bold_file
+                        echo $main_string_bold | sed -Ee "s/(^$spps_valid,$spps_syns,).*/\\1public_outside/g" >> $bold_file
                     else
 
-                        echo $main_string_bold | sed -Ee "s/($spps_valid,$spps_syns,).*/\\1public_inside/g" >> $bold_file
+                        echo $main_string_bold | sed -Ee "s/(^$spps_valid,$spps_syns,).*/\\1public_inside/g" >> $bold_file
                     fi
                 else
 
                     echo $main_string_bold >> $bold_file
                 fi
             fi
+
         else
 
-            main_string_bold=$(echo $check_inBackUp | sed -Ee "s/${POSITIONAL[@]}/$spps_valid/g")
+            main_string_bold=$(echo $check_inBackUp | sed -Ee "s/^${POSITIONAL[@]},/$spps_valid,/g")
 
             if [[ -z $(echo $main_string_bold | grep "unavailable") ]]; then
 
@@ -205,10 +220,10 @@ for spps_valid in $(cat $obi_file); do
 
                     if [[ -z $(echo $main_string_bold | grep -e "$AREA_NAME") ]]; then
 
-                        echo $main_string_bold | sed -Ee "s/($spps_valid,$spps_syns,).*/\\1public_outside/g" >> $bold_file
+                        echo $main_string_bold | sed -Ee "s/(^$spps_valid,$spps_syns,).*/\\1public_outside/g" >> $bold_file
                     else
 
-                        echo $main_string_bold | sed -Ee "s/($spps_valid,$spps_syns,).*/\\1public_inside/g" >> $bold_file
+                        echo $main_string_bold | sed -Ee "s/(^$spps_valid,$spps_syns,).*/\\1public_inside/g" >> $bold_file
                     fi
                 else
 
@@ -216,6 +231,7 @@ for spps_valid in $(cat $obi_file); do
                 fi
             fi
         fi
+
     done
 done
 
