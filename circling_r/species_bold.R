@@ -18,8 +18,8 @@ option_list = list(
   #make_option(c("-g", "--area-name"), type="character",
   #            help="Geographical area for downloading species",
   #            metavar="character"),
-  make_option(c("-o", "--output-name"), type="character",
-              help="Output name",
+  make_option(c("-p", "--prefix"), type="character",
+              help="Prefix for output",
               metavar="character")
   
 )
@@ -92,19 +92,19 @@ if ( taxon_search == "1" ) {
   main_table = SpecimenData(taxon = opt$`taxa`)
   if( is.null( nrow( main_table ) ) ){
     
-    paste(opt$taxa, "private", sep = ",") %>% 
+    paste(opt$`prefix`, opt$taxa, "private", sep = ",") %>% 
       writeLines(.)
   }else{
 
       main_table$country %>% 
       unique(.) %>% 
       paste(., collapse = "_") %>%
-      paste(opt$taxa, ., sep = ",") %>%
+      paste(opt$`prefix`, opt$taxa, ., sep = ",") %>%
       writeLines(.)
   }
 }else{
   
-  paste(opt$taxa, "unavailable", sep = ",") %>% 
+  paste(opt$`prefix`, opt$taxa, "unavailable", sep = ",") %>% 
     writeLines(.)
   
 }
