@@ -1,6 +1,9 @@
 
 # makefile
-all: setupR setupPython
+all: OSdiffs setupR setupPython
+
+OSdiffs:
+	if [[ `uname` == "Linux" ]]; then sed -i -e "s/sed -Ee/sed -re/g" get_checkLists.sh; fi
 
 setupR:
 	Rscript --save ./circling_r/get_packages.R
