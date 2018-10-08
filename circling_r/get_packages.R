@@ -12,15 +12,32 @@ if( length(new.packs) == 0){
                    Everything up-to-date
                    ")
         }else{
-                for(i in 1:length(new.packs)){
-                        writeLines(paste("\nInstalling:", new.packs[i], "\n"))
-
-                        install.packages(new.packs[i],
-                                         repos = "http://cran.us.r-project.org",
-                                         dependencies = TRUE)
-                }
-
-                writeLines("
-                           Everything up-to-date
-                           ")
-        }
+                
+          
+          for( i in 1:length(new.packs) ){
+            
+            writeLines(paste("\nInstalling:", new.packs[i], "\n"))
+            
+            install.packages(new.packs[i],
+                             repos = "http://cran.us.r-project.org",
+                             dependencies = TRUE)
+            }
+          
+          new.packs2 <- packs[!packs %in% installed.packages()[, 1]]
+          
+          if( length(new.packs2) == 0 ){
+            writeLines("
+                   Everything up-to-date
+                       ")
+          }else{
+            
+            writeLines("There were issues upon installing following packages:")
+            writeLines( 
+              paste(
+                sapply(  new.packs2, function(x) paste("\t*", x) ) ,
+                collapse = "\n"
+                ) 
+              )
+            writeLines("Try to install manually")
+          }
+}
