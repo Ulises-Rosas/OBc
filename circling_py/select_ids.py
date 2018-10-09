@@ -154,9 +154,10 @@ class Minbar:
         # upon validating names, this name is used for getting
         # synonyms
         # self = Minbar("Scieane wieneri")
-        # self = Minbar("Scieane wii").synonyms()
+        #self = Minbar("Scieane wii")
+        #self = Minbar("Mesoplodon densirostris")
 
-        valid = Minbar(self.term).validate_tax()
+        valid = self.validate_tax()
 
         # if this name does not have any match with WoRMS database,
         # stop searching synonyms and return a single string as:
@@ -170,11 +171,16 @@ class Minbar:
             # a validated name and aphiaID, needed for having synonyms_url,
             # is updated or created (e.i. when species name is miswritten)
             name = Worms(valid)
-            # this is coupled with `worms.py`. Since synonyms are obtained
-            # by starting with a validated_name
-            name.accepted_name = valid
 
-            # name.aphiaID = Worms(valid).aphiaID
+            # this is coupled with `worms.py`. Since synonyms are obtained
+            # by starting with a validated_name, it could be put it directly
+            # as accepted name:
+            # name.accepted_name = valid
+            # however, there are some species (e.g. Mesoplodon densirostris)
+            # which accepted name (i.e. string) can also be unaccepted name
+            # and in these cases are not worthless to redo name validation
+            # (through `Worms(...).get_synonyms()`) and rely in aphia.IDs
+
             syns = name.get_synonyms()
 
             if len(syns) == 0:
