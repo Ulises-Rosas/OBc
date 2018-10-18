@@ -58,6 +58,9 @@ class Worms:
 
         #self = Worms("Aglaophamus peruana")
         #self = Worms("Euzonus furciferus")
+        #self = Worms("Lubbockia squillimana")
+        #self = Worms("Doris fontainii")
+
 
         if len(self.aphiaID) == 0 or self.aphiaID == '-999':
 
@@ -67,90 +70,98 @@ class Worms:
 
             genus_id = urllib.request.urlopen(genus_id_url).read().decode('utf-8')
 
-            complete_url = "http://www.marinespecies.org/aphia.php?p=taxdetails&id=" + genus_id
+            if genus_id == '-999' or genus_id == '':
 
-            page = urllib.request.urlopen(complete_url).read().decode('utf-8')
+                self.accepted_name = ""
+                self.aphiaID = ""
 
-            # line which contains span
-            lines = re.findall("<span.*>" + species_binary[0] + "[\(A-Za-z\) ]{0,} [a-z]+<.*", page)
+            else:
+                complete_url = "http://www.marinespecies.org/aphia.php?p=taxdetails&id=" + genus_id
 
-            # it takes the first species pattern
-            epitopes = [re.findall("<i>[A-Z][a-z]+[\(\)A-Za-z ]{0,} [a-z]+</i>", i)[0].split(" ")[-1].replace("</i>", "") for i in lines]
+                page = urllib.request.urlopen(complete_url).read().decode('utf-8')
 
+                # line which contains span
+                lines = re.findall("<span.*>" + species_binary[0] + "[\(A-Za-z\) ]{0,} [a-z]+<.*", page)
 
-            def get_pieces(string, amplitude):
+                # it takes the first species pattern
+                epitopes = [
+                    re.findall("<i>[A-Z][a-z]+[\(\)A-Za-z ]{0,} [a-z]+</i>", i)[0].split(" ")[-1].replace("</i>", "")
+                    for i in lines]
 
-                pieces = [string[i:i + amplitude] for i in range(len(list(string)))]
+                def get_pieces(string, amplitude):
 
-                trimmed_pieces = [i for i in pieces if len(i) > amplitude - 1]
+                    pieces = [string[i:i + amplitude] for i in range(len(list(string)))]
 
-                return trimmed_pieces
+                    trimmed_pieces = [i for i in pieces if len(i) > amplitude - 1]
 
-            for index in range(len(list(species_binary[1])) - 1):
-                # pieces by the length of index, e.g.,
-                # if the string is "abc" and index = 0, then ['a', 'b', 'c']
-                # if the string is "abc" and index = 1, then ['ab', 'bc']
+                    return trimmed_pieces
 
-                #index=1
+                for index in range(len(list(species_binary[1])) - 1):
+                    # pieces by the length of index, e.g.,
+                    # if the string is "abc" and index = 0, then ['a', 'b', 'c']
+                    # if the string is "abc" and index = 1, then ['ab', 'bc']
 
-                a = get_pieces(species_binary[1], index + 1)
+                    # index =0
+                    print(index)
 
-                lengths = []
+                    a = get_pieces(species_binary[1], index + 1)
 
-                for string in epitopes:
+                    lengths = []
 
-                    matches = [re.findall(i, string) for i in set(a)]
-                    # n1 is the number of matches that pieces `a` have with a string
-                    # d1 is the number of choices available for matches from a string
+                    for string in epitopes:
 
-                    if len(get_pieces(string, index + 1)) == 0:
-                        # if a, which are pieces of `species_binary[1]`, is larger than
-                        # the string, you will always have zero matches. That is, `n1` will
-                        # be always zero. So, it does not care what value takes d1. In this
-                        # case it will take 1 so as to avoid emerging conflicts from division
-                        d1 = 1
+                        matches = [re.findall(i, string) for i in set(a)]
+                        # n1 is the number of matches that pieces `a` have with a string
+                        # d1 is the number of choices available for matches from a string
 
-                    else:
-                        d1 = len(get_pieces(string, index + 1))
-                    # number of matches. Since inside sum function there is just a list of lists,
-                    # sum only counts crowded lists,i.e., number of matches
-                    n1 = sum([len(c) for c in matches])
+                        if len(get_pieces(string, index + 1)) == 0:
+                            # if a, which are pieces of `species_binary[1]`, is larger than
+                            # the string, you will always have zero matches. That is, `n1` will
+                            # be always zero. So, it does not care what value takes d1. In this
+                            # case it will take 1 so as to avoid emerging conflicts from division
+                            d1 = 1
 
-                    # since it can appear a large string with multiple matches from just a part of it,
-                    # n1/d1 is the number of matches between "a", pieced `species_binary[1]` and
-                    # the epitope (string) (e.i. a --> epitope) divided by the number of 
-                    # possible substrings (pieces) of an epitope (string) of length "index + 1". 
-                    # Just a measure of quality in matches. Coverage of "a" over an apitope
+                        else:
+                            d1 = len(get_pieces(string, index + 1))
+                        # number of matches. Since inside sum function there is just a list of lists,
+                        # sum only counts crowded lists,i.e., number of matches
+                        n1 = sum([len(c) for c in matches])
 
+                        # since it can appear a large string with multiple matches from just a part of it,
+                        # n1/d1 is the number of matches between "a", pieced `species_binary[1]` and
+                        # the epitope (string) (e.i. a --> epitope) divided by the number of
+                        # possible substrings (pieces) of an epitope (string) of length "index + 1".
+                        # Just a measure of quality in matches. Coverage of "a" over an apitope
 
-                    # d2 is the number of pieces of `a`.
-                    # n2 is the number of pieces of "a" that did not have any match with epitope (string)
-                    # therefore, 1 - n2/d2 is a measure of coverage of epitope matches over "a"
-                    d2 = len(set(a))
-                    n2 = len(set(a) - set(["".join(set(b)) for b in matches if len(b) > 0])) #len(b) filter just matches
+                        # d2 is the number of pieces of `a`.
+                        # n2 is the number of pieces of "a" that did not have any match with epitope (string)
+                        # therefore, 1 - n2/d2 is a measure of coverage of epitope matches over "a"
+                        d2 = len(set(a))
+                        n2 = len(set(a) - set(
+                            ["".join(set(b)) for b in matches if len(b) > 0]))  # len(b) filter just matches
 
-                    # render index
-                    lengths.append(n1/d1 + 1 - n2/d2)
+                        # render index
+                        lengths.append(n1 / d1 + 1 - n2 / d2)
 
-                check_max_epitopes = []
-                # check if that max value of `length` just belongs to one single epitopes
-                for d in range(len(lengths)):
-                    if lengths[d] == max(lengths):
-                        check_max_epitopes.append(epitopes[d])
+                    check_max_epitopes = []
+                    # check if that max value of `length` just belongs to one single epitopes
+                    for d in range(len(lengths)):
+                        if lengths[d] == max(lengths):
+                            check_max_epitopes.append(epitopes[d])
 
-                # the loop increase the word size till there is only one single max index
-                if len(set(check_max_epitopes)) == 1:
+                    # the loop increase the word size till there is only one single max index
+                    if len(set(check_max_epitopes)) == 1:
 
-                    page_line = lines[lengths.index(max(lengths))]
-                    try:
+                        page_line = lines[lengths.index(max(lengths))]
+                        try:
 
-                        self.accepted_name = re.findall("<i>[A-Z][a-z]+ [a-z]+</i>", page_line)[-1].replace("<i>", "").replace("</i>", "")
-                        self.aphiaID = re.findall("aphia.php\?p=taxdetails&id=[0-9]+", page_line)[0].replace("aphia.php?p=taxdetails&id=","")
-                    except IndexError:
+                            self.accepted_name = re.findall("<i>[A-Z][a-z]+ [a-z]+</i>", page_line)[-1].replace("<i>","").replace("</i>", "")
+                            self.aphiaID = re.findall("aphia.php\?p=taxdetails&id=[0-9]+", page_line)[0].replace("aphia.php?p=taxdetails&id=", "")
+                        except IndexError:
 
-                        self.accepted_name = ""
-                        self.aphiaID = ""
-                    break
+                            self.accepted_name = ""
+                            self.aphiaID = ""
+                        break
 
             return self.accepted_name
 
@@ -199,6 +210,9 @@ class Worms:
 
     def taxamatch(self):
         #self = Worms("Schizodon jacuiensis").taxamatch()
+        #self = Worms("Theria rupicapraria")
+        #self = Worms("Lubbockia squillimana")
+        #self.taxamatch()
 
         complete_url = "http://www.marinespecies.org/rest/AphiaRecordsByMatchNames?scientificnames%5B%5D=" + \
                        self.taxon + \
@@ -206,33 +220,19 @@ class Worms:
 
         page = urllib.request.urlopen(complete_url).read().decode('utf-8')
 
-        valid_name = re.sub('.*"valid_name":"(.*)","valid_.*',"\\1", page )
+        valid_info = re.sub('.*,"valid_AphiaID":(.*),"valid_name":"(.*)","valid_authority":.*',"\\1,\\2", page )
         #valid_name = "Mobula birostris"
 
-        if valid_name == re.sub("%20"," ",self.taxon):
-            self.accepted_name = re.sub("%20"," ",self.taxon)
+        try:
+            aphiaid,valid_name = valid_info.split(',')
 
-        else:
+        except ValueError:
+            self.accepted_name = ""
 
-            if valid_name == "":
-                self.accepted_name = valid_name
+        self.accepted_name = valid_name
+        self.aphiaID = aphiaid
 
-            else:
-
-                self.accepted_name = valid_name
-                aphiaID_url = "http://www.marinespecies.org/rest/AphiaIDByName/" + \
-                              re.sub(" ", "%20", self.accepted_name) + \
-                              "?marine_only=true"
-
-                self.aphiaID = None
-                # make sure aphiaID will be available for downstream analyses
-                while self.aphiaID is None:
-                    try:
-                        self.aphiaID = urllib.request.urlopen(aphiaID_url).read().decode('utf-8')
-                    except urllib.error.HTTPError:
-                        pass
-
-        return self.accepted_name
+        return valid_name
 
     def get_taxonomic_ranges(self):
         """Name of all valuable ranks are retrieved and stored at self.taxonomic_ranges and
@@ -278,16 +278,17 @@ class Worms:
         # self = Worms("Anchoa nasus")
         # self = Worms("Schizodon jacuiensis")
         # self = Worms("Dasyatis dipterura").get_synonyms()
+        # self = Worms("Lubbockia squillimana")
 
-        pattern1 = "^[A-Z][a-z]+ [a-z]+$"
+        #pattern1 = "^[A-Z][a-z]+ [a-z]+$"
 
-        if not re.findall(pattern1, self.accepted_name):
+        if self.aphiaID == '-999' or self.aphiaID == '':
             self.get_accepted_name()
 
-        if not re.findall(pattern1, self.accepted_name):
+        if self.aphiaID == '-999' or self.aphiaID == '':
             self.taxamatch()
 
-        if self.aphiaID == '':
+        if self.aphiaID == '' or self.aphiaID == '-999':
             return "Check your taxon!"
 
         else:
