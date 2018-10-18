@@ -15,7 +15,6 @@ setupPython:
 	sed -i -e "s/path_ssp/$${PWD//\//\\/}/g" ./circling_py/select_ids.py
 
 unsetup:
-	sed -i -e "s/$${PWD//\//\\/}/path_ssp/g" ./circling_py/select_ids.py
 	chmod -x ./circling_py/*
 	chmod -x ./circling_r/*
 	python3 -c "import site; print(site.getsitepackages()[0])" |awk '{print $$1"/circling_py"}' |xargs rm -rf
