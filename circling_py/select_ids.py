@@ -156,6 +156,8 @@ class Minbar:
         # self = Minbar("Scieane wieneri")
         #self = Minbar("Scieane wii")
         #self = Minbar("Mesoplodon densirostris")
+        # self = Minbar("Lubbockia squillimana")
+
 
         valid = self.validate_tax()
 
@@ -171,6 +173,7 @@ class Minbar:
             # a validated name and aphiaID, needed for having synonyms_url,
             # is updated or created (e.i. when species name is miswritten)
             name = Worms(valid)
+
 
             # this is coupled with `worms.py`. Since synonyms are obtained
             # by starting with a validated_name, it could be put it directly
