@@ -12,7 +12,7 @@ class Worms:
 
         aphiaID_url = "http://www.marinespecies.org/rest/AphiaIDByName/" + \
                       self.taxon + \
-                      "?marine_only=true"
+                      "?marine_only=false"
 
         self.aphiaID = None
         # make sure aphiaID will be available for downstream analyses
@@ -31,7 +31,7 @@ class Worms:
         ##...urls...##
         self.records_url = "http://www.marinespecies.org/rest/AphiaChildrenByAphiaID/" + \
                       self.aphiaID + \
-                      "?marine_only=true&offset=1"
+                      "?marine_only=false&offset=1"
         self.accepted_name = ""
         self.classfication_url = "http://www.marinespecies.org/rest/AphiaClassificationByAphiaID/"
         self.synonym_url = "http://www.marinespecies.org/rest/AphiaSynonymsByAphiaID/"
@@ -55,18 +55,19 @@ class Worms:
         #species with unaccepted names for testing:
         #self = Worms("Paratrophon exsculptus")
         #self =  Worms("Manta birostris")
-
         #self = Worms("Aglaophamus peruana")
         #self = Worms("Euzonus furciferus")
         #self = Worms("Lubbockia squillimana")
         #self = Worms("Doris fontainii")
-
+        #self = Worms("Synarmadillo tristani")
 
         if len(self.aphiaID) == 0 or self.aphiaID == '-999':
 
             species_binary = self.taxon.split("%20")
 
-            genus_id_url = "http://www.marinespecies.org/rest/AphiaIDByName/" + species_binary[0] + "?marine_only=true"
+            genus_id_url = "http://www.marinespecies.org/rest/AphiaIDByName/" +\
+                           species_binary[0] +\
+                           "?marine_only=false"
 
             genus_id = urllib.request.urlopen(genus_id_url).read().decode('utf-8')
 
@@ -74,6 +75,8 @@ class Worms:
 
                 self.accepted_name = ""
                 self.aphiaID = ""
+
+                return self.accepted_name
 
             else:
                 complete_url = "http://www.marinespecies.org/aphia.php?p=taxdetails&id=" + genus_id
@@ -102,7 +105,7 @@ class Worms:
                     # if the string is "abc" and index = 1, then ['ab', 'bc']
 
                     # index =0
-                    print(index)
+                    #index
 
                     a = get_pieces(species_binary[1], index + 1)
 
@@ -190,8 +193,7 @@ class Worms:
                 self.accepted_name = re.sub(".*</i><i>(.*)</i>.*", "\\1", line.replace("\n", ""))
 
                 aphiaID_url = "http://www.marinespecies.org/rest/AphiaIDByName/" + \
-                              re.sub(" ","%20",self.accepted_name) +\
-                              "?marine_only=true"
+                              re.sub(" ","%20",self.accepted_name) + "?marine_only=false"
 
                 self.aphiaID = None
                 # make sure aphiaID will be available for downstream analyses
@@ -213,10 +215,11 @@ class Worms:
         #self = Worms("Theria rupicapraria")
         #self = Worms("Lubbockia squillimana")
         #self.taxamatch()
+        #self = Worms("Synarmadillo tristani")
 
         complete_url = "http://www.marinespecies.org/rest/AphiaRecordsByMatchNames?scientificnames%5B%5D=" + \
                        self.taxon + \
-                       "&marine_only=true"
+                       "&marine_only=false"
 
         page = urllib.request.urlopen(complete_url).read().decode('utf-8')
 
