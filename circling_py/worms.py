@@ -61,6 +61,7 @@ class Worms:
         #self = Worms("Doris fontainii")
         #self = Worms("Synarmadillo tristani")
         #self = Worms("Spondylus americanus")
+        #self = Worms("Aega continua")
 
 
         if len(self.aphiaID) == 0 or self.aphiaID == '-999':
@@ -221,6 +222,7 @@ class Worms:
         #self = Worms("Lubbockia squillimana")
         #self.taxamatch()
         #self = Worms("Synarmadillo tristani")
+        #self = Worms("Aega perualis")
 
         complete_url = "http://www.marinespecies.org/rest/AphiaRecordsByMatchNames?scientificnames%5B%5D=" + \
                        self.taxon + \
@@ -233,14 +235,13 @@ class Worms:
 
         try:
             aphiaid,valid_name = valid_info.split(',')
+            self.accepted_name = valid_name
+            self.aphiaID = aphiaid
 
         except ValueError:
             self.accepted_name = ""
 
-        self.accepted_name = valid_name
-        self.aphiaID = aphiaid
-
-        return valid_name
+        return self.accepted_name
 
     def get_taxonomic_ranges(self):
         """Name of all valuable ranks are retrieved and stored at self.taxonomic_ranges and
