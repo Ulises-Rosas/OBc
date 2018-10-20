@@ -36,6 +36,7 @@ class Minbar:
         self.input = input
 
     def validate_tax(self):
+        #self = Minbar("Aega perualis")
 
         pattern1 = "^[A-Z][a-z]+ [a-z]+$"
         validated_name = Worms(self.term).get_accepted_name()
@@ -50,7 +51,6 @@ class Minbar:
 
     def synonyms(self):
         #...self = Minbar("Scieane wieneri")...#
-
         # upon validating names, this name is used for getting
         # synonyms
         # self = Minbar("Scieane wieneri")
@@ -58,6 +58,7 @@ class Minbar:
         #self = Minbar("Mesoplodon densirostris")
         # self = Minbar("Lubbockia squillimana")
         #self = Minbar("Spondylus americanus")
+        #self = Minbar("Aega perualis")
 
         valid = self.validate_tax()
 
