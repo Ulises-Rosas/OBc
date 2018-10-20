@@ -60,6 +60,8 @@ class Worms:
         #self = Worms("Lubbockia squillimana")
         #self = Worms("Doris fontainii")
         #self = Worms("Synarmadillo tristani")
+        #self = Worms("Spondylus americanus")
+
 
         if len(self.aphiaID) == 0 or self.aphiaID == '-999':
 
@@ -87,9 +89,13 @@ class Worms:
                 lines = re.findall("<span.*>" + species_binary[0] + "[\(A-Za-z\) ]{0,} [a-z]+<.*", page)
 
                 # it takes the first species pattern
-                epitopes = [
-                    re.findall("<i>[A-Z][a-z]+[\(\)A-Za-z ]{0,} [a-z]+</i>", i)[0].split(" ")[-1].replace("</i>", "")
-                    for i in lines]
+                epitopes0 = []
+
+                for ep in lines:
+                    tmp = re.findall("<i>[A-Z][a-z]+[\(\)A-Za-z ]{0,} [a-z]+</i>", ep)
+                    epitopes0.append(tmp)
+
+                epitopes = [ i[0].split(" ")[-1].replace("</i>", "") for i in list( filter(None, epitopes0) ) ]
 
                 def get_pieces(string, amplitude):
 
@@ -105,7 +111,7 @@ class Worms:
                     # if the string is "abc" and index = 1, then ['ab', 'bc']
 
                     # index =0
-                    #index
+                    #print(index)
 
                     a = get_pieces(species_binary[1], index + 1)
 
@@ -140,8 +146,7 @@ class Worms:
                         # n2 is the number of pieces of "a" that did not have any match with epitope (string)
                         # therefore, 1 - n2/d2 is a measure of coverage of epitope matches over "a"
                         d2 = len(set(a))
-                        n2 = len(set(a) - set(
-                            ["".join(set(b)) for b in matches if len(b) > 0]))  # len(b) filter just matches
+                        n2 = len(set(a) - set( ["".join(set(b)) for b in matches if len(b) > 0]))  # len(b) filter just matches
 
                         # render index
                         lengths.append(n1 / d1 + 1 - n2 / d2)
@@ -282,7 +287,6 @@ class Worms:
         # self = Worms("Schizodon jacuiensis")
         # self = Worms("Dasyatis dipterura").get_synonyms()
         # self = Worms("Lubbockia squillimana")
-
         #pattern1 = "^[A-Z][a-z]+ [a-z]+$"
 
         if self.aphiaID == '-999' or self.aphiaID == '':
