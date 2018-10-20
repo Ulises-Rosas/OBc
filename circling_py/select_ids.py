@@ -57,7 +57,7 @@ class Minbar:
         #self = Minbar("Scieane wii")
         #self = Minbar("Mesoplodon densirostris")
         # self = Minbar("Lubbockia squillimana")
-
+        #self = Minbar("Spondylus americanus")
 
         valid = self.validate_tax()
 
