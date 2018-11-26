@@ -49,6 +49,11 @@ case $key in
     shift
     shift
     ;;
+    -l|--species-list)
+    SL="$2"
+    shift
+    shift
+    ;;
     -h|--help)
     helping
     shift # past argument
@@ -66,30 +71,49 @@ set -- "${POSITIONAL[@]}" # restore positional parameters
 #AREA_ID="38"
 #AREA_NAME="Colombia"
 
-uuid=$(
+
+if [[ ! -z $SL ]]; then
+    
+    touch backUp_obis
+    touch backUp_bold
+
+    PREFIX=$AREA_NAME'_'$AREA_ID'_'${POSITIONAL[@]}
+    cat $SL > ${POSITIONAL[@]}'_obis'
+    
+else
+
+    uuid=$(
     curl -sL 'http://api.iobis.org/taxa/download?areaid='$AREA_ID'&scientificname='${POSITIONAL[@]} |\
-        sed -Ee 's/\{ "uuid" : "([0-9A-Za-z\-]+)" \}/\1/g'
-    )
+     sed -Ee 's/\{ "uuid" : "([0-9A-Za-z\-]+)" \}/\1/g' 
+     )
+     
+     status=""
+     while [[ $status != 'ready' ]]; do
+        status=$(curl -sL "http://api.iobis.org/download/$uuid/status" |\
+         sed -Ee 's/\{ "status" : "([A-Za-z ]+)" \}/\1/g')
+     done
+    
+    wget -q  "http://api.iobis.org/download/$uuid" 
+    unzip -q "$uuid"
+    mv $uuid'.csv' ${POSITIONAL[@]}'.csv'
+    rm "$uuid"
 
-status=""
+    cat ${POSITIONAL[@]}'.csv' |\
+     grep -Ee "^[0-9]+,[A-Z][a-z]+ [a-z]+," -o |\
+      sed -Ee "s/^[0-9]+,([A-Z][a-z]+ [a-z]+),/\1/g" |\
+       sort -k 1 |\
+        uniq > ${POSITIONAL[@]}'_obis'
 
-while [[ $status != 'ready' ]]; do
-    status=$(curl -sL "http://api.iobis.org/download/$uuid/status" |\
-     sed -Ee 's/\{ "status" : "([A-Za-z ]+)" \}/\1/g')
-done
+    rm ${POSITIONAL[@]}'.csv'
 
-wget -q  "http://api.iobis.org/download/$uuid" 
-unzip -q "$uuid"
-mv $uuid'.csv' ${POSITIONAL[@]}'.csv'
-rm "$uuid"
+    if [[ $(cat ${POSITIONAL[@]}'_obis' | wc -l) -eq 0 ]]; then
+        echo -e "${RED}There are not species available in OBIS by given parameters${NC}"
+        echo -e "${RED}Breaking the shell\n${NC}" 
+        rm ${POSITIONAL[@]}'_obis'
+        touch $bold_file 1>&2; exit 1; 
+    fi
+fi
 
-cat ${POSITIONAL[@]}'.csv' |\
- grep -Ee "^[0-9]+,[A-Z][a-z]+ [a-z]+," -o |\
-  sed -Ee "s/^[0-9]+,([A-Z][a-z]+ [a-z]+),/\1/g" |\
-   sort -k 1 |\
-    uniq > ${POSITIONAL[@]}'_obis'
-
-rm ${POSITIONAL[@]}'.csv'
 
 if [[ $PREFIX = "TAXA" ]]; then
 
@@ -105,12 +129,6 @@ else
     #touch $bold_file
 fi
 
-if [[ $(cat ${POSITIONAL[@]}'_obis' | wc -l) -eq 0 ]]; then
-    echo -e "${RED}There are not species available in OBIS by given parameters${NC}"
-    echo -e "${RED}Breaking the shell\n${NC}" 
-    rm ${POSITIONAL[@]}'_obis'
-    touch $bold_file 1>&2; exit 1; 
-fi
 
 echo -e "\nValidating names from OBIS and storing them at: ${BROWN}"$obi_file"\n${NC}"
 
@@ -240,3 +258,10 @@ if [[ $(cat $bold_file | wc -l) -eq 0 ]]; then
 
     echo -e "\n${RED}There are not species available in BOLD by given parameters\n${NC}"
 fi
+
+if [[ ! -z $SL ]]; then
+    
+    rm backUp_obis
+    rm backUp_bold
+fi
+
