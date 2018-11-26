@@ -78,16 +78,30 @@ SpecimenData <- function(taxon, ids, bin, container,
 }
 
 #opt$taxa = "Chelonia mydas"
-#opt$taxa ="Schizodon jacuiensis"
+#opt = list()
+#opt$taxa ="Globiocephalus guadaloupensis"
 
 taxon_search_url = "http://www.boldsystems.org/index.php/API_Tax/TaxonSearch?taxName="
 
-taxon_search = opt$taxa %>% 
+taxon_search0 = opt$taxa %>% 
   gsub(" ", "%20", x = .) %>%
-  paste(taxon_search_url, . ,sep = "") %>%
-  RCurl::getURL(.) %>% 
-  gsub(".*\"total_matched_names\":([0-9]+)}", "\\1", x = .)
+  paste(taxon_search_url, . ,sep = "") 
   
+taxon_search1 = NULL
+
+while(  is.null(taxon_search1) ){
+  
+  taxon_search1 = tryCatch(
+    
+    RCurl::getURL(taxon_search0),
+    error = function(e){
+      NULL
+    }
+  ) 
+}
+
+taxon_search =  gsub(".*\"total_matched_names\":([0-9]+)}", "\\1", x = taxon_search1)
+
 if ( taxon_search == "1" ) {
   main_table = SpecimenData(taxon = opt$`taxa`)
   if( is.null( nrow( main_table ) ) ){
