@@ -40,7 +40,7 @@ bash loop_checkLists.sh -h
                 Output prefix which will be used for naming validated names from both
                 OBIS and BOLD databases. By default output names are are only composed
                 by Geographical parameters, taxonomic group and databases names 
-                (e.i. <Area Name>_<Area ID>_<Taxa>_<obis|bold>_validated.txt).
+                (i.e. <Area Name>_<Area ID>_<Taxa>_<obis|bold>_validated.txt).
 ```
 ### Example
 
