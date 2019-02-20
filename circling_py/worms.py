@@ -247,6 +247,14 @@ class Worms:
         """Name of all valuable ranks are retrieved and stored at self.taxonomic_ranges and
         also complete string of information used to get it at self.classification_page
         """
+        
+        while len(self.aphiaID) == 0 or self.aphiaID == '-999':
+
+            try:
+                self.get_accepted_name()
+
+            except self.aphiaID == '':
+                raise ValueError("Check your taxon!")
 
         complete_url = self.classfication_url + self.aphiaID
 
