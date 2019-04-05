@@ -10,11 +10,6 @@ parser.add_argument('--string', metavar='<string>',
 parser.add_argument('--type', metavar="<string>",
                     default = "fasta",
                     help='Type of file to deal with <fasta, ecopcr, validate, synonyms>. Default: fasta')
-parser.add_argument('--sub',
-                    action = 'store_true',
-                    help='''Substitute species name on results if there were conflicting ids. This is due to 
-                    species without taxids take ids of other species. Therefore this function restores this temporal
-                    substitution''')
 parser.add_argument('--tax',
                     action = 'store_true',
                     help='''Actions: Validate names, Get synonyms''')
@@ -113,18 +108,8 @@ class Minbar:
 
                 return joined_list
 
-if args.sub is False and args.type == "fasta":
-
-    Minbar(term=str(args.string),input=str(args.input)).select_id()
-
-elif args.sub is True and args.type == "ecopcr":
-    f = open("edited_" + str(args.input), "w")
-
-    for i in Minbar(input=str(args.input)).substitute():
-        f.write(i)
-    f.close()
-
-elif args.tax is True and args.type == "validate":
+if args.tax is True and args.type == "validate":
+    
     print(Minbar(term=str(args.string)).validate_tax())
     #print(Minbar(term="Anolis ventrimaculatus").validate_tax())
 
