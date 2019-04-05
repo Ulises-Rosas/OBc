@@ -2,7 +2,7 @@
 
 packs <- c("RCurl", "data.table",
            "dplyr", "ape",
-           "optparse")
+           "optparse", "reticulate")
 
 new.packs <- packs[!packs %in% installed.packages()[, 1]]
 
