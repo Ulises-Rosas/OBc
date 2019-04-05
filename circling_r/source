@@ -1,0 +1,27 @@
+#!/bin/bash
+
+POSITIONAL=()
+while [[ $# -gt 0 ]]
+do
+key="$1"
+case $key in
+    -t|--turn)
+    input="$2"
+    shift
+    shift
+    ;;
+    *)    # unknown option
+    POSITIONAL+=("$1") # save it in an array for later
+    shift # past argument
+    ;;
+esac
+done
+set -- "${POSITIONAL[@]}"
+
+if [[ ${input} = "on" ]]; then
+
+	minbar_path=$(python3 -c "import sys; print(sys.executable)")
+
+	sed -i -e "s/\/usr\/local\/bin\/python3/${minbar_path//\//\\/}/g" ./circling_r/AuditionBarcode.v.2.R
+	sed -i -e "s/python\/worms.py/circling_py\/worms.py/g" ./circling_r/AuditionBarcode.v.2.R
+fi
