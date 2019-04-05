@@ -1,5 +1,7 @@
 
 # makefile
+SHELL := /bin/bash
+
 all: OSdiffs setupR setupPython
 
 OSdiffs:
