@@ -8,18 +8,18 @@ parser = argparse.ArgumentParser(description="Utility for dealing with ids and e
 parser.add_argument('--string', metavar='<string>',
                     help='String used to search between files if taxids is requested')
 parser.add_argument('--type', metavar="<string>",
-                    default = "fasta",
-                    help='Type of file to deal with <fasta, ecopcr, validate, synonyms>. Default: fasta')
+                    default = "",
+                    help='Type of file to deal with <synonyms,validate,ranks>')
 parser.add_argument('--tax',
                     action = 'store_true',
-                    help='''Actions: Validate names, Get synonyms''')
+                    help='''Actions: Validate names, Get synonyms, Ranks''')
 parser.add_argument('--prefix', metavar='<string>',
                     action='store',
                     help='''Prefix string added at the beginning of output. The way how it is added may vary 
                     according to `--type` argument''')
 parser.add_argument('--input', metavar="<string>",
                     default = "",
-                    help='''Input  file''')
+                    help='''Input  file or comma-separated string with taxonomic ranks to look for''')
 args = parser.parse_args()
 
 class Minbar:
@@ -108,6 +108,21 @@ class Minbar:
 
                 return joined_list
 
+    def ranks(self, string=""):
+
+        spps = Worms(self.term)
+
+        if len(spps.aphiaID) == 0 or spps.aphiaID == '-999':
+            spps.get_accepted_name()
+
+        if len(spps.aphiaID) == 0 or spps.aphiaID == '-999':
+            spps.taxamatch()
+
+        if len(spps.aphiaID) != 0 and spps.aphiaID != '-999':
+            spps.get_taxonomic_ranges()
+
+            return ",".join([spps.get_rank(i) for i in string.split(",")]) + "," + self.term
+
 if args.tax is True and args.type == "validate":
     
     print(Minbar(term=str(args.string)).validate_tax())
@@ -124,5 +139,13 @@ elif args.tax is True and args.type == "synonyms":
         for i in lines:
             print(args.prefix + "," + i)
 
+elif args.tax is True and args.type == "ranks":
 
+    whole_spps = open(str(args.input), "r").readlines()
 
+    for i in whole_spps:
+
+        Out = Minbar(term=i.replace("\n", "")).ranks(string=str(args.prefix))
+
+        if Out is not None:
+            print( Out )
