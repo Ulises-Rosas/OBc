@@ -11,6 +11,7 @@ setupR:
 	Rscript --save ./circling_r/get_packages.R
 	git clone https://github.com/Ulises-Rosas/BOLD-mineR.git
 	cp  BOLD-mineR/r/AuditionBarcode.v.2.R circling_r
+	cp  BOLD-mineR/r/SpecimenData.R circling_r
 	rm -rf BOLD-mineR
 	chmod +wx ./circling_r/*
 	bash ./circling_r/source --turn on
@@ -27,4 +28,5 @@ unsetup:
 	if [[ ! -z $$(ls ./circling_py/ | grep "__pycache__") ]]; then sudo rm -rf ./circling_py/__pycache__/; fi
 	rm circling_py/*-e
 	rm circling_r/AuditionBarcode.v.2.R
+	rm circling_r/SpecimenData.R
 	if [[ ! -z $$(ls ./circling_r/ | grep -e "R-e") ]]; then rm ./circling_r/*R-e; fi
