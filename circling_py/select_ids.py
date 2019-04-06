@@ -143,6 +143,8 @@ elif args.tax is True and args.type == "ranks":
 
     whole_spps = open(str(args.input), "r").readlines()
 
+    print( "%s,%s" % (str(args.prefix),"Species") )
+
     for i in whole_spps:
 
         Out = Minbar(term=i.replace("\n", "")).ranks(string=str(args.prefix))
