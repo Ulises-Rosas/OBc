@@ -77,9 +77,9 @@ SpecimenData <- function(taxon, ids, bin, container,
   
 }
 
-#opt$taxa = "Chelonia mydas"
-#opt = list()
-#opt$taxa ="Globiocephalus guadaloupensis"
+# opt$taxa = "Symbolophorus boops"
+# opt = list()
+# opt$taxa ="Symbolophorus boops"
 
 taxon_search_url = "http://www.boldsystems.org/index.php/API_Tax/TaxonSearch?taxName="
 
