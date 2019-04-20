@@ -28,7 +28,7 @@ conda: curl
 	        echo -e "\n\033[1;32mInstalling anaconda...\033[0m\n" &&\
 	        pushd /tmp &&\
 	        curl -O https://repo.anaconda.com/archive/Anaconda3-5.2.0-Linux-x86_64.sh &&\
-	        sha256sum Anaconda3-2019.03-Linux-x86_64.sh &&\
+	        sha256sum Anaconda3-5.2.0-Linux-x86_64.sh &&\
 	        bash Anaconda3-5.2.0-Linux-x86_64.sh -b &&\
 	        echo 'export PATH=$$PATH:$$HOME/anaconda3/bin' >> ~/.bashrc &&\
 	        source ~/.bashrc &&\
