@@ -34,7 +34,8 @@ conda: curl
 	        popd &&\
 	        install ~/anaconda3/bin/anaconda  /usr/bin &&\
 	        install ~/anaconda3/bin/conda     /usr/bin &&\
-	        install ~/anaconda3/bin/conda-env /usr/bin; fi; fi
+	        install ~/anaconda3/bin/conda-env /usr/bin &&\
+	        install ~/anaconda3/bin/activate  /usr/bin; fi; fi
 
 	if [[ `uname` == "Darwin" ]]; then\
 	    echo 'export PATH=$$HOME/anaconda3/bin:$$PATH' >> ~/.bash_profile;fi
@@ -47,17 +48,19 @@ env: conda
 OSdiffs:
 	if [[ `uname` == "Linux" ]]; then sed -i -e "s/sed -Ee/sed -re/g" get_checkLists.sh; fi
 
-setupR:
-	Rscript --save ./circling_r/get_packages.R
-	git clone https://github.com/Ulises-Rosas/BOLD-mineR.git
-	cp  BOLD-mineR/r/AuditionBarcode.v.2.R circling_r
-	cp  BOLD-mineR/r/SpecimenData.R circling_r
-	rm -rf BOLD-mineR
-	chmod +wx ./circling_r/*
+setupR: env
+	conda $$(which activate) OBc &&\
+	Rscript --save ./circling_r/get_packages.R &&\
+	git clone https://github.com/Ulises-Rosas/BOLD-mineR.git &&\
 	bash ./circling_r/source --turn on
+	cp  BOLD-mineR/r/AuditionBarcode.v.2.R circling_r
+	cp  BOLD-mineR/r/SpecimenData.R circling_r 
+	rm -rf BOLD-mineR 
+	chmod +wx ./circling_r/*
 
 setupPython:
 	chmod +x ./circling_py/*
+	conda $$(which activate) OBc &&\
 	python3 -c "import site; print(site.getsitepackages()[0])" | xargs cp -rf ./circling_py
 	
 start_message:
