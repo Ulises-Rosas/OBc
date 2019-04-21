@@ -31,7 +31,10 @@ conda: curl
 	        sha256sum Anaconda3-5.2.0-Linux-x86_64.sh &&\
 	        bash Anaconda3-5.2.0-Linux-x86_64.sh -b &&\
 	        echo 'export PATH=$$PATH:$$HOME/anaconda3/bin' >> ~/.bashrc &&\
-	        popd ;fi;fi
+	        popd &&\
+	        install ~/anaconda3/bin/anaconda  /usr/bin &&\
+	        install ~/anaconda3/bin/conda     /usr/bin &&\
+	        install ~/anaconda3/bin/conda-env /usr/bin; fi; fi
 
 	if [[ `uname` == "Darwin" ]]; then\
 	    echo 'export PATH=$$HOME/anaconda3/bin:$$PATH' >> ~/.bash_profile;fi
