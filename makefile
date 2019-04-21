@@ -1,6 +1,7 @@
 
 # makefile
 SHELL := /bin/bash
+brc := source `which activate` OBc
 
 all: OSdiffs setupR setupPython start_message
 
@@ -49,7 +50,7 @@ OSdiffs:
 	if [[ `uname` == "Linux" ]]; then sed -i -e "s/sed -Ee/sed -re/g" get_checkLists.sh; fi
 
 setupR: env
-	source $$(which activate) OBc &&\
+	$(brc) &&\
 	Rscript --save ./circling_r/get_packages.R &&\
 	git clone https://github.com/Ulises-Rosas/BOLD-mineR.git &&\
 	bash ./circling_r/source --turn on
@@ -60,8 +61,7 @@ setupR: env
 
 setupPython:
 	chmod +x ./circling_py/*
-	source $$(which activate) OBc &&\
-	python3 -c "import site; print(site.getsitepackages()[0])" | xargs cp -rf ./circling_py
+	$(brc) && python3 -c "import site; print(site.getsitepackages()[0])" | xargs cp -rf ./circling_py
 	
 start_message:
 	echo -e "\n\nAll dependencies installed. Please run to activate:\n\n\033[1;32m    source activate OBc\n\033[0m" &&\
