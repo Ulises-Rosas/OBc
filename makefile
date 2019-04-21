@@ -18,9 +18,9 @@ curl:
 
 	if [[ `uname` == "Linux" ]]; then\
 	   if [[ -z $$(which curl) ]]; then\
-	   	  echo -e "\n\033[1;32mInstalling Curl...\033[0m\n" &&\
-	   	  apt-get update &&\
-	   	  apt-get install -y curl; fi ; fi
+	      echo -e "\n\033[1;32mInstalling Curl...\033[0m\n" &&\
+	      apt-get update &&\
+	      apt-get install -y curl; fi ; fi
 
 conda: curl
 	if [[ `uname` == "Linux" ]]; then\
@@ -31,7 +31,7 @@ conda: curl
 	        sha256sum Anaconda3-5.2.0-Linux-x86_64.sh &&\
 	        bash Anaconda3-5.2.0-Linux-x86_64.sh -b &&\
 	        echo 'export PATH=$$PATH:$$HOME/anaconda3/bin' >> ~/.bashrc &&\
-	        source ~/.bashrc &&\
+	        exec bash &&\
 	        popd;fi;fi
 
 	if [[ `uname` == "Darwin" ]]; then\
