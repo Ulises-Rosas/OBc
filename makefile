@@ -37,7 +37,7 @@ conda: curl
 	if [[ `uname` == "Darwin" ]]; then\
 	    echo 'export PATH=$$HOME/anaconda3/bin:$$PATH' >> ~/.bash_profile;fi
 
-obc_env: conda
+env: conda
 	if [[ -z $$(conda info --envs | grep -Ee "^OBc[ ]+/") ]]; then\
 	   if [[ `uname` == "Linux"  ]]; then conda-env create --file obc_envL.yml;fi &&\
 	   if [[ `uname` == "Darwin" ]]; then conda-env create --file obc_envM.yml; fi;fi
