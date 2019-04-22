@@ -1,8 +1,8 @@
 name: OBc
 channels:
-  - conda-forge
   - r
   - anaconda
+  - conda-forge
   - defaults
 dependencies:
   - binutils_impl_linux-64=2.31.1=h6176602_1
@@ -56,8 +56,10 @@ dependencies:
   - pixman=0.34.0=h14c3975_1003
   - pthread-stubs=0.4=h14c3975_1001
   - r-base=3.5.1=h271c98b_1006
+  - r-cli=1.0.0=r351h6115d3f_1
   - r-getopt=1.20.3=r351_0
   - r-optparse=1.6.1=r351h6115d3f_0
+  - r-pillar=1.3.0=r351h6115d3f_0
   - readline=7.0=hf8c457e_1001
   - tk=8.6.9=h84994c4_1001
   - xorg-kbproto=1.0.7=h14c3975_1002
@@ -74,13 +76,18 @@ dependencies:
   - xz=5.2.4=h14c3975_1001
   - zlib=1.2.11=h14c3975_1004
   - _r-mutex=1.0.0=anacondar_1
+  - certifi=2019.3.9=py27_0
+  - pip=19.0.3=py27_0
+  - python=2.7.15=h9bab390_6
+  - setuptools=41.0.0=py27_0
+  - sqlite=3.26.0=h7b6447c_0
+  - wheel=0.33.1=py27_0
   - r-ape=5.1=r351h29659fb_0
   - r-assertthat=0.2.0=r351h6115d3f_0
   - r-bh=1.66.0_1=r351h6115d3f_0
   - r-bindr=0.1.1=r351h6115d3f_0
   - r-bindrcpp=0.2.2=r351h29659fb_0
   - r-bitops=1.0_6=r351h96ca727_4
-  - r-cli=1.0.0=r351h6115d3f_1
   - r-crayon=1.3.4=r351h6115d3f_0
   - r-data.table=1.11.4=r351h96ca727_0
   - r-dplyr=0.7.6=r351h29659fb_0
@@ -91,7 +98,6 @@ dependencies:
   - r-magrittr=1.5=r351h6115d3f_4
   - r-matrix=1.2_14=r351h96ca727_0
   - r-nlme=3.1_137=r351ha65eedd_0
-  - r-pillar=1.3.0=r351h6115d3f_0
   - r-pkgconfig=2.0.1=r351h6115d3f_0
   - r-plogr=0.2.0=r351h6115d3f_0
   - r-purrr=0.2.5=r351h96ca727_0
@@ -103,4 +109,3 @@ dependencies:
   - r-tibble=1.4.2=r351h96ca727_0
   - r-tidyselect=0.2.4=r351h29659fb_0
   - r-utf8=1.1.4=r351h96ca727_0
-  - python=2.7
