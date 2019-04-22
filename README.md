@@ -5,10 +5,10 @@
 These shells generate check list with currently accepted names of species from [OBIS database](http://iobis.org/) and these names are both compared and matched with check list with currently accepted names of species from [BOLD database](http://www.boldsystems.org/). The [WoRMS database](http://www.marinespecies.org/) is used for validating species names.
 
 Software requierements:
-
-* Python3
-* wget
-* R
+* git
+* make
+* Xcode (for MAC)
+* anaconda3 (prefereable)
 
 ### Installing OBc
 
@@ -16,15 +16,21 @@ Software requierements:
 git clone https://github.com/Ulises-Rosas/OBc.git
 cd OBc
 make
-
 ```
+### Activating OBc
+
+```Shell
+source activate OBc
+```
+OBc can be deactivate with: `conda deactivate` 
+
+### Specific options
+
 Then you can run `loop_checkLists.sh` shell and print help documentation with:
 
 ```Shell
 bash loop_checkLists.sh -h
 ```
-
-### Specific options
 
 ```
 --list-of-taxa <filename>  
