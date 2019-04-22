@@ -5,11 +5,14 @@ brc := source `which activate` OBc
 
 all: OSdiffs setupR setupPython start_message
 
-curl:
+xcode:
 	if [[ `uname` == "Darwin" ]]; then\
-	    if [[ -z $$(xcode-select -p) ]]; then\
-	        echo -e "\n\033[1;32mInstalling Command Line Utilities...\033[0m\n" &&\
-	        xcode-select --install;fi &&\
+	   if [[  -z `xcode-select -p` ]]; then\
+	      echo -e "\n\033[1;32mInstalling Command Line Utilities...\033[0m\n" &&\
+	      xcode-select --install;fi;fi
+
+curl: xcode
+	if [[ `uname` == "Darwin" ]]; then\
 	    if [[ -z $$(which curl) ]]; then\
 	       if [[ -z $$(which brew) ]]; then\
 	          echo -e "\n\033[1;32mInstalling Brew...\033[0m\n" &&\
@@ -39,8 +42,19 @@ conda: curl
 	        install ~/anaconda3/bin/activate  /usr/bin; fi; fi
 
 	if [[ `uname` == "Darwin" ]]; then\
-	    echo 'export PATH=$$HOME/anaconda3/bin:$$PATH' >> ~/.bash_profile;fi
-
+	    if [[ -z $$(which anaconda) ]]; then\
+	       echo -e "\n\033[1;32mInstalling anaconda...\033[0m\n" &&\
+	       pushd /tmp &&\
+	       curl -O https://repo.anaconda.com/archive/Anaconda3-2019.03-MacOSX-x86_64.sh &&\
+	       sha256sum Anaconda3-2019.03-MacOSX-x86_64.sh &&\
+	       bash Anaconda3-2019.03-MacOSX-x86_64.sh -b &&\
+	       echo 'export PATH=$$HOME/anaconda3/bin:$$PATH' >> ~/.bash_profile &&\
+	       popd &&\
+	       install ~/anaconda3/bin/anaconda  /usr/bin &&\
+	       install ~/anaconda3/bin/conda     /usr/bin &&\
+	       install ~/anaconda3/bin/conda-env /usr/bin &&\
+	       install ~/anaconda3/bin/activate  /usr/bin; fi; fi
+	
 env: conda
 	if [[ -z $$(conda info --envs | grep -Ee "^OBc[ ]+/") ]]; then\
 	   if [[ `uname` == "Linux"  ]]; then conda-env create --file obc_envL.yml;fi &&\
@@ -49,7 +63,26 @@ env: conda
 OSdiffs:
 	if [[ `uname` == "Linux" ]]; then sed -i -e "s/sed -Ee/sed -re/g" get_checkLists.sh; fi
 
-setupR: env
+check_py2: xcode
+	$(brc) &&\
+	if [[ `uname` == "Darwin" ]]; then\
+	   if [[ -z `which python2` ]]; then\
+	      echo -e "\n\033[1;32mInstalling python2...\033[0m\n" &&\
+	      if [[ -z `which brew` ]]; then\
+	         echo -e "\n\033[1;32m... but installing Brew before\033[0m\n" &&\
+	         ruby -e "$$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"; fi &&\
+	       brew install pyenv &&\
+	       pyenv install 2.7.5; fi; fi
+	       
+check_py3:
+	$(brc) &&\
+	if [[ `uname` == "Linux" ]]; then\
+	   if [[ -z `which python3` ]]; then\
+	      echo -e "\n\033[1;32mInstalling python3...\033[0m\n" &&\
+	      if [[ ! -z `ls ~ | grep "anaconda3"` ]]; then\
+	         install ~/anaconda3/bin/python3* /usr/bin; else apt-get install -y python3; fi; fi; fi
+
+setupR: env check_py2 check_py3
 	$(brc) &&\
 	Rscript --save ./circling_r/get_packages.R &&\
 	git clone https://github.com/Ulises-Rosas/BOLD-mineR.git &&\
