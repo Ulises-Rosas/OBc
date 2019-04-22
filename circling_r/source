@@ -22,6 +22,6 @@ if [[ ${input} = "on" ]]; then
 
 	minbar_path=$(python3 -c "import sys; print(sys.executable)")
 
-	sed -i -e "s/\/usr\/local\/bin\/python3/${minbar_path//\//\\/}/g" ./circling_r/AuditionBarcode.v.2.R
-	sed -i -e "s/python\/worms.py/circling_py\/worms.py/g" ./circling_r/AuditionBarcode.v.2.R
+	sed -i -e "s/\/usr\/local\/bin\/python3/${minbar_path//\//\\/}/g" BOLD-mineR/r/AuditionBarcode.v.2.R
+	sed -i -e "s/python\/worms.py/circling_py\/worms.py/g" BOLD-mineR/r/AuditionBarcode.v.2.R
 fi
