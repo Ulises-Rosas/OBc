@@ -17,21 +17,20 @@ git clone https://github.com/Ulises-Rosas/OBc.git
 cd OBc
 make
 ```
-### Activate OBc
+### Activating OBc
 
 ```Shell
 source activate OBc
 ```
+OBc can be deactivate with: `conda deactivate` 
+
+### Specific options
 
 Then you can run `loop_checkLists.sh` shell and print help documentation with:
 
 ```Shell
 bash loop_checkLists.sh -h
 ```
-
-After having results, OBc can be deactivate with: `conda deactivate` 
-
-### Specific options
 
 ```
 --list-of-taxa <filename>  
