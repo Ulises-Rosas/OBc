@@ -7,6 +7,7 @@ These shells generate check list with currently accepted names of species from [
 Software requierements:
 * make
 * Xcode (for MAC)
+* anaconda3 (prefereable)
 
 ### Installing OBc
 
