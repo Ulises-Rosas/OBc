@@ -5,10 +5,8 @@
 These shells generate check list with currently accepted names of species from [OBIS database](http://iobis.org/) and these names are both compared and matched with check list with currently accepted names of species from [BOLD database](http://www.boldsystems.org/). The [WoRMS database](http://www.marinespecies.org/) is used for validating species names.
 
 Software requierements:
-
-* Python3
-* wget
-* R
+* make
+* Xcode (for MAC)
 
 ### Installing OBc
 
