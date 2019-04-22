@@ -15,8 +15,15 @@ Software requierements:
 git clone https://github.com/Ulises-Rosas/OBc.git
 cd OBc
 make
+```
+### Activate OBc
+
+```Shell
 source activate OBc
 ```
+
+
+
 Then you can run `loop_checkLists.sh` shell and print help documentation with:
 
 ```Shell
