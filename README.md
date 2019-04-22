@@ -22,13 +22,13 @@ make
 source activate OBc
 ```
 
-
-
 Then you can run `loop_checkLists.sh` shell and print help documentation with:
 
 ```Shell
 bash loop_checkLists.sh -h
 ```
+
+After having results, OBc can be deactivate with: `conda deactivate` 
 
 ### Specific options
 
