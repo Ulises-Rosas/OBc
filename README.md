@@ -6,6 +6,7 @@ These shells generate check list with currently accepted names of species from [
 
 Software requierements:
 * make
+* git
 * Xcode (for MAC)
 * anaconda3 (prefereable)
 
