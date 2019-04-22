@@ -1,8 +1,8 @@
 
 # makefile
 SHELL := /bin/bash
-brc := source `which activate` OBc
-n_brc := `which conda` env remove -y --name OBc
+brc := source  activate OBc
+n_brc := conda env remove -y --name OBc
 
 all: OSdiffs setupR setupPython start_message
 
@@ -59,8 +59,8 @@ conda: curl
 env: conda
 	if [[ -z $$(conda info --envs | grep -Ee "^OBc[ ]+/") ]]; then \
            if [[ `uname` == "Linux"  ]]; then conda-env create --file obc_envL.yml; fi &&\
-           if [[ `uname` == "Darwin" ]]; then conda-env create --file obc_envM.yml; fi ;\
-  else\
+           if [[ `uname` == "Darwin" ]]; then conda-env create --file obc_envM.yml; fi\
+  ;else\
            if [[ `uname` == "Linux"  ]]; then $(brc) && conda-env update --file obc_envL.yml; fi &&\
            if [[ `uname` == "Darwin" ]]; then $(brc) && conda-env update --file obc_envM.yml; fi; fi
 
