@@ -66,7 +66,7 @@ Reptilia
 ```
 Therefore, the `loop_checkLists.sh` shell can run it with:
 ```Shell
-bash loop_checkLists.sh --list-of-taxa list_invert --list-of-geo list_geo
+checklists --list-of-taxa list_invert --list-of-geo list_geo
 ```
 
 ### Output 
