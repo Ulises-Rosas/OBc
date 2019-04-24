@@ -29,7 +29,7 @@ OBc can be deactivate with: `conda deactivate`
 Then you can run `checklists` shell and print help documentation with:
 
 ```Shell
-checklists
+checklists -h
 ```
 
 ```
