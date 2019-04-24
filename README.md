@@ -26,10 +26,10 @@ OBc can be deactivate with: `conda deactivate`
 
 ### Specific options
 
-Then you can run `checkLists` shell and print help documentation with:
+Then you can run `checklists` shell and print help documentation with:
 
 ```Shell
-checkLists
+checklists
 ```
 
 ```
