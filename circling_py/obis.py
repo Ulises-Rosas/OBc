@@ -1,0 +1,80 @@
+
+import argparse
+import urllib.request
+import json
+
+
+parser = argparse.ArgumentParser(description="Wrapper for OBI's API [ host: https://api.obis.org/v3 ]")
+
+parser.add_argument('--path', metavar='<path>',
+                    default="checklist",
+                    help='path for host.................[default = checklist]')
+parser.add_argument('--size', metavar="<query parameter>",
+                    default = 5000,
+                    help='items retrieved by iteration..[default = 5000]')
+parser.add_argument('--areaid', metavar="<query parameter>",
+                    default = None)
+parser.add_argument('--scientificname', metavar="<query parameter>",
+                    default = None)
+parser.add_argument('--taxonid', metavar="<query parameter>",
+                    default = None)
+parser.add_argument('--datasetid', metavar="<query parameter>",
+                    default = None)
+parser.add_argument('--instituteid', metavar="<query parameter>",
+                    default = None)
+parser.add_argument('--nodeid', metavar="<query parameter>",
+                    default = None)
+parser.add_argument('--startdate', metavar="<query parameter>",
+                    default = None)
+parser.add_argument('--enddate', metavar="<query parameter>",
+                    default = None)
+parser.add_argument('--startdepth', metavar="<query parameter>",
+                    default = None)
+parser.add_argument('--enddepth', metavar="<query parameter>",
+                    default = None)
+parser.add_argument('--geometry', metavar="<query parameter>",
+                    default = None)
+
+args = parser.parse_args()
+
+host = 'https://api.obis.org/v3'
+
+query = {
+    'scientificname': args.scientificname,
+    'areaid'        : args.areaid,
+    'taxonid'       : args.taxonid,
+    'datasetid'     : args.datasetid,
+    'instituteid'   : args.instituteid,
+    'nodeid'        : args.nodeid,
+    'startdate'     : args.startdate,
+    'enddate'       : args.enddate,
+    'startdepth'    : args.startdepth,
+    'enddepth'      : args.enddepth,
+    'geometry'      : args.geometry,
+    'size'          : args.size
+}
+
+header = "&".join( [ "%s=%s" % (i,j) for i,j in query.items() if j is not None] )
+
+skip = 0
+page = 1
+
+while True:
+
+    complete_url = "%s/%s?%s&skip=%s" % (host, args.path, header, skip)
+    
+    results = json.load( urllib.request.urlopen( complete_url ) )['results']
+
+    if results.__len__() == 0:
+        break
+
+    if page == 1:
+        print( ",".join( ["'%s'" % i for i in results[0].keys()]) )
+        page += 1
+
+    for element in results:
+        print(
+            ",".join( ["'%s'" % str(x) for _, x in element.items()] )
+        )
+
+    skip += args.size
