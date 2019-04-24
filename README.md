@@ -64,7 +64,7 @@ head list_*
 Acanthocephala
 Reptilia
 ```
-Therefore, the `loop_checkLists.sh` shell can run it with:
+Therefore, the `checklists` shell can run it with:
 ```Shell
 checklists --list-of-taxa list_invert --list-of-geo list_geo
 ```
