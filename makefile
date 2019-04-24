@@ -4,7 +4,7 @@ SHELL := /bin/bash
 brc := source  activate OBc
 n_brc := conda env remove -y --name OBc
 
-all: OSdiffs setupR setupPython start_message
+all: OSdiffs setupR setupPython setupBash start_message
 
 xcode:
 	if [[ `uname` == "Darwin" ]]; then\
@@ -58,14 +58,14 @@ conda: curl
 
 env: conda
 	if [[ -z $$(conda info --envs | grep -Ee "^OBc[ ]+/") ]]; then \
-           if [[ `uname` == "Linux"  ]]; then conda-env create --file obc_envL.yml; fi &&\
-           if [[ `uname` == "Darwin" ]]; then conda-env create --file obc_envM.yml; fi\
+           if [[ `uname` == "Linux"  ]]; then conda-env create --file circling_utils/obc_envL.yml; fi &&\
+           if [[ `uname` == "Darwin" ]]; then conda-env create --file circling_utils/obc_envM.yml; fi\
   ;else\
-           if [[ `uname` == "Linux"  ]]; then $(brc) && conda-env update --file obc_envL.yml; fi &&\
-           if [[ `uname` == "Darwin" ]]; then $(brc) && conda-env update --file obc_envM.yml; fi; fi
+           if [[ `uname` == "Linux"  ]]; then $(brc) && conda-env update --file circling_utils/obc_envL.yml; fi &&\
+           if [[ `uname` == "Darwin" ]]; then $(brc) && conda-env update --file circling_utils/obc_envM.yml; fi; fi
 
 OSdiffs:
-	if [[ `uname` == "Linux" ]]; then sed -i -e "s/sed -Ee/sed -re/g" get_checkLists.sh; fi
+	if [[ `uname` == "Linux" ]]; then sed -i -e "s/sed -Ee/sed -re/g" circling_sh/get_checkLists.sh; fi
 
 check_py2: xcode
 	$(brc) &&\
@@ -100,6 +100,14 @@ setupPython:
 	chmod +x ./circling_py/*
 	$(brc) && python3 -c "import site; print(site.getsitepackages()[0])" | xargs cp -rf ./circling_py
 	
+setupBash:
+	sed -i -e "s/path_ssp/$${PWD//\//\\/}/g" ./circling_sh/get_checkLists.sh
+	$(brc) &&\
+        install circling_sh/get_checkLists.sh    $$CONDA_PREFIX/bin &&\
+        install circling_sh/loop_checkLists.sh   $$CONDA_PREFIX/bin &&\
+        mv $$CONDA_PREFIX/bin/get_checkLists.sh  $$CONDA_PREFIX/bin/checkspps &&\
+        mv $$CONDA_PREFIX/bin/loop_checkLists.sh $$CONDA_PREFIX/bin/checklists
+
 start_message:
 	echo -e "\n\nAll dependencies installed. Please run to activate:\n\n\033[1;32m    source activate OBc\n\033[0m" &&\
 	echo -e "And to deactivate:\n\n\033[1;32m    conda deactivate\n\033[0m"
@@ -107,7 +115,12 @@ start_message:
 unsetup_py: 
 	$(brc) && python3 -c "import site; print(site.getsitepackages()[0])" |awk '{print $$1"/circling_py"}' |xargs rm -rf
 
-unsetup: unsetup_py
+unsetup_bash:
+	$(brc) && rm $$CONDA_PREFIX/bin/checkspps && rm $$CONDA_PREFIX/bin/checklists
+	sed -i -e "s/$${PWD//\//\\/}/path_ssp/g" ./circling_sh/get_checkLists.sh
+	if [[ ! -z $$(ls ./circling_sh/ | grep -e "sh-e") ]]; then rm ./circling_sh/*sh-e; fi
+
+unsetup: unsetup_py unsetup_bash
 	chmod -x ./circling_py/*
 	chmod -x ./circling_r/*
 	if [[ ! -z $$(ls ./circling_py/ | grep "__pycache__") ]]; then sudo rm -rf ./circling_py/__pycache__/; fi
