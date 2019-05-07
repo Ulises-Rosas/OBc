@@ -65,11 +65,6 @@ Reptilia
 Therefore, the `checklists` shell can run it with:
 ```Shell
 checklists --list-of-taxa list_invert --list-of-geo list_geo
-```
-
-### Output 
-
-```Shell
 ls *.txt
 ```
 
