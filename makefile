@@ -98,7 +98,9 @@ setupR: env check_py2 check_py3
 
 setupPython:
 	chmod +x ./circling_py/*
-	$(brc) && python3 -c "import site; print(site.getsitepackages()[0])" | xargs cp -rf ./circling_py
+	$(brc) &&\
+        python3 -c "import site; print(site.getsitepackages()[0])" | xargs cp -rf ./circling_py &&\
+        install circling_py/joinfiles.py $$CONDA_PREFIX/bin
 	
 setupBash:
 	sed -i -e "s/path_ssp/$${PWD//\//\\/}/g" ./circling_sh/get_checkLists.sh
