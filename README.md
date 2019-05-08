@@ -1,7 +1,5 @@
 # OBIS/BOLD comparisons (OBc)
 
-**Warning:** These shells only work inside the installed repository
-
 These shells generate check list with currently accepted names of species from [OBIS database](http://iobis.org/) and these names are both compared and matched with check list with currently accepted names of species from [BOLD database](http://www.boldsystems.org/). The [WoRMS database](http://www.marinespecies.org/) is used for validating species names.
 
 Software requierements:
@@ -26,10 +24,10 @@ OBc can be deactivate with: `conda deactivate`
 
 ### Specific options
 
-Then you can run `loop_checkLists.sh` shell and print help documentation with:
+Then you can run `checklists` shell and print help documentation with:
 
 ```Shell
-bash loop_checkLists.sh -h
+checklists -h
 ```
 
 ```
@@ -64,14 +62,9 @@ head list_*
 Acanthocephala
 Reptilia
 ```
-Therefore, the `loop_checkLists.sh` shell can run it with:
+Therefore, the `checklists` shell can run it with:
 ```Shell
 checklists --list-of-taxa list_invert --list-of-geo list_geo
-```
-
-### Output 
-
-```Shell
 ls *.txt
 ```
 

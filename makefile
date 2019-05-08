@@ -35,7 +35,6 @@ conda: curl
               curl -O https://repo.anaconda.com/archive/Anaconda3-5.2.0-Linux-x86_64.sh &&\
               sha256sum Anaconda3-5.2.0-Linux-x86_64.sh &&\
               bash Anaconda3-5.2.0-Linux-x86_64.sh -b &&\
-              echo 'export PATH=$$PATH:$$HOME/anaconda3/bin' >> ~/.bashrc &&\
               popd &&\
               install ~/anaconda3/bin/anaconda  /usr/bin &&\
               install ~/anaconda3/bin/conda     /usr/bin &&\
@@ -49,7 +48,6 @@ conda: curl
               curl -O https://repo.anaconda.com/archive/Anaconda3-2019.03-MacOSX-x86_64.sh &&\
               md5 Anaconda3-2019.03-MacOSX-x86_64.sh &&\
               bash Anaconda3-2019.03-MacOSX-x86_64.sh -b &&\
-              echo 'export PATH=$$HOME/anaconda3/bin:$$PATH' >> ~/.bash_profile &&\
               popd &&\
               install ~/anaconda3/bin/anaconda  /usr/bin &&\
               install ~/anaconda3/bin/conda     /usr/bin &&\
@@ -60,7 +58,7 @@ env: conda
 	if [[ -z $$(conda info --envs | grep -Ee "^OBc[ ]+/") ]]; then \
            if [[ `uname` == "Linux"  ]]; then conda-env create --file circling_utils/obc_envL.yml; fi &&\
            if [[ `uname` == "Darwin" ]]; then conda-env create --file circling_utils/obc_envM.yml; fi\
-  ;else\
+        ;else\
            if [[ `uname` == "Linux"  ]]; then $(brc) && conda-env update --file circling_utils/obc_envL.yml; fi &&\
            if [[ `uname` == "Darwin" ]]; then $(brc) && conda-env update --file circling_utils/obc_envM.yml; fi; fi
 
