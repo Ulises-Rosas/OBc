@@ -74,11 +74,13 @@ Dermochelys coriacea,Dermochelys coriacea,public_outside,Colombia,Reptilia,Repti
 Eretmochelys imbricata,Eretmochelys imbricata,public_inside,Colombia,Reptilia,Reptilia
 ```
 
-Default value of `--matching` option is `_bold_`. It is, however, stated as a matter of clearness. While default values of  column `group` is the same from `subgroup`, this can be modified with `--as` option. This is particularly usefull when merging an entire directory under a custom group:
+Default value of `--matching` option is `_bold_`. It is, however, stated as a matter of clearness. While default values of  column `group` is the same from `subgroup`, this can be modified with `--as` option. This is particularly usefull when merging an entire directory (i.e. using `--from` option) under a custom group:
 
 ```Shell
-joinfiles.py --from data/Invertebrate\
-             --as Invertebrate > invertebrate_bold.txt 
+joinfiles.py\
+   --from data/Invertebrate\
+   --as Invertebrate\
+   --matching _bold_ > invertebrate_bold.txt 
 
 head -n 5 invertebrate_bold.txt
 ```
@@ -90,9 +92,10 @@ Amphitrite kerguelensis,Amphitrite kerguelensis,private,Chile,Annelida,Invertebr
 Ancistrosyllis groenlandica,Ancistrosyllis groenlandica,public_outside,Chile,Annelida,Invertebrate
 ```
 ```Shell
-joinfiles.py --from data/Invertebrate\
-             --as Invertebrate\
-             --matching _obis_ > invertebrate_obis.txt
+joinfiles.py\
+   --from data/Invertebrate\
+   --as Invertebrate\
+   --matching _obis_ > invertebrate_obis.txt
              
 head -n 5 invertebrate_obis.txt
 ```
@@ -102,6 +105,23 @@ Abyssoninoe abyssorum,Chile,Annelida,Invertebrate
 Aglaophamus foliosus,Chile,Annelida,Invertebrate
 Aglaophamus macroura,Chile,Annelida,Invertebrate
 Aglaophamus peruana,Chile,Annelida,Invertebrate
+```
+
+Likewise, this command can also join files from different directories while adding corresponding values for `group` column:
+
+```Shell
+
+joinfiles.py\
+   --from data/Invertebrate data/Actinopterygii data/Elasmobranchii data/Reptilia data/Mammalia\
+   --as   Invertebrate Actinopterygii Elasmobranchii Reptilia Mammalia\
+   --matching _bold_ > WholeDirectories_bold.txt
+```
+
+```Shell
+joinfiles.py\
+   --from data/Invertebrate data/Actinopterygii data/Elasmobranchii data/Reptilia data/Mammalia\
+   --as Invertebrate Actinopterygii Elasmobranchii Reptilia Mammalia\
+   --matching _obis_ > WholeDirectories_obis.txt
 ```
 
 
