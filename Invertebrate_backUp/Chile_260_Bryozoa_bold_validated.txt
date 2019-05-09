@@ -1,0 +1,11 @@
+Aetea anguina,Aetea anguina,private
+Antarctothoa discreta,Antarctothoa discreta,public_outside
+Beania magellanica,Beania magellanica,public_outside
+Caberea darwinii,Caberea darwinii,private
+Cellaria diversa,Cellaria diversa,private
+Celleporella hyalina,Hippothoa hyalina,private
+Celleporella hyalina,Celleporella hyalina,public_outside
+Fenestrulina malusii,Fenestrulina malusii,public_outside
+Melicerita obliqua,Melicerita obliqua,private
+Micropora brevissima,Micropora brevissima,private
+Scruparia ambigua,Scruparia ambigua,private
