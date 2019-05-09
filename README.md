@@ -15,37 +15,6 @@ git clone https://github.com/Ulises-Rosas/OBc.git
 cd OBc
 make
 ```
-### Activating OBc
-
-```Shell
-source activate OBc
-```
-OBc can be deactivate with: `conda deactivate` 
-
-### Specific options
-
-Then you can run `checklists` shell and print help documentation with:
-
-```Shell
-checklists -h
-```
-
-```
---list-of-taxa <filename>  
-                List of taxonomic group to search for
-                
---list-of-geo  <filename>  
-                List of geographical to search for. This list must contain both
-                Area ID and Area Name separated by a comma (e.g. 70,Peru). Area ID is
-                used for mining names from OBIS database (please see: http://api.iobis.org/area) 
-                and, likewise, Area Name is used for mining names from BOLD database.
-                
---output-prefix <string>
-                Output prefix which will be used for naming validated names from both
-                OBIS and BOLD databases. By default output names are are only composed
-                by Geographical parameters, taxonomic group and databases names 
-                (i.e. <Area Name>_<Area ID>_<Taxa>_<obis|bold>_validated.txt).
-```
 
 ## checklists<sup>\*</sup>
 
