@@ -129,37 +129,11 @@ Each file is bigger than 400 KB and these can be found here: [data/WholeDirector
 
 ## checkspps<sup>\*</sup>
 
-Let's suppose we have the following species list called `sl_test.txt`:
 
-```Shell
-cat sl_test.txt
-```
-
-```
-Caretta caretta
-Dermochelys coriacea
-Eretmochelys imbricata
-```
+Now, let's suppose we have a species list and not a list of taxonomical ranks instead. This species list may come from any source but OBIS database (e.g. FishBase, custom list, etc). `checkspps` was justly created to take a custom species list and to directly compare those species into BOLD by skiping data mining steps from OBIS.
 
 
-
-This command let you perform the same analisis of [`checklist`](https://github.com/Ulises-Rosas/OBc#checklists) 
-
-and starting from directly from a species list instead
-
-
-This commmand let you perform same routine from `checklist` command but it starts from a species list and end up wi
-This command let you perform both same routine from `checklist` command and end up with the same format from `joinfile.py`
-
-
-This command performs same routine from  `checklist` and on their outputs `joinfiles.py`
-
-
-with the file called [`sl_test.txt`]()
-
-
-This command takes a species list and performs same routine from `checklist` command and returns same format from `joinfiles.py` command:
-
+If we have a species list called [sl_test.txt](https://github.com/Ulises-Rosas/OBc/blob/master/sl_test.txt), then:
 
 ```Bash
 checkspps Reptilia\
@@ -168,7 +142,11 @@ checkspps Reptilia\
    --at Phylum
 ```
 
-values of `subgroup` column are taken from a taxonomical rank of species specified with `--at` option. Remaining values for `group`, `country` are filled with the positional argument (i.e. Reptilia in above case) and `--area-name` option correspondingly.
+It returns same format from `joinfiles.py` command. Values of `subgroup` column are taken from a taxonomical rank of species specified with `--at` option. Remaining values for both `group` and `country` columns are filled with the positional argument (i.e. Reptilia in above case) and `--area-name` option correspondingly.
+
+
+
+
 
 
 
