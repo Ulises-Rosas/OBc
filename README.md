@@ -130,7 +130,7 @@ Each file is bigger than 400 KB and these can be found here: [data/WholeDirector
 ## checkspps<sup>\*</sup>
 
 
-Now, let's suppose we have a species list and not a list of taxonomical ranks instead. This species list may come from any source but OBIS database (e.g. FishBase, custom list, etc). `checkspps` was justly created to take a custom species list and to directly compare those species into BOLD by skiping data mining steps from OBIS.
+Now, let's suppose we have a species list and not a list of taxonomical ranks instead. This species list may come from any source but OBIS database (e.g. FishBase, WoRMS, etc). `checkspps` was justly created to take a custom species list and to directly compare species into BOLD by skiping data mining steps from OBIS.
 
 
 If we have a species list called [sl_test.txt](https://github.com/Ulises-Rosas/OBc/blob/master/sl_test.txt), then:
@@ -142,12 +142,10 @@ checkspps Reptilia\
    --at Phylum
 ```
 
-It returns same format from `joinfiles.py` command. Values of `subgroup` column are taken from a taxonomical rank of species specified with `--at` option. Remaining values for both `group` and `country` columns are filled with the positional argument (i.e. Reptilia in above case) and `--area-name` option correspondingly.
+It will return both: [Peru_Reptilia_obis_validated.txt](https://github.com/Ulises-Rosas/OBc/blob/master/data/Peru_Reptilia_obis_validated.txt) and [Peru_Reptilia_bold_validated.txt](https://github.com/Ulises-Rosas/OBc/blob/master/data/Peru_Reptilia_bold_validated.txt). Their format are the same from `joinfiles.py` command. Values of `subgroup` column are taken from a taxonomical rank of species specified with `--at` option. Remaining values for both `group` and `country` columns are filled with the positional argument (i.e. Reptilia in above case) and `--area-name` option correspondingly.
 
 
-
-
-
+## barplot
 
 
 
