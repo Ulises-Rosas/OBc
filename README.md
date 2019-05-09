@@ -47,10 +47,7 @@ checklists -h
                 (i.e. <Area Name>_<Area ID>_<Taxa>_<obis|bold>_validated.txt).
 ```
 
-## checklists
-
-**Note**: Intermediate files generated up while running this command are the same at each run. Therefore, if this command is running in parallel, specific directory per run must be used in order to avoid intermediate file crashing. Since the following example is a single run, repo directory is used as the working directory.
-
+## checklists<sup>\*</sup>
 
 There are two mock files available for testing:
 ```Shell
@@ -78,9 +75,7 @@ Chile_260_Acanthocephala_obis_validated.txt    Chile_260_Reptilia_obis_validated
 ```
 
 
-### checkspps
-
-**Note**: Intermediate files generated up while running this command are the same at each run. Therefore, if this command is running in parallel, specific directory per run must be used in order to avoid intermediate file crashing. Since the following example is a single run, repo directory is used as the working directory.
+## checkspps<sup>\*</sup>
 
 You can also perform same analises, but starting from a list of species instead of a list of taxonomical rank. Further data, however is requiered, in order to create filename.
 
@@ -91,3 +86,4 @@ checklists --list-of-taxa list_invert --list-of-geo list_geo
 
 
 
+<sup>\*</sup>Intermediate files generated up while running this command are the same at each run. Therefore, if this command is running in parallel, specific directory per run must be used in order to avoid intermediate file crashing. Since the following example is a single run, repo directory is used as the working directory.
