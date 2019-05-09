@@ -1,0 +1,5 @@
+Amblyrhynchus cristatus,Amblyrhynchus cristatus,public_inside
+Chelonia mydas,Chelonia mydas,public_outside
+Dermochelys coriacea,Dermochelys coriacea,public_outside
+Eretmochelys imbricata,Eretmochelys imbricata,public_outside
+Lepidochelys olivacea,Lepidochelys olivacea,public_outside

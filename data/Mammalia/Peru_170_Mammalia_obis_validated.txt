@@ -1,0 +1,16 @@
+Arctocephalus australis
+Balaenoptera acutorostrata
+Balaenoptera edeni
+Balaenoptera musculus
+Delphinus delphis
+Grampus griseus
+Lagenorhynchus obscurus
+Megaptera novaeangliae
+Mesoplodon peruvianus
+Mirounga leonina
+Orcinus orca
+Otaria flavescens
+Phocoena spinipinnis
+Physeter macrocephalus
+Tursiops truncatus
+Ziphius cavirostris

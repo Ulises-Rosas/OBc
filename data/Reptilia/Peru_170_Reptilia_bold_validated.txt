@@ -1,0 +1,5 @@
+Caretta caretta,Caretta caretta,public_outside
+Chelonia mydas,Chelonia mydas,public_outside
+Dermochelys coriacea,Dermochelys coriacea,public_outside
+Eretmochelys imbricata,Eretmochelys imbricata,public_inside
+Lepidochelys olivacea,Lepidochelys olivacea,public_outside

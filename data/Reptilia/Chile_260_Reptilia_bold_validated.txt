@@ -1,0 +1,3 @@
+Caretta caretta,Caretta caretta,public_outside
+Dermochelys coriacea,Dermochelys coriacea,public_outside
+Eretmochelys imbricata,Eretmochelys imbricata,public_outside
