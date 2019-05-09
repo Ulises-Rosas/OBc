@@ -46,7 +46,11 @@ checklists -h
                 by Geographical parameters, taxonomic group and databases names 
                 (i.e. <Area Name>_<Area ID>_<Taxa>_<obis|bold>_validated.txt).
 ```
-### Example
+
+## checklists
+
+**Note**: Intermediate files generated up while running this command are the same at each run. Therefore, if this command is running in parallel, specific directory per run must be used in order to avoid intermediate file crashing. Since the following example is a single run, repo directory is used as the working directory.
+
 
 There are two mock files available for testing:
 ```Shell
@@ -72,5 +76,18 @@ ls *.txt
 Chile_260_Acanthocephala_bold_validated.txt    Chile_260_Reptilia_bold_validated.txt          Colombia_38_Acanthocephala_bold_validated.txt  Colombia_38_Reptilia_bold_validated.txt
 Chile_260_Acanthocephala_obis_validated.txt    Chile_260_Reptilia_obis_validated.txt          Colombia_38_Acanthocephala_obis_validated.txt  Colombia_38_Reptilia_obis_validated.txt
 ```
+
+
+### checkspps
+
+**Note**: Intermediate files generated up while running this command are the same at each run. Therefore, if this command is running in parallel, specific directory per run must be used in order to avoid intermediate file crashing. Since the following example is a single run, repo directory is used as the working directory.
+
+You can also perform same analises, but starting from a list of species instead of a list of taxonomical rank. Further data, however is requiered, in order to create filename.
+
+
+```Shell
+checklists --list-of-taxa list_invert --list-of-geo list_geo
+```
+
 
 
