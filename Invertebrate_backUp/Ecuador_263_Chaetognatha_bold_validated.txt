@@ -1,3 +1,0 @@
-Zonosagitta bedoti,Sagitta bedoti,public_outside
-Zonosagitta bedoti,Zonosagitta bedoti,private
-Zonosagitta pulchra,Zonosagitta pulchra,public_outside

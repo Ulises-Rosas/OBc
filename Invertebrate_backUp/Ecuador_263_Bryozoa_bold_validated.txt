@@ -1,2 +1,0 @@
-Bugula neritina,Bugula neritina,public_outside
-Bugulina californica,Bugula californica,private
