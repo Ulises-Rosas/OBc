@@ -1,5 +1,0 @@
-Lineus sanguineus,Myoisophagos sanguineus,public_outside
-Lineus sanguineus,Ramphogordius sanguineus,public_outside
-Parborlasia corrugatus,Parborlasia corrugatus,public_inside
-Prosorhochmus nelsoni,Prosorhochmus nelsoni,public_inside
-Tetrastemma peltatum,Tetrastemma peltatum,public_outside
