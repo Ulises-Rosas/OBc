@@ -112,15 +112,15 @@ Likewise, this command can also join files from different directories while addi
 ```Shell
 
 joinfiles.py\
-   --from     data/Invertebrate data/Actinopterygii data/Elasmobranchii data/Reptilia data/Mammalia\
-   --as       Invertebrate Actinopterygii Elasmobranchii Reptilia Mammalia\
+   --from data/Invertebrate data/Actinopterygii data/Elasmobranchii data/Reptilia data/Mammalia\
+   --as Invertebrate Actinopterygii Elasmobranchii Reptilia Mammalia\
    --matching _bold_ > data/WholeDirectories_bold.txt
 ```
 
 ```Bash
 joinfiles.py\
-   --from     data/Invertebrate data/Actinopterygii data/Elasmobranchii data/Reptilia data/Mammalia\
-   --as       Invertebrate Actinopterygii Elasmobranchii Reptilia Mammalia\
+   --from data/Invertebrate data/Actinopterygii data/Elasmobranchii data/Reptilia data/Mammalia\
+   --as Invertebrate Actinopterygii Elasmobranchii Reptilia Mammalia\
    --matching _obis_ > data/WholeDirectories_obis.txt
 ```
 
@@ -129,12 +129,48 @@ Each file is bigger than 400 KB and these can be found here: [data/WholeDirector
 
 ## checkspps<sup>\*</sup>
 
-You can also perform same analises, but starting from a list of species instead of a list of taxonomical rank. Further data, however is requiered, in order to create filename.
+Let's suppose we have the following species list called `sl_test.txt`:
+
+```Shell
+cat sl_test.txt
+```
+
+```
+Caretta caretta
+Dermochelys coriacea
+Eretmochelys imbricata
+```
+
+
+
+This command let you perform the same analisis of [`checklist`](https://github.com/Ulises-Rosas/OBc#checklists) 
+
+and starting from directly from a species list instead
+
+
+This commmand let you perform same routine from `checklist` command but it starts from a species list and end up wi
+This command let you perform both same routine from `checklist` command and end up with the same format from `joinfile.py`
+
+
+This command performs same routine from  `checklist` and on their outputs `joinfiles.py`
+
+
+with the file called [`sl_test.txt`]()
+
+
+This command takes a species list and performs same routine from `checklist` command and returns same format from `joinfiles.py` command:
 
 
 ```Bash
-checklists --list-of-taxa list_invert --list-of-geo list_geo
+checkspps Reptilia\
+   --area-name Peru\
+   --species-list sl_test.txt\
+   --at Phylum
 ```
+
+values of `subgroup` column are taken from a taxonomical rank of species specified with `--at` option. Remaining values for `group`, `country` are filled with the positional argument (i.e. Reptilia in above case) and `--area-name` option correspondingly.
+
+
 
 
 **\*** Intermediate files generated up while running this command are the same at each run. Therefore, if this command is running in parallel, specific directory per run must be used in order to avoid intermediate file crashing. Since the following example is a single run, repo directory is used as the working directory.
