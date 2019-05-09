@@ -57,11 +57,11 @@ class OBc:
 
                             if ncol(dir, sf) == 3:
 
-                                out.append("valida_name,synonyms,availability,region,subgroup,group")
+                                out.append("valid_name,synonyms,availability,region,subgroup,group")
 
                             elif ncol(dir, sf) == 1:
 
-                                out.append("species,region,subgroup,group")
+                                out.append("valid_name,region,subgroup,group")
 
                             nfile += 1
 
@@ -72,3 +72,7 @@ class OBc:
                                                         metadata[2] if grp is None else grp))
 
         return out
+
+    def Data4BarPlot(self):
+
+        pass
