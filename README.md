@@ -46,14 +46,14 @@ Chile_260_Acanthocephala_obis_validated.txt    Chile_260_Reptilia_obis_validated
 
 ## joinfiles.py
 
-As its name suggests, this command merge results from `checklists` command by adding metadata already stated on filenames. This is mainly used to 
+As its name suggests, this command merge results from `checklists` command by adding metadata that is already stated on filenames:
 
 ```Shell
 joinfiles.py --matching _obis_
 ```
 
 ```
-species,region,subgroup,group
+valid_name,region,subgroup,group
 Dermochelys coriacea,Chile,Reptilia,Reptilia
 Lepidochelys olivacea,Chile,Reptilia,Reptilia
 Caretta caretta,Colombia,Reptilia,Reptilia
@@ -66,14 +66,45 @@ joinfiles.py --matching _bold_
 ```
 
 ```
-valida_name,synonyms,availability,region,subgroup,group
+valid_name,synonyms,availability,region,subgroup,group
 Dermochelys coriacea,Dermochelys coriacea,public_outside,Chile,Reptilia,Reptilia
 Lepidochelys olivacea,Lepidochelys olivacea,public_outside,Chile,Reptilia,Reptilia
 Caretta caretta,Caretta caretta,public_outside,Colombia,Reptilia,Reptilia
 Dermochelys coriacea,Dermochelys coriacea,public_outside,Colombia,Reptilia,Reptilia
 Eretmochelys imbricata,Eretmochelys imbricata,public_inside,Colombia,Reptilia,Reptilia
-
 ```
+
+Default value of `--matching` option is `_bold_`. It is, however, stated as a matter of clearness. While default values of  column `group` is the same from `subgroup`, this can be modified with `--as` option. This is particularly usefull when merging an entire directory under a custom group:
+
+```Shell
+joinfiles.py --from data/Invertebrate\
+             --as Invertebrate > invertebrate_bold.txt 
+
+head -n 5 invertebrate_bold.txt
+```
+```
+valid_name,synonyms,availability,region,subgroup,group
+Aglaophamus macroura,Aglaophamus macroura,private,Chile,Annelida,Invertebrate
+Aglaophamus trissophyllus,Aglaophamus trissophyllus,public_outside,Chile,Annelida,Invertebrate
+Amphitrite kerguelensis,Amphitrite kerguelensis,private,Chile,Annelida,Invertebrate
+Ancistrosyllis groenlandica,Ancistrosyllis groenlandica,public_outside,Chile,Annelida,Invertebrate
+```
+```Shell
+joinfiles.py --from data/Invertebrate\
+             --as Invertebrate\
+             --matching _obis_ > invertebrate_obis.txt
+             
+head -n 5 invertebrate_obis.txt
+```
+```
+valid_name,region,subgroup,group
+Abyssoninoe abyssorum,Chile,Annelida,Invertebrate
+Aglaophamus foliosus,Chile,Annelida,Invertebrate
+Aglaophamus macroura,Chile,Annelida,Invertebrate
+Aglaophamus peruana,Chile,Annelida,Invertebrate
+```
+
+
 
 ## checkspps<sup>\*</sup>
 
