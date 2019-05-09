@@ -80,9 +80,9 @@ Default value of `--matching` option is `_bold_`. It is, however, stated as a ma
 joinfiles.py\
    --from data/Invertebrate\
    --as Invertebrate\
-   --matching _bold_ > invertebrate_bold.txt 
+   --matching _bold_ > data/invertebrate_bold.txt 
 
-head -n 5 invertebrate_bold.txt
+head -n 5 data/invertebrate_bold.txt
 ```
 ```
 valid_name,synonyms,availability,region,subgroup,group
@@ -95,9 +95,9 @@ Ancistrosyllis groenlandica,Ancistrosyllis groenlandica,public_outside,Chile,Ann
 joinfiles.py\
    --from data/Invertebrate\
    --as Invertebrate\
-   --matching _obis_ > invertebrate_obis.txt
+   --matching _obis_ > data/invertebrate_obis.txt
              
-head -n 5 invertebrate_obis.txt
+head -n 5 data/invertebrate_obis.txt
 ```
 ```
 valid_name,region,subgroup,group
@@ -114,16 +114,15 @@ Likewise, this command can also join files from different directories while addi
 joinfiles.py\
    --from data/Invertebrate data/Actinopterygii data/Elasmobranchii data/Reptilia data/Mammalia\
    --as   Invertebrate Actinopterygii Elasmobranchii Reptilia Mammalia\
-   --matching _bold_ > WholeDirectories_bold.txt
+   --matching _bold_ > data/WholeDirectories_bold.txt
 ```
 
 ```Shell
 joinfiles.py\
    --from data/Invertebrate data/Actinopterygii data/Elasmobranchii data/Reptilia data/Mammalia\
    --as Invertebrate Actinopterygii Elasmobranchii Reptilia Mammalia\
-   --matching _obis_ > WholeDirectories_obis.txt
+   --matching _obis_ > data/WholeDirectories_obis.txt
 ```
-
 
 
 ## checkspps<sup>\*</sup>
