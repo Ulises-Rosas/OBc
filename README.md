@@ -112,15 +112,15 @@ Likewise, this command can also join files from different directories while addi
 ```Shell
 
 joinfiles.py\
-   --from     data/Invertebrate data/Actinopterygii data/Elasmobranchii data/Reptilia data/Mammalia\
-   --as       Invertebrate Actinopterygii Elasmobranchii Reptilia Mammalia\
+   --from data/Invertebrate data/Actinopterygii data/Elasmobranchii data/Reptilia data/Mammalia\
+   --as Invertebrate Actinopterygii Elasmobranchii Reptilia Mammalia\
    --matching _bold_ > data/WholeDirectories_bold.txt
 ```
 
 ```Bash
 joinfiles.py\
-   --from     data/Invertebrate data/Actinopterygii data/Elasmobranchii data/Reptilia data/Mammalia\
-   --as       Invertebrate Actinopterygii Elasmobranchii Reptilia Mammalia\
+   --from data/Invertebrate data/Actinopterygii data/Elasmobranchii data/Reptilia data/Mammalia\
+   --as Invertebrate Actinopterygii Elasmobranchii Reptilia Mammalia\
    --matching _obis_ > data/WholeDirectories_obis.txt
 ```
 
@@ -129,12 +129,26 @@ Each file is bigger than 400 KB and these can be found here: [data/WholeDirector
 
 ## checkspps<sup>\*</sup>
 
-You can also perform same analises, but starting from a list of species instead of a list of taxonomical rank. Further data, however is requiered, in order to create filename.
 
+Now, let's suppose we have a species list and not a list of taxonomical ranks instead. This species list may come from any source but OBIS database (e.g. FishBase, custom list, etc). `checkspps` was justly created to take a custom species list and to directly compare those species into BOLD by skiping data mining steps from OBIS.
+
+
+If we have a species list called [sl_test.txt](https://github.com/Ulises-Rosas/OBc/blob/master/sl_test.txt), then:
 
 ```Bash
-checklists --list-of-taxa list_invert --list-of-geo list_geo
+checkspps Reptilia\
+   --area-name Peru\
+   --species-list sl_test.txt\
+   --at Phylum
 ```
+
+It returns same format from `joinfiles.py` command. Values of `subgroup` column are taken from a taxonomical rank of species specified with `--at` option. Remaining values for both `group` and `country` columns are filled with the positional argument (i.e. Reptilia in above case) and `--area-name` option correspondingly.
+
+
+
+
+
+
 
 
 **\*** Intermediate files generated up while running this command are the same at each run. Therefore, if this command is running in parallel, specific directory per run must be used in order to avoid intermediate file crashing. Since the following example is a single run, repo directory is used as the working directory.
