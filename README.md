@@ -84,6 +84,4 @@ You can also perform same analises, but starting from a list of species instead 
 checklists --list-of-taxa list_invert --list-of-geo list_geo
 ```
 
-
-
-<sup>\*</sup>Intermediate files generated up while running this command are the same at each run. Therefore, if this command is running in parallel, specific directory per run must be used in order to avoid intermediate file crashing. Since the following example is a single run, repo directory is used as the working directory.
+**\*** Intermediate files generated up while running this command are the same at each run. Therefore, if this command is running in parallel, specific directory per run must be used in order to avoid intermediate file crashing. Since the following example is a single run, repo directory is used as the working directory.
