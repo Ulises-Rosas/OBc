@@ -1,0 +1,3 @@
+Caretta caretta,Caretta caretta,public_outside,Peru,Chordata,Reptilia
+Dermochelys coriacea,Dermochelys coriacea,public_outside,Peru,Chordata,Reptilia
+Eretmochelys imbricata,Eretmochelys imbricata,public_inside,Peru,Chordata,Reptilia
