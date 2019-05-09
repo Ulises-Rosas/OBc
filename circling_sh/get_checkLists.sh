@@ -92,7 +92,7 @@ if [[ ! -z $SL ]]; then
     touch backUp_obis
     touch backUp_bold
 
-    PREFIX=$AREA_NAME'_'$AREA_ID'_'${POSITIONAL[@]}
+    PREFIX=$AREA_NAME'_'${POSITIONAL[@]}
     cat $SL > ${POSITIONAL[@]}'_obis'
 
     if [[ `echo $AT` =~ "any" ]]; then AT="Phylum"; fi
