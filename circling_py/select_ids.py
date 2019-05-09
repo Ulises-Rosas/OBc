@@ -3,10 +3,14 @@ import os
 import argparse
 from circling_py.worms import *
 
-parser = argparse.ArgumentParser(description="Utility for dealing with ids and ecopcr results")
+parser = argparse.ArgumentParser(description="WoRMS wrapper")
 
 parser.add_argument('--string', metavar='<string>',
                     help='String used to search between files if taxids is requested')
+parser.add_argument('--at',
+                    metavar='<string>',
+                    default=None,
+                    help='taxonomical rank coupled to checkspps command')
 parser.add_argument('--type', metavar="<string>",
                     default = "",
                     help='Type of file to deal with <synonyms,validate,ranks>')
@@ -20,6 +24,7 @@ parser.add_argument('--prefix', metavar='<string>',
 parser.add_argument('--input', metavar="<string>",
                     default = "",
                     help='''Input  file or comma-separated string with taxonomic ranks to look for''')
+
 args = parser.parse_args()
 
 class Minbar:
@@ -44,7 +49,7 @@ class Minbar:
 
         return validated_name
 
-    def synonyms(self):
+    def synonyms(self, at):
         #...self = Minbar("Scieane wieneri")...#
         # upon validating names, this name is used for getting
         # synonyms
@@ -82,6 +87,8 @@ class Minbar:
 
             syns = name.get_synonyms()
 
+            pvalid = valid if at == "any" or at is None else "%s,%s" % (valid, name.get_rank(at))
+
             if len(syns) == 0:
                 # if species is does not have any synonyms,
                 # assess if this valid name is equal to self.term
@@ -90,11 +97,11 @@ class Minbar:
                 if self.term != valid:
                     # return that rare self.term in order to avoid it in
                     # another search. This was added because of some `Thais` cases
-                    return [self.term + "," + valid, valid + "," + valid]
+                    return [self.term + "," + pvalid, valid + "," + pvalid]
 
                 else:
 
-                    return [valid + "," + valid]
+                    return [valid + "," + pvalid]
 
             else:
                 ## joining valid and syns in a single list
@@ -102,9 +109,9 @@ class Minbar:
 
                 for syn in syns:
                     # print(syn + "," +valid)
-                    joined_list.append(syn + "," + valid)
+                    joined_list.append(syn + "," + pvalid)
 
-                joined_list.append(valid + "," + valid)
+                joined_list.append(valid + "," + pvalid)
 
                 return joined_list
 
@@ -129,7 +136,7 @@ if args.tax is True and args.type == "validate":
     #print(Minbar(term="Anolis ventrimaculatus").validate_tax())
 
 elif args.tax is True and args.type == "synonyms":
-    lines = Minbar( term=str(args.string) ).synonyms()
+    lines = Minbar( term=str(args.string) ).synonyms(at= str(args.at))
 
     if args.prefix is None:
         for i in lines:
