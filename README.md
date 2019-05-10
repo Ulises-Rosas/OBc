@@ -16,6 +16,18 @@ cd OBc
 make
 ```
 
+## Commands
+
+* [checklists](https://github.com/Ulises-Rosas/OBc#checklists)
+* [joinfiles.py](https://github.com/Ulises-Rosas/OBc#joinfilespy)
+* [checkspps](https://github.com/Ulises-Rosas/OBc#checkspps)
+* [barplot](https://github.com/Ulises-Rosas/OBc#barplot)
+* [sankeyplot](https://github.com/Ulises-Rosas/OBc#sankeyplot)
+* [upsetplot](https://github.com/Ulises-Rosas/OBc#upsetplot)
+* [radarplot](https://github.com/Ulises-Rosas/OBc#radarplot)
+
+
+
 ## checklists<sup>\*</sup>
 
 There are two mock files available for testing:
