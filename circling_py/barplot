@@ -115,7 +115,7 @@ def main():
         p.communicate()
 
 
-    out = options['output'] if options['output'] != "input_based" else re.sub('(.*).txt', "\\1_BarPlot.tiff", options['input'])
+    out = options['output'] if options['output'] != "input_based" else re.sub('(.*).txt', "\\1_BarPlot.tiff", options['input'].split('/')[-1])
 
     Ropt = ['plot_bars.R',
             '-i', tmp_filename,
