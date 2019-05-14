@@ -1,0 +1,151 @@
+#!/usr/bin/env python3
+
+# -*- coding: utf-8 -*- #
+
+import argparse
+import uuid
+import subprocess
+from circling_py.OBc import *
+
+
+def getOpt():
+
+    parser = argparse.ArgumentParser(description="Barplot from OBc pipeline")
+
+    parser.add_argument('-i','--input',
+                        metavar='str',
+                        default=None,
+                        help='[Required] input file',
+                        required=True)
+    parser.add_argument('-n', '--freq',
+                        action='store_false',
+                        help='[Optional] If selected, use frequencies instead of proportions'),
+    parser.add_argument('-v','--var',
+                        metavar="str",
+                        type=str,
+                        default="region",
+                        help='[Optional] variables at y axis [Default = region]')
+    parser.add_argument('-f','--fill',
+                        metavar='str',
+                        type=str,
+                        default='subgroup',
+                        help='[Optional] Variables at each bar [Default = subgroup]')
+    parser.add_argument('-x','--xtitle',
+                        metavar='str',
+                        type=str,
+                        default='Proportion',
+                        help='[Optional] Title for x axis [Default = Proportion]')
+    parser.add_argument('-y', '--ytitle',
+                        metavar='str',
+                        type=str,
+                        default='Country',
+                        help='[Optional] Title for y axis [Default = Country]')
+    parser.add_argument('-l', '--ltitle',
+                        metavar='str',
+                        type=str,
+                        default='Taxa',
+                        help='[Optional] Title for legend [Default = Taxa]')
+    parser.add_argument('-p', '--pal',
+                        metavar='str',
+                        type=str,
+                        default='Spectral',
+                        help='[Optional] Palette of colors [Default = Spectral]')
+    parser.add_argument('-s', '--sV',
+                        metavar='str',
+                        default=None,
+                        help='[Optional] Sort var by an specific string in CSV format (e.g. "value1,value2,value3") [Default = None]')
+    parser.add_argument('-S', '--sF',
+                        metavar='str',
+                        default=None,
+                        help='[Optional] Sort fill by an specific string in CSV format (e.g. "value1,value2,value3") [Default = None]')
+    parser.add_argument('-H',
+                        metavar='float',
+                        type=float,
+                        default=5.5,
+                        help='[Optional] Height of plot [Default = 4.25]')
+    parser.add_argument('-W',
+                        metavar='float',
+                        type=float,
+                        default=11,
+                        help='[Optional] Height of plot [Default = 10.5]')
+    parser.add_argument('-r',
+                        metavar='float',
+                        type=float,
+                        default=100,
+                        help='[Optional] Resolution of plot [Default = 100]')
+    parser.add_argument('-o', '--output',
+                        metavar='str',
+                        type=str,
+                        default='input_based',
+                        help='[Optional] Output name [Default = <input_based>.tiff]')
+    args = parser.parse_args()
+
+    return args
+
+def main():
+
+    options = vars(getOpt())
+    # print(options)
+
+    if options['input'] is None:
+        print("\033[0;31m\nError: Please, introduce a file name\033[0m")
+        exit()
+
+    out = OBc().BarPlotData(
+                    file = options['input'],
+                    vars = options['var'],
+                    fill = options['fill'],
+                    prop = options['freq']
+                )
+
+    if out is None or out.__len__() == 0:
+        print("\033[0;31m\nError: Unable to generate up data\033[0m")
+        exit()
+
+    tmp_filename = uuid.uuid4().hex[:10].upper()
+
+    f = open(tmp_filename, "w")
+    for i in out:
+
+        f.write(i + "\n")
+    f.close()
+
+    def runShell(args):
+        p = subprocess.Popen(args)
+        p.communicate()
+
+
+    out = options['output'] if options['output'] != "input_based" else re.sub('(.*).txt', "\\1_BarPlot.tiff", options['input'])
+
+    Ropt = ['plot_bars.R',
+            '-i', tmp_filename,
+            '-v', options['var'],
+            '-f', options['fill'],
+            '-x', options['xtitle'],
+            '-y', options['ytitle'],
+            '-l', options['ltitle'],
+            '-p', options['pal'],
+            '-H', str(options['H']),
+            '-W', str(options['W']),
+            '-r', str(options['r']),
+            '-o', out]
+
+    # print(Ropt)
+
+    if options['sV'] is not None:
+        Ropt.append( '-s')
+        Ropt.append( options['sV'] )
+
+    if options['sF'] is not None:
+        Ropt.append( '-S')
+        Ropt.append( options['sF'] )
+
+
+    runShell(Ropt)
+
+    runShell(['rm', tmp_filename])
+
+if __name__ == "__main__":
+    main()
+
+
