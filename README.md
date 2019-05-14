@@ -159,6 +159,10 @@ It will return both: [Peru_Reptilia_obis_validated.txt](https://github.com/Ulise
 
 ## barplot
 
+```Bash
+barplot -i data/invertebrate_bold.txt
+```
+
 
 
 **\*** Intermediate files generated up while running this command are the same at each run. Therefore, if this command is running in parallel, specific directory per run must be used in order to avoid intermediate file crashing. Since the following example is a single run, repo directory is used as the working directory.
