@@ -95,7 +95,7 @@ opt = parse_args(opt_parser)
 df = read.csv(opt$`input`, stringsAsFactors = F)
 
 ## delete
-# df = read.csv('3A49BFE13F', stringsAsFactors = F)
+# df = read.csv('C45981549E', stringsAsFactors = F)
 ## delete
 
 sorter <- function(df, col, decreasing = T){
@@ -112,13 +112,24 @@ sorter <- function(df, col, decreasing = T){
   return( tmp_df[order(tmp_df$tmp_sum, decreasing = decreasing),]$fill )
 }
 
+scaleY <- function(df){
+  
+  if( length( integer(df[1, 'n']) ) == 0 ){
+    
+    return( as.character( seq(0, 1, length.out = 5) ) )
+  }else{
+    
+    return( as.character( seq(min(df[, 'n']), max(df[, 'n']), length.out = 5) ) )
+  }
+}
+
+
 suppressWarnings({
   cols1 = colorRampPalette(brewer.pal(12, opt$`palette`))(length(unique(df[,opt$`fill`])))
 })
 
-fillLevels <- if (!is.null(opt$`sortFill`)) strsplit(opt$`sortFill`,"," )[[1]] else sorter(df,opt$`fill`) 
+fillLevels <- if (!is.null(opt$`sortFill`)) strsplit(opt$`sortFill`,"," )[[1]] else sorter(df,opt$`fill`)
 varLevels  <- if (!is.null(opt$`sortVar` )) strsplit(opt$`sortVar`, "," )[[1]] else sorter(df,opt$`var` )
-
 
 df[,opt$`fill`] <- factor(x = df[,opt$`fill`], levels = fillLevels, ordered = T )
 df[,opt$`var`]  <- factor(x = df[,opt$`var`] , levels = varLevels , ordered = T )
@@ -130,14 +141,16 @@ tiff(filename = opt$`output`,
      units    = 'in',
      res      = opt$`resolution`,
      compression = 'lzw+p')
+
 ggplot(df,
        aes_string(
          fill = opt$`fill`,
-         y = "n",
+         y = "-n",
          x = opt$`var` )) +
   geom_bar(stat = "identity") +
   theme_bw(base_size = 15) +
   scale_fill_manual(values = cols1, name = opt$`ltitle`) +
+  scale_y_continuous(labels = scaleY(df)) +
   coord_flip() +
   labs(    y = opt$`xtitle`,
            x = opt$`ytitle`,
