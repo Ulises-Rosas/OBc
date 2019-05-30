@@ -3,7 +3,6 @@
 # -*- coding: utf-8 -*- #
 
 import argparse
-import uuid
 import subprocess
 from circling_py.OBc import *
 
@@ -117,18 +116,12 @@ def main():
         print("\033[0;31m\nError: Unable to generate up data\033[0m")
         exit()
 
-    tmp_filename = uuid.uuid4().hex[:10].upper()
-
-    f = open(tmp_filename, "w")
-    for i in out:
-
-        f.write(i + "\n")
-    f.close()
+    tmp_filename = OBc().writeOut(out=out)
 
     out = options['output'] if options['output'] != "input_based" else cname(options['input'])
 
     Ropt = ['plot_bars.R',
-            '-i', tmp_filename,
+            '-i', str(tmp_filename),
             '-v', options['var'],
             '-f', options['fill'],
             '-x', options['xtitle'],
@@ -153,7 +146,7 @@ def main():
 
     runShell(Ropt)
 
-    runShell(['rm', tmp_filename])
+    runShell(['rm', str(tmp_filename)])
 
 if __name__ == "__main__":
     main()
