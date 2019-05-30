@@ -52,19 +52,33 @@ dependencies:
   - zlib=1.2.11=h1de35cc_3
   - zstd=1.3.7=h5bba6e5_0
   - ca-certificates=2019.3.9=hecc5488_0
+  - certifi=2019.3.9=py36_0
   - gfortran_osx-64=4.8.5=h22b1bf0_8
   - libssh2=1.8.2=hcdc9a53_2
   - openssl=1.1.1b=h01d97ff_2
   - pip=19.0.3=py36_0
+  - r-boot=1.3_22=r351_0
+  - r-cowplot=0.9.4=r351h6115d3f_0
+  - r-desctools=0.99.28=r351hb1f44f5_0
+  - r-expm=0.999_3=r351hfffe0aa_1002
+  - r-foreign=0.8_71=r351h46e59ec_1002
   - r-getopt=1.20.3=r351_0
+  - r-ggpubr=0.2=r351h6115d3f_1000
+  - r-ggrepel=0.8.1=r351hf99fc2c_0
+  - r-ggsci=2.9=r351h6115d3f_1001
+  - r-ggsignif=0.5.0=r351h6115d3f_0
+  - r-gridextra=2.3=r351h6115d3f_1001
+  - r-mvtnorm=1.0_10=r351haf69682_0
   - r-optparse=1.6.1=r351h6115d3f_0
+  - r-polynom=1.3_9=r351h6115d3f_1001
+  - r-tidyr=0.8.2=r351h466af19_1002
   - setuptools=41.0.0=py36_0
   - tk=8.6.8=ha441bb4_0
   - wheel=0.33.1=py36_0
   - _r-mutex=1.0.0=anacondar_1
-  - certifi=2019.3.9=py36_0
   - krb5=1.16.1=hddcf347_7
   - libopenblas=0.3.3=hdc02c5d_3
+  - r-manipulate=1.0.1=r351hf348343_4
   - r-ape=5.1=r351h32998d9_0
   - r-assertthat=0.2.0=r351hf348343_0
   - r-base=3.5.1=h539fb6c_1
