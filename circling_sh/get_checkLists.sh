@@ -81,11 +81,24 @@ done
 
 set -- "${POSITIONAL[@]}" # restore positional parameters
 
-#POSITIONAL="Reptilia"
-#AREA_ID="38"
-#AREA_NAME="Colombia"
+# TODO: See a case of country
+# that uses metacharacters within its name
+# from BOLD system name and then 
+# trace down this script.
+# function format {
 
-OBC_PREFIX="path_ssp"
+#     local IFS=$'\n'
+
+#     echo $1 |\
+#      sed -Ee "s/\\(/\\\(/g" |\
+#       sed -Ee "s/\\)/\\\)/g" 
+# }
+# #POSITIONAL="Reptilia"
+# #AREA_ID="38"
+# #AREA_NAME="Colombia"
+
+# AREA_NAME=$(format "${AREA_NAME[@]}")
+OBC_PREFIX="/Users/admin/Desktop/Circulo/OBc"
 
 if [[ ! -z $SL ]]; then
     
