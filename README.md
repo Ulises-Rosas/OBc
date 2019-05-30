@@ -162,12 +162,12 @@ It will return both: [Peru_Reptilia_obis_validated.txt](https://github.com/Ulise
 ```Bash
 barplot -i data/invertebrate_bold.txt
 ```
-![](https://github.com/Ulises-Rosas/OBc/blob/master/data/img/invertebrate_bold_BarPlot.tiff)
+![](https://github.com/Ulises-Rosas/OBc/blob/master/data/img/invertebrate_bold_BarPlot.jpeg)
 
 ## upsetplot
 
 ```Bash
- upsetplot -i data/bold.csv
+upsetplot -i data/bold.csv
 ```
 ![](https://github.com/Ulises-Rosas/OBc/blob/master/data/img/bold_UpsetPlot.jpeg)
 
