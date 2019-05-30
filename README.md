@@ -167,7 +167,7 @@ barplot -i data/invertebrate_bold.txt
 ## upsetplot
 
 ```Bash
- upsetplot -i data/bold.csv
+upsetplot -i data/bold.csv
 ```
 ![](https://github.com/Ulises-Rosas/OBc/blob/master/data/img/bold_UpsetPlot.jpeg)
 
