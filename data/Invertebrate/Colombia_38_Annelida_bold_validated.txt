@@ -1,4 +1,0 @@
-Alitta succinea,Alitta succinea,public_outside
-Hermodice carunculata,Hermodice carunculata,public_outside
-Pelagobia longicirrata,Pelagobia longicirrata,public_outside
-Spirobranchus giganteus,Spirobranchus giganteus,private
