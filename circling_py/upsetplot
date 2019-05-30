@@ -57,7 +57,7 @@ def getOpt():
     parser.add_argument('-H',
                         metavar='float',
                         type=float,
-                        default=3.25,
+                        default=3.5,
                         help='[Optional] Height of plot in inches [Default = 3.25]')
     parser.add_argument('-W',
                         metavar='float',
