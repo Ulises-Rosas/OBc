@@ -89,7 +89,7 @@ setupR: env check_py2 check_py3
         Rscript --save ./circling_r/get_packages.R &&\
         git clone https://github.com/Ulises-Rosas/BOLD-mineR.git &&\
         bash ./circling_r/source --turn on &&\
-        install circling_r/plot_bars.R    $$CONDA_PREFIX/bin&&\
+        install circling_r/plot_bars.R    $$CONDA_PREFIX/bin &&\
         install circling_r/plot_upset.R   $$CONDA_PREFIX/bin
 	cp  BOLD-mineR/r/AuditionBarcode.v.2.R circling_r
 	cp  BOLD-mineR/r/SpecimenData.R circling_r 
