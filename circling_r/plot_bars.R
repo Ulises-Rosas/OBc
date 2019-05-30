@@ -135,13 +135,11 @@ df[,opt$`fill`] <- factor(x = df[,opt$`fill`], levels = fillLevels, ordered = T 
 df[,opt$`var`]  <- factor(x = df[,opt$`var`] , levels = varLevels , ordered = T )
 
 
-tiff(filename = opt$`output`,
+jpeg(filename = opt$`output`, 
      width    = opt$`width`,
-     height   = opt$`height`,
-     units    = 'in',
-     res      = opt$`resolution`,
-     compression = 'lzw+p')
-
+     height   = opt$`height`, 
+     units    = 'in', 
+     res      = opt$`resolution`)
 ggplot(df,
        aes_string(
          fill = opt$`fill`,
