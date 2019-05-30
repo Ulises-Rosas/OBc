@@ -62,12 +62,12 @@ def getOpt():
                         metavar='float',
                         type=float,
                         default=5.5,
-                        help='[Optional] Height of plot [Default = 4.25]')
+                        help='[Optional] Height of plot in inches [Default = 4.25]')
     parser.add_argument('-W',
                         metavar='float',
                         type=float,
                         default=11,
-                        help='[Optional] Height of plot [Default = 10.5]')
+                        help='[Optional] Height of plot in inches [Default = 10.5]')
     parser.add_argument('-r',
                         metavar='float',
                         type=float,
@@ -81,6 +81,21 @@ def getOpt():
     args = parser.parse_args()
 
     return args
+
+def runShell(args):
+    p = subprocess.Popen(args)
+    p.communicate()
+
+def cname(s):
+    """
+    :param s: check line 138 of `plot_bars.R`
+    :return:
+    """
+    tail = "_BarPlot.jpeg"
+    try:
+        return s.split(".")[-2].split("/")[-1] + tail
+    except IndexError:
+        return s.split("/")[-1] + tail
 
 def main():
 
@@ -110,12 +125,7 @@ def main():
         f.write(i + "\n")
     f.close()
 
-    def runShell(args):
-        p = subprocess.Popen(args)
-        p.communicate()
-
-
-    out = options['output'] if options['output'] != "input_based" else re.sub('(.*).txt', "\\1_BarPlot.tiff", options['input'].split('/')[-1])
+    out = options['output'] if options['output'] != "input_based" else cname(options['input'])
 
     Ropt = ['plot_bars.R',
             '-i', tmp_filename,
