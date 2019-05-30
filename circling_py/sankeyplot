@@ -1,0 +1,44 @@
+#!/usr/bin/env python3
+
+# -*- coding: utf-8 -*- #
+
+import argparse
+import subprocess
+from circling_py.OBc import *
+
+def getOpt():
+
+    parser = argparse.ArgumentParser(description="Sankey plot from OBc pipeline")
+
+    parser.add_argument('-i','--input',
+                        metavar='str',
+                        default=None,
+                        help='[Required] input file',
+                        required=True)
+
+    args = parser.parse_args()
+
+    return args
+
+def runShell(args):
+    p = subprocess.Popen(args)
+    p.communicate()
+
+def cname(s):
+    """
+    :param s: check line 138 of `plot_bars.R`
+    :return:
+    """
+    tail = "_SankeyPlot.jpeg"
+    try:
+        return s.split(".")[-2].split("/")[-1] + tail
+    except IndexError:
+        return s.split("/")[-1] + tail
+
+
+def main():
+
+    options = vars(getOpt())
+
+if __name__ == "__main__":
+    main()
