@@ -1,0 +1,137 @@
+#!/usr/bin/env python3
+
+# -*- coding: utf-8 -*- #
+
+import argparse
+import subprocess
+from circling_py.OBc import *
+
+
+def getOpt():
+
+    parser = argparse.ArgumentParser(description="Upset plot from OBc pipeline")
+
+    parser.add_argument('-i','--input',
+                        metavar='str',
+                        default=None,
+                        help='[Required] input file',
+                        required=True)
+    parser.add_argument('-g','--group',
+                        metavar="str",
+                        type=str,
+                        default="group",
+                        help='[Optional] Grouping column [Default = group]')
+    parser.add_argument('-b', '--block',
+                        metavar='str',
+                        type=str,
+                        default=None,
+                        help='[Optional] Sort group by an specific string in CSV format (e.g. "value1,value2,value3") [Default = None]')
+    parser.add_argument('-l', '--line',
+                        metavar='str',
+                        type=str,
+                        default=None,
+                        help='[Optional] Sort stripes by an specific string in CSV format (e.g. "value1,value2,value3") [Default = None]')
+    parser.add_argument('-s', '--sep',
+                        action='store_true',
+                        help='[Optional] If selected, in each block, countries metrics appear first and then their combinations')
+    parser.add_argument('-p', '--pal',
+                        metavar='str',
+                        type=str,
+                        default='RdYlBu',
+                        help='[Optional] Palette of colors [Default = RdYlBu]')
+    parser.add_argument('-P',
+                        metavar='float',
+                        type=float,
+                        default=3.8,
+                        help='[Optional] Point size inside dumbbell plot [Default = 3.25]')
+    parser.add_argument('-T',
+                        metavar='float',
+                        type=float,
+                        default=3.25,
+                        help='[Optional] Text size above bars [Default = 3.25]')
+    parser.add_argument('-B',
+                        metavar='float',
+                        type=float,
+                        default=14,
+                        help='[Optional] Size of axis labels [Default = 14]')
+    parser.add_argument('-H',
+                        metavar='float',
+                        type=float,
+                        default=3.25,
+                        help='[Optional] Height of plot in inches [Default = 3.25]')
+    parser.add_argument('-W',
+                        metavar='float',
+                        type=float,
+                        default=12.5,
+                        help='[Optional] Height of plot in inches [Default = 12.5]')
+    parser.add_argument('-r',
+                        metavar='float',
+                        type=float,
+                        default=100,
+                        help='[Optional] Resolution of plot [Default = 100]')
+    parser.add_argument('-o', '--output',
+                        metavar='str',
+                        type=str,
+                        default='input_based',
+                        help='[Optional] Output name [Default = <input_based>.tiff]')
+    args = parser.parse_args()
+
+    return args
+
+def runShell(args):
+    p = subprocess.Popen(args)
+    p.communicate()
+
+def cname(s):
+    """
+    :param s: check line 238 of `plot_upset.R`
+    :return:
+    """
+    tail = "_UpsetPlot.jpeg"
+    try:
+        return s.split(".")[-2].split("/")[-1] + tail
+    except IndexError:
+        return s.split("/")[-1] + tail
+
+def main():
+
+    options = vars(getOpt())
+    # print(options)
+    outClass = OBc()
+
+    datUpset = outClass.UpsetData(
+                    file  = options['input'],
+                    group = options['group'],
+                    block = options['block'] if options['block'] is None else options['block'].split(','),
+                    line  = options['line' ] if options['line' ] is None else options['line' ].split(','),
+                    sep   = options['sep'  ])
+    datBar   = outClass.Upset2Bar(output = datUpset)
+
+    upsetFile = outClass.writeOut(out = datUpset)
+    barFile   = outClass.writeOut(out = datBar  )
+
+    fo = options['output'] if options['output'] != "input_based" else cname(options['input'])
+    # print(fo)
+    # print(upsetFile, barFile)
+    Ropt = ['circling_r/plot_upset.R',
+            '-i', str(upsetFile),
+            '-y', str(barFile),
+            '-p', options['pal'],
+            '-P', str(options['P']),
+            '-T', str(options['T' ]),
+            '-B', str(options['B' ]),
+            '-H', str(options['H']),
+            '-W', str(options['W']),
+            '-r', str(options['r']),
+            '-o', fo]
+
+    if options['line'] is not None:
+        Ropt.append( '-l' )
+        Ropt.append( options['line'] )
+
+    runShell(Ropt)
+
+    runShell(['rm', upsetFile, barFile])
+
+if __name__ == "__main__":
+    main()
