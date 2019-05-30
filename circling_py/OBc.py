@@ -418,3 +418,6 @@ class OBc:
 
         f.close()
         return tmp_filename
+
+    def SankeyData(self, file):
+        pass
