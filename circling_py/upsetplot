@@ -113,7 +113,7 @@ def main():
     fo = options['output'] if options['output'] != "input_based" else cname(options['input'])
     # print(fo)
     # print(upsetFile, barFile)
-    Ropt = ['circling_r/plot_upset.R',
+    Ropt = ['plot_upset.R',
             '-i', str(upsetFile),
             '-y', str(barFile),
             '-p', options['pal'],
