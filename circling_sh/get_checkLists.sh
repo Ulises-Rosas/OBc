@@ -98,7 +98,7 @@ set -- "${POSITIONAL[@]}" # restore positional parameters
 # #AREA_NAME="Colombia"
 
 # AREA_NAME=$(format "${AREA_NAME[@]}")
-OBC_PREFIX="path_ssp"
+OBC_PREFIX="/Users/admin/Desktop/Circulo/OBc"
 
 if [[ ! -z $SL ]]; then
     
