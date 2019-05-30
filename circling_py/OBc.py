@@ -247,7 +247,7 @@ class OBc:
             out  = []
 
             for k in keys:
-                k = list(keys)[1]
+                # k = list(keys)[1]
                 tmp_df = self.__subset__(df0[1::], k)
                 # ['Peru,Echinodermata,31,Peru', ...]
                 WS = sum([int(i.split(",")[-2]) for i in tmp_df])
