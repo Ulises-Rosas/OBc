@@ -131,7 +131,7 @@ def main():
 
     runShell(Ropt)
 
-    runShell(['rm', upsetFile, barFile])
+    runShell([ 'rm', str(upsetFile), str(barFile) ])
 
 if __name__ == "__main__":
     main()
