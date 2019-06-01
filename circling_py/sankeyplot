@@ -10,14 +10,34 @@ def getOpt():
 
     parser = argparse.ArgumentParser(description="Sankey plot from OBc pipeline")
 
-    parser.add_argument('-i','--input',
+    parser.add_argument('-b','--bold',
                         metavar='str',
-                        default=None,
-                        help='[Required] input file',
+                        help='[Required] bold file',
                         required=True)
+    parser.add_argument('-o', '--obis',
+                        metavar='str',
+                        help='[Required] obis file',
+                        required=True)
+    parser.add_argument('-g', '--group',
+                        metavar="str",
+                        type=str,
+                        default="group",
+                        help='[Optional] Grouping column from obis file [Default = group]')
+    parser.add_argument('-q', '--quiet',
+                        action='store_false',
+                        help='[Optional] If selected, suppress running messages')
+    parser.add_argument('-R',
+                        metavar="str",
+                        type=str,
+                        default=None,
+                        help='[Optional] Sort region by an specific string in CSV format (e.g. "value1,value2,value3") [Default = None]')
+    parser.add_argument('-G',
+                        metavar="str",
+                        type=str,
+                        default=None,
+                        help='[Optional] Sort group by an specific string in CSV format (e.g. "value1,value2,value3") [Default = None]')
 
     args = parser.parse_args()
-
     return args
 
 def runShell(args):
@@ -35,10 +55,25 @@ def cname(s):
     except IndexError:
         return s.split("/")[-1] + tail
 
-
 def main():
 
     options = vars(getOpt())
+
+    # print(options)
+
+    OBclass = OBc()
+    out = OBclass.SankeyData(
+                bold       = options['bold' ],
+                obis       = options['obis' ],
+                group      = options['group'],
+                debug      = options['quiet'],
+                groupsort  = options['G'] if options['G'] is None else options['G'].split(","),
+                regionsort = options['R'] if options['R'] is None else options['R'].split(",")
+                )
+
+    out_file = OBclass.writeOut(out = out)
+
+    # print(out_file)
 
 if __name__ == "__main__":
     main()
