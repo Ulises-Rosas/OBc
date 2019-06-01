@@ -40,6 +40,7 @@ class OBc:
 
     def __groupBy_key__(self, df, vars):
         """
+        WARNING: keys are always ordered in function of their positions in header
         structures:
         vars = ["group", "region"]
         df   = ["valid_name,region,subgroup,group", ...]
@@ -265,6 +266,30 @@ class OBc:
 
         return df
 
+    def getOrderedGroups(self, df, group, by, withN = True , rev = True):
+        """
+        :param df: list
+        :param group: list
+        :param by: list
+        :param withN: boolean
+        :return: (x,n) or (x)
+        """
+        tItems = lambda csv: (csv.split(",")[0], int(csv.split(",")[1]))
+        vals   = self.count(self.summarise(df, ['valid_name'] + group), group)[1:]
+
+        if by is not None:
+            out = []
+            for i in by:
+                for ii in vals:
+                    if re.findall("^%s," % i, ii):
+                        out.append(ii)
+            sPairs = list(map(tItems, out))
+
+        else:
+            sPairs = sorted(map(tItems, vals), key = lambda kv: kv[1], reverse = rev)
+
+        return sPairs if withN else [k[0] for k in sPairs]
+
     def UpsetData(self, file, group, block, line, sep = True):
         """
         :param file: "data/bold.csv"
@@ -283,22 +308,6 @@ class OBc:
         # group = ["group"]
         # self  = OBc()
         ##
-
-        def getOrderedGroups(df, group, by):
-
-            tItems = lambda csv: (csv.split(",")[0], int(csv.split(",")[1]))
-
-            vals = self.count(  self.summarise(df, ['valid_name'] + group), group)[1:]
-
-            if by is not None:
-                out = []
-                for i in by:
-                    for ii in vals:
-                        if re.findall("^%s," % i, ii):
-                            out.append(ii)
-                return list( map( tItems, out ) )
-
-            return sorted( map(tItems, vals), key=lambda kv: kv[1], reverse=True )
 
         def orderByNspps(lilist):
 
@@ -319,7 +328,7 @@ class OBc:
 
         regionGroup = self.summarise( df, ['valid_name', 'region'] + group )
         toCombine   = self.summarise( df, ["region"] )[1:] if line is None else line
-        majorGroups = getOrderedGroups(regionGroup, group, by = block)
+        majorGroups = self.getOrderedGroups( regionGroup, group, by = block )
 
         Wout = []
         line = 1
@@ -419,5 +428,150 @@ class OBc:
         f.close()
         return tmp_filename
 
-    def SankeyData(self, file):
-        pass
+    def SankeyData(self, bold, obis, regionsort, groupsort, group, debug = True):
+        """
+        It should be read by R like the following structure:
+
+    Country          Group Distribution Species        Availability Availability2
+
+1     Chile Actinopterygii           NA      47        BOLD private  BOLD private
+2     Chile Actinopterygii       inside      43  BOLD public inside   BOLD public
+3     Chile Actinopterygii      outside     197 BOLD public outside   BOLD public
+4     Chile Actinopterygii           NA      94                  NA            NA
+
+5     Chile Elasmobranchii           NA       2        BOLD private  BOLD private
+6     Chile Elasmobranchii       inside      15  BOLD public inside   BOLD public
+7     Chile Elasmobranchii      outside       9 BOLD public outside   BOLD public
+8     Chile Elasmobranchii           NA       7                  NA            NA
+
+9     Chile   Invertebrate           NA     167        BOLD private  BOLD private
+10    Chile   Invertebrate       inside      60  BOLD public inside   BOLD public
+11    Chile   Invertebrate      outside     456 BOLD public outside   BOLD public
+12    Chile   Invertebrate           NA    1442                  NA            NA
+
+13    Chile       Mammalia           NA       3        BOLD private  BOLD private
+14    Chile       Mammalia      outside      17 BOLD public outside   BOLD public
+15    Chile       Mammalia           NA       1                  NA            NA
+
+16    Chile       Reptilia      outside       3 BOLD public outside   BOLD public
+
+17 Colombia           ....          ...     ...                 ...           ...
+        """
+        group = [group]
+
+        ## class calling
+        # bold = "data/bold.csv"
+        # obis = "data/obis.csv"
+        # regionsort = None
+        # # groupsort  = ["Reptilia", "Mammalia"] #capitalize within args
+        # groupsort = None  # capitalize within args
+        # group = ["group"]
+        # self  = OBc()
+        ##
+        getPos = lambda p, d: set([i.split(',')[p] for i in d])
+
+        def classifier(emDict, lilist, posA):
+            """
+            :param emDict: {"NA":0, "Bpi":0, "Bpo":0, "Bp":0}
+            :param lilist: ['spps,syn,avail,r,g,subg,k',..]
+            :param posA: 2, availability position
+            :return: {"NA":n, "Bpi":n', "Bpo":n''', "Bp":n''''}
+            """
+            mStrings = lambda l, p: [s for s in l if re.findall(p, s)].__len__() > 0
+            diUp     = lambda d, k: d.update({k : d[k] + 1})
+
+            avail = getPos(posA, lilist)
+            # avail = {'public_outside', 'private'}
+            if len(avail) > 0:
+
+                if mStrings(avail, "public_inside"):
+                    diUp(emDict, "Bpi")
+                else:
+                    if mStrings(avail, "public_outside"):
+                        diUp(emDict, "Bpo")
+
+                    else:
+                        diUp(emDict, "Bp")
+            else:
+                diUp(emDict, "NA")
+
+        def splitS(string):
+            pieces = string.split(" ")
+
+            if len(pieces) == 1:
+                return "NA,NA,NA"
+
+            elif len(pieces) == 2:
+                return "%s,%s,%s" % (string, pieces[-1], "NA")
+
+            elif len(pieces) == 3:
+                return "%s,%s,%s" % (string, pieces[-2], pieces[-1])
+
+        treatDict = lambda d: filter(lambda kv: kv[1] > 0, d.items())
+        getRow    = lambda s1, s2, n: "%s,%s,%s" % (s1, splitS(s2), n )
+
+        bold_df = self.readWithHeader(bold)
+        obis_df = self.readWithHeader(obis)
+        ## Values of obis file is taken as a reference
+        iterRegion = self.getOrderedGroups( df = obis_df, group = ["region"], by = regionsort, withN = False )
+        iterGroup  = self.getOrderedGroups( df = obis_df, group = group, by = groupsort, withN = False )
+
+        # WARNING: keys are always ordered in
+        # function of their positions in header
+        bold_k = self.__groupBy_key__(bold_df, ["valid_name", "region"] + group)
+
+        posA = self.__checkPos__(bold_df[0], ['availability'])[0]
+        posS = self.__checkPos__(obis_df[0], ['valid_name'])[0]
+
+        head = ["Region,Group,Availability,Availability2,Distribution"]
+        out  = []
+
+        if debug:
+            print("Comparing files for:")
+
+        for r in iterRegion:
+            if debug:
+                print("%10s in:"%r)
+            # r = "Chile"`
+            r_tmp = self.oneColSubset(obis_df, ["region"],r)
+
+            for g in iterGroup:
+                if debug:
+                    print("%30s" % g)
+                # g = "Invertebrates"
+                g_tmp    = self.oneColSubset(r_tmp, group, g)
+                tmp_dict = {"NA": 0, "Bpi": 0, "Bpo": 0, "Bp": 0}
+
+                for s in getPos(posS, g_tmp[1:]):
+                    # print(s)
+                    # s = "Eurypon miniaceum"
+                    pat      = "%s-%s-%s" % (s,r,g)
+                    bold_sub = self.__subset__(bold_k, pat)
+                    # print( "\t\t%s" % pat )
+                    # print( "\t\t\t", bold_sub )
+                    classifier(tmp_dict, bold_sub, posA)
+
+                # print("\n\t",tmp_dict)
+                twoCol = "%s,%s" % (r, g)
+
+                for k,v in treatDict(tmp_dict):
+                    if k == "Bpi":
+                        out.append(
+                            getRow(twoCol, "BOLD public inside", v) )
+                        # print(getRow(twoCol, "BOLD public inside", v))
+                    elif k == "Bpo":
+                        out.append(
+                            getRow(twoCol, "BOLD public outside", v) )
+                        # print(getRow(twoCol, "BOLD public outside", v))
+                    elif k == "Bp":
+                        out.append(
+                            getRow(twoCol, "BOLD private", v) )
+                        # print(getRow(twoCol, "BOLD private", v))
+                    elif k == "NA":
+                        out.append(
+                            getRow(twoCol, "NA", v) )
+                        # print(getRow(twoCol, "NA", v))
+                    else:
+                        pass
+
+        return head + out
