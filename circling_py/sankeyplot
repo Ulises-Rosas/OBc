@@ -36,6 +36,12 @@ def getOpt():
                         type=str,
                         default=None,
                         help='[Optional] Sort group by an specific string in CSV format (e.g. "value1,value2,value3") [Default = None]')
+    parser.add_argument('-p', '--pal',
+                        metavar='str',
+                        type=str,
+                        default='RdYlBu',
+                        help='[Optional] Palette of colors [Default = RdYlBu]')
+
 
     args = parser.parse_args()
     return args
@@ -73,7 +79,7 @@ def main():
 
     out_file = OBclass.writeOut(out = out)
 
-    # print(out_file)
+    print(out_file)
 
 if __name__ == "__main__":
     main()
