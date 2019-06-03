@@ -523,7 +523,7 @@ class OBc:
         posA = self.__checkPos__(bold_df[0], ['availability'])[0]
         posS = self.__checkPos__(obis_df[0], ['valid_name'])[0]
 
-        head = ["Region,Group,Availability,Availability2,Distribution"]
+        head = ["Region,Group,Availability,Availability2,Distribution,Species"]
         out  = []
 
         if debug:
