@@ -183,8 +183,7 @@ base_theme <- function(base_size = opt$`basesize`){
   }
 # < ggplotThemeBase::End   ####
 
-# q <-
-  p +
+q <-  p +
   ggalluvial::geom_flow( aes_string(fill  = fillFac,
                                     color = fillFac),
                          lode.guidance = "leftright"
@@ -213,7 +212,7 @@ jpeg(filename = "testSankey.jpeg",
      width    = 12.5,
      height   = 4.25,
      units    = 'in',
-     res      = 700)
+     res      = 500)
 q
 dev.off()
 
