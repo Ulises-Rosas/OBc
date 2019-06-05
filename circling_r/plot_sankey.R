@@ -362,7 +362,7 @@ q <- p +
                     ,expand = c(0, 0) ) +
   labs(y = yLab) +
   base_theme()
-options(warn = 0)
+# options(warn = 0)
 # < Plot::End   ####
 
 ## the more resolution,
