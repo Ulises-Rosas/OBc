@@ -142,8 +142,8 @@ def getOpt():
                             There are three options: 'log', 'squared' and 'cubic' [Default = 'none']''')
     parser.add_argument('-x', '--gOrder',
                         metavar='str',
-                        type=None,
-                        default="none",
+                        type=str,
+                        default=None,
                         help='''[Optional] Specific order for columns (i.e. 'Region', 'OBIS', 'BOLD' and 'Distribution') in CSV format.
                          E.g. 'OBIS,BOLD,Region,Distribution'. Number of values must match with number of column previously selected [Default = None]''')
     parser.add_argument('-H',
@@ -191,7 +191,7 @@ def cname(s):
 
 def main():
     options = vars(getOpt())
-    print(options)
+    # print(options)
 
     if options['help']:
         print(cUsage())
@@ -243,14 +243,8 @@ def main():
     if options['keepNA']:
         Ropt.append('-k')
 
-    # print(Ropt)
-    # # a0 = a[1:]
-    # Ropt0 = Ropt[1:]
-    # for a,b in zip(Ropt0[0::2], Ropt0[1::2]):
-    #     print(a,b)
-
     if options['quiet']:
-        print("Plotting data")
+        print("Plotting data\n")
 
     runShell(Ropt)
 
