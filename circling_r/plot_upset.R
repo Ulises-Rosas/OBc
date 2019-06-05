@@ -1,14 +1,19 @@
 #!/usr/bin/env Rscript --vanilla
 
-suppressMessages({
+
+suppressWarnings({
   
-  library(ggplot2)
-  library(optparse)
-  library(RColorBrewer)
-  library(DescTools)
-  library(ggpubr)
-  library(cowplot)
+  suppressMessages({
+    
+    library(ggplot2)
+    library(optparse)
+    library(RColorBrewer)
+    library(DescTools)
+    library(ggpubr)
+    library(cowplot)
+  })
 })
+
 
 # > ARGS[@]::Start ####
 option_list = list(
