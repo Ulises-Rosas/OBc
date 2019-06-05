@@ -6,18 +6,72 @@ import argparse
 import subprocess
 from circling_py.OBc import *
 
+def cUsage():
+    return """
+usage: sankeyplot [-h] -b str -o str [-g str] [-q] [-R str] [-G str] [-p str]
+                  [-a float] [-c int] [-l float] [-n] [-N str] [-f str] [-F]
+                  [-k] [-t str] [-x str] [-H float] [-W float] [-r float]
+                  [-O str]
+
+Sankey plot from OBc pipeline
+
+optional arguments:
+  -h, --help           show this help message and exit
+  -b, --bold           [Required] bold file
+  -o, --obis           [Required] obis file
+  -g, --group          [Optional] Grouping column from obis file [Default = group]
+  -q, --quiet          [Optional] If selected, suppress running messages
+  -R                   [Optional] Sort region by an specific string in CSV
+                        format (e.g. "value1,value2,value3") [Default = None]
+  -G                   [Optional] Sort group by an specific string in CSV
+                        format (e.g. "value1,value2,value3") [Default = None]
+  -p, --pal            [Optional] Palette of colors [Default = RdYlBu]
+  -a, --alpha          [Optional] Alpha value for link colors [Default = 0.9]
+  -c, --cols           [Optional] Number of columns [Default = 4]
+  -l, --labelsize      [Optional] Size of labels [Default = 14]
+  -n, --notNA          [Optional] If selected, NA stratums are not used
+  -N, --NAcolor        [Optional] Color for NAs stratums [Default = darkgrey]
+  -f, --fillby         [Optional] Color of links according to a given column.
+                        Available options are 'Region', 'OBIS', 'BOLD' and
+                        'Distribution' [Default = OBIS]
+  -F, --notfillstrat   [Optional] If selected, colors for `fillby` column are not used
+  -k, --keepNA         [Optional] If selected, NAs at `fillby` column are kept
+  -t, --transform      [Optional] Transforming species counts. There are
+                        three options: 'log', 'squared' and 'cubic' [Default = 'none']
+  -x, --gOrder         [Optional] Specific order for columns (i.e. 'Region',
+                        'OBIS', 'BOLD' and 'Distribution') in CSV format (e.g.
+                        'OBIS,BOLD,Region,Distribution'). Number of values must
+                        match with number of column previously selected
+                       [Default = None]
+  -H float             [Optional] Height of plot in inches [Default = 4.25]
+  -W float             [Optional] Height of plot in inches [Default = 12.5]
+  -r float             [Optional] Resolution of plot [Default = 100]
+  -O, --output         [Optional] Output name [Default = <input_based>.jpeg]
+    """
+
+def requirementsmsg():
+    return """
+usage: sankeyplot -b str -o str [-g str] [-q] [-R str] [-G str] [-p str]
+                  [-a float] [-c int] [-l float] [-n] [-N str] [-f str] [-F]
+                  [-k] [-t str] [-x str] [-H float] [-W float] [-r float]
+                  [-O str] [-h]
+sankeyplot: error: the following arguments are required: -b/--bold, -o/--obis
+    """
+
 def getOpt():
 
-    parser = argparse.ArgumentParser(description="Sankey plot from OBc pipeline")
+    parser = argparse.ArgumentParser(description="Sankey plot from OBc pipeline"
+                                     , add_help=False
+                                     )
 
     parser.add_argument('-b','--bold',
                         metavar='str',
                         help='[Required] bold file',
-                        required=True)
+                        required=False)
     parser.add_argument('-o', '--obis',
                         metavar='str',
                         help='[Required] obis file',
-                        required=True)
+                        required=False)
     parser.add_argument('-g', '--group',
                         metavar="str",
                         type=str,
@@ -41,7 +95,82 @@ def getOpt():
                         type=str,
                         default='RdYlBu',
                         help='[Optional] Palette of colors [Default = RdYlBu]')
-
+    parser.add_argument('-a', '--alpha',
+                        metavar='float',
+                        type=float,
+                        default=0.9,
+                        help='[Optional] Alpha value for link colors [Default = 0.9]')
+    parser.add_argument('-c', '--cols',
+                        metavar='int',
+                        type=int,
+                        default=4,
+                        help='[Optional] Number of columns [Default = 4]')
+    parser.add_argument('-l', '--labelsize',
+                        metavar='float',
+                        type=float,
+                        default=14,
+                        help='[Optional] Size of labels [Default = 14]')
+    parser.add_argument('-n', '--notNA',
+                        action='store_true',
+                        default=False,
+                        help='[Optional] If selected, not use NA stratums')
+    parser.add_argument('-N', '--NAcolor',
+                        metavar='str',
+                        type=str,
+                        default="darkgrey",
+                        help="[Optional] Color for NAs stratums [Default = darkgrey]")
+    parser.add_argument('-f', '--fillby',
+                        metavar='str',
+                        type=str,
+                        default="OBIS",
+                        help='''
+                        [Optional] Color of links according to a given column. 
+                        Available options are 'Region', 'OBIS', 'BOLD' and 'Distribution' [Default = OBIS]''')
+    parser.add_argument('-F', '--notfillstrat',
+                        action="store_true",
+                        default=False,
+                        help='''[Optional] If selected, colors for `fillby` column are not used''')
+    parser.add_argument('-k', '--keepNA',
+                        action="store_true",
+                        default=False,
+                        help='''[Optional] If selected, NAs at `fillby` column are kept''')
+    parser.add_argument('-t','--transform',
+                        metavar='str',
+                        type=str,
+                        default="none",
+                        help='''[Optional] Transforming species counts. 
+                            There are three options: 'log', 'squared' and 'cubic' [Default = 'none']''')
+    parser.add_argument('-x', '--gOrder',
+                        metavar='str',
+                        type=None,
+                        default="none",
+                        help='''[Optional] Specific order for columns (i.e. 'Region', 'OBIS', 'BOLD' and 'Distribution') in CSV format.
+                         E.g. 'OBIS,BOLD,Region,Distribution'. Number of values must match with number of column previously selected [Default = None]''')
+    parser.add_argument('-H',
+                        metavar='float',
+                        type=float,
+                        default=4.5,
+                        help='[Optional] Height of plot in inches [Default = 4.25]')
+    parser.add_argument('-W',
+                        metavar='float',
+                        type=float,
+                        default=12.5,
+                        help='[Optional] Height of plot in inches [Default = 12.5]')
+    parser.add_argument('-r',
+                        metavar='float',
+                        type=float,
+                        default=200,
+                        help='[Optional] Resolution of plot [Default = 100]')
+    parser.add_argument('-O', '--output',
+                        metavar='str',
+                        type=str,
+                        default='input_based',
+                        help='[Optional] Output name [Default = <input_based>.jpeg]')
+    parser.add_argument('-h',
+                        '--help',
+                        action='store_true',
+                        # default=argparse.SUPPRESS,
+                        help='Show this help message and exit.')
 
     args = parser.parse_args()
     return args
@@ -52,21 +181,28 @@ def runShell(args):
 
 def cname(s):
     """
-    :param s: check line 138 of `plot_bars.R`
+    :param s: check line 369 of `plot_sankey.R`
     :return:
     """
-    tail = "_SankeyPlot.jpeg"
     try:
-        return s.split(".")[-2].split("/")[-1] + tail
+        return s.split(".")[-2].split("/")[-1]
     except IndexError:
-        return s.split("/")[-1] + tail
+        return s.split("/")[-1]
 
 def main():
-
     options = vars(getOpt())
+    print(options)
 
-    # print(options)
+    if options['help']:
+        print(cUsage())
+        exit()
 
+    if options['obis'] is None or options['bold'] is None:
+        print(requirementsmsg())
+        exit()
+
+    OutName = lambda i1, i2: "_".join([cname(i1), cname(i2)]) + "_SankeyPlot.jpeg"
+    #
     OBclass = OBc()
     out = OBclass.SankeyData(
                 bold       = options['bold' ],
@@ -74,12 +210,51 @@ def main():
                 group      = options['group'],
                 debug      = options['quiet'],
                 groupsort  = options['G'] if options['G'] is None else options['G'].split(","),
-                regionsort = options['R'] if options['R'] is None else options['R'].split(",")
-                )
+                regionsort = options['R'] if options['R'] is None else options['R'].split(",")  )
 
     out_file = OBclass.writeOut(out = out)
 
-    print(out_file)
+    fo = options['output'] if options['output'] != "input_based" else OutName( options['obis'], options['bold'] )
+
+    Ropt = ["plot_sankey.R",
+            "-i", str(out_file),
+            "-p", options['pal'],
+            "-a", str(options['alpha']),
+            "-c", str(options['cols']),
+            "-b", str(options['labelsize']),
+            "-N", options['NAcolor'],
+            "-f", options['fillby'],
+            "-t", options['transform'],
+            '-H', str(options['H']),
+            '-W', str(options['W']),
+            '-r', str(options['r']),
+            '-o', fo ]
+
+    if options['gOrder'] is not None:
+        Ropt.append( "-g" )
+        Ropt.append( options['gOrder'] )
+
+    if options['notNA']:
+        Ropt.append("-n")
+
+    if options['notfillstrat']:
+        Ropt.append('-F')
+
+    if options['keepNA']:
+        Ropt.append('-k')
+
+    # print(Ropt)
+    # # a0 = a[1:]
+    # Ropt0 = Ropt[1:]
+    # for a,b in zip(Ropt0[0::2], Ropt0[1::2]):
+    #     print(a,b)
+
+    if options['quiet']:
+        print("Plotting data")
+
+    runShell(Ropt)
+
+    runShell( ['rm', str(out_file)] )
 
 if __name__ == "__main__":
     main()
