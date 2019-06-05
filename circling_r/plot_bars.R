@@ -1,11 +1,15 @@
 #!/usr/bin/env Rscript
 
-suppressMessages({
+suppressWarnings({
   
-  library(ggplot2)
-  library(optparse)
-  library(RColorBrewer)
+  suppressMessages({
+    
+    library(ggplot2)
+    library(optparse)
+    library(RColorBrewer)
+  })
 })
+
 
 option_list = list(
   
@@ -146,7 +150,7 @@ ggplot(df,
          y = "-n",
          x = opt$`var` )) +
   geom_bar(stat = "identity") +
-  theme_bw(base_size = 15) +
+  theme_bw(base_size = 14) +
   scale_fill_manual(values = cols1, name = opt$`ltitle`) +
   scale_y_continuous(labels = scaleY(df)) +
   coord_flip() +
