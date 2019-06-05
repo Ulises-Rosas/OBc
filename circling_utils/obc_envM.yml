@@ -33,6 +33,7 @@ dependencies:
   - libffi=3.2.1=h475c297_4
   - libgfortran=3.0.1=h93005f0_2
   - libiconv=1.15=hdd342a3_7
+  - libopenblas=0.3.3=hdc02c5d_3
   - libpng=1.6.36=ha441bb4_0
   - libtiff=4.0.10=hcb84e12_2
   - libxml2=2.9.9=hab757c2_0
@@ -63,6 +64,7 @@ dependencies:
   - r-expm=0.999_3=r351hfffe0aa_1002
   - r-foreign=0.8_71=r351h46e59ec_1002
   - r-getopt=1.20.3=r351_0
+  - r-ggalluvial=0.9.1=r351h6115d3f_1000
   - r-ggpubr=0.2=r351h6115d3f_1000
   - r-ggrepel=0.8.1=r351hf99fc2c_0
   - r-ggsci=2.9=r351h6115d3f_1001
@@ -77,8 +79,6 @@ dependencies:
   - wheel=0.33.1=py36_0
   - _r-mutex=1.0.0=anacondar_1
   - krb5=1.16.1=hddcf347_7
-  - libopenblas=0.3.3=hdc02c5d_3
-  - r-manipulate=1.0.1=r351hf348343_4
   - r-ape=5.1=r351h32998d9_0
   - r-assertthat=0.2.0=r351hf348343_0
   - r-base=3.5.1=h539fb6c_1
@@ -102,6 +102,7 @@ dependencies:
   - r-lattice=0.20_35=r351h6402f54_0
   - r-lazyeval=0.2.1=r351h6402f54_0
   - r-magrittr=1.5=r351hf348343_4
+  - r-manipulate=1.0.1=r351hf348343_4
   - r-mass=7.3_50=r351h6402f54_0
   - r-matrix=1.2_14=r351h6402f54_0
   - r-mgcv=1.8_24=r351h6402f54_0
