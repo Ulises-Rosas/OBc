@@ -76,7 +76,7 @@ def getOpt():
                         metavar='str',
                         type=str,
                         default='input_based',
-                        help='[Optional] Output name [Default = <input_based>.tiff]')
+                        help='[Optional] Output name [Default = <input_based>.jpeg]')
     args = parser.parse_args()
 
     return args
