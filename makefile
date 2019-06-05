@@ -90,7 +90,8 @@ setupR: env check_py2 check_py3
         git clone https://github.com/Ulises-Rosas/BOLD-mineR.git &&\
         bash ./circling_r/source --turn on &&\
         install circling_r/plot_bars.R    $$CONDA_PREFIX/bin &&\
-        install circling_r/plot_upset.R   $$CONDA_PREFIX/bin
+        install circling_r/plot_upset.R   $$CONDA_PREFIX/bin &&\
+        install circling_r/plot_sankey.R  $$CONDA_PREFIX/bin
 	cp  BOLD-mineR/r/AuditionBarcode.v.2.R circling_r
 	cp  BOLD-mineR/r/SpecimenData.R circling_r 
 	rm -rf BOLD-mineR 
@@ -102,7 +103,8 @@ setupPython:
         python3 -c "import site; print(site.getsitepackages()[0])" | xargs cp -rf ./circling_py &&\
         install circling_py/joinfiles.py $$CONDA_PREFIX/bin &&\
         install circling_py/barplot      $$CONDA_PREFIX/bin &&\
-        install circling_py/upsetplot    $$CONDA_PREFIX/bin
+        install circling_py/upsetplot    $$CONDA_PREFIX/bin &&\
+        install circling_py/sankeyplot   $$CONDA_PREFIX/bin
 	
 setupBash:
 	sed -i -e "s/path_ssp/$${PWD//\//\\/}/g" ./circling_sh/get_checkLists.sh
