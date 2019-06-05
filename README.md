@@ -171,6 +171,13 @@ upsetplot -i data/bold.csv
 ```
 ![](https://github.com/Ulises-Rosas/OBc/blob/master/data/img/bold_UpsetPlot.jpeg)
 
+## sankeyplot
+
+```Bash
+sankeyplot -b data/bold.csv -o data/obis.csv
+```
+![](https://github.com/Ulises-Rosas/OBc/blob/master/data/img/testSankey.jpeg)
+
 
 
 **\*** Intermediate files generated up while running this command are the same at each run. Therefore, if this command is running in parallel, specific directory per run must be used in order to avoid intermediate file crashing. Since the following example is a single run, repo directory is used as the working directory.
