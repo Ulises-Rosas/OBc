@@ -1,0 +1,225 @@
+#!/usr/bin/env python3
+
+# -*- coding: utf-8 -*- #
+
+import argparse
+import subprocess
+import sys
+from circling_py.OBc import *
+from circling_py.worms import *
+
+
+def cUsage():
+    return """
+    
+sage: auditspps [-h] -i str [-g str] [--for str [str ...]]
+                 [--at str [str ...]] [-o str]
+
+Audit species barcodes from OBc pipeline
+
+optional arguments:
+  -h, --help       show this help message and exit
+  -i, --input      [Required] input file
+  -g, --group      [Optional] Grouping column from obis file [Default = group]
+  --for [str ...]  [Optional] Specific group for auditing species [Default = None]
+  --at  [str ...]  [Optional] Introduce futher taxonomical ranks to species. 
+                    This is used for enhancing graphical reports [Default = None]
+  -o, --output     [Optional] Output name [Default = <input_based>.csv]
+"""
+
+def requirementsmsg():
+    return """
+usage: auditspps [-h] -i str [-g str] [--for str [str ...]]
+                 [--at str [str ...]] [-o str]
+auditspps: error: the following arguments are required: -i/--input
+"""
+
+def getOpt():
+
+    parser = argparse.ArgumentParser(description="Audit species barcodes from OBc pipeline", add_help=False)
+
+    parser.add_argument('-i','--input',
+                        metavar='str',
+                        default=None,
+                        help='[Required] input file',
+                        required=False)
+    parser.add_argument('-g', '--group',
+                        metavar="str",
+                        type=str,
+                        default="group",
+                        help='[Optional] Grouping column from obis file [Default = group]')
+    parser.add_argument('--for',
+                        nargs='+',
+                        metavar="str",
+                        default=None,
+                        help='[Optional] Specific group for auditing species [Default = None]')
+    parser.add_argument('--at',
+                        nargs='+',
+                        metavar="str",
+                        default=None,
+                        help='[Optional] Introduce futher taxonomical ranks to species. This is used for enhancing graphical reports [Default = None]')
+    parser.add_argument('-o', '--output',
+                        metavar='str',
+                        type=str,
+                        default='input_based',
+                        help='[Optional] Output name [Default = <input_based>.csv]')
+    parser.add_argument('-q', '--quiet',
+                        action='store_false',
+                        help='[Optional] If selected, suppress running messages')
+    parser.add_argument('-h',
+                        '--help',
+                        action='store_true',
+                        help='Show this help message and exit.' )
+    args = parser.parse_args()
+
+    return args
+
+def runShell(args):
+    p = subprocess.Popen(args)
+    p.communicate()
+
+def cname(s):
+    """
+    :param s:
+    :return:
+    """
+    tail = "_audited.csv"
+    try:
+        return s.split(".")[-2].split("/")[-1] + tail
+    except IndexError:
+        return s.split("/")[-1] + tail
+
+def ranks(term, taxa):
+    """
+    :param term: str spps
+    :param li: list taxa
+    :return:
+    """
+    ##
+    # term = "Alopias pelagicus"
+    # taxa   = "Phylum,Order,Family".split(",")
+    ##
+    if isinstance(taxa, str):
+        taxa = taxa.split(",")
+
+    spps = Worms(term)
+
+
+    if len(spps.aphiaID) == 0 or spps.aphiaID == '-999':
+        spps.get_accepted_name()
+
+    if len(spps.aphiaID) == 0 or spps.aphiaID == '-999':
+        spps.taxamatch()
+
+    if len(spps.aphiaID) != 0 and spps.aphiaID != '-999':
+        spps.get_taxonomic_ranges()
+
+    return ",".join( [spps.get_rank(i) for i in taxa] )
+
+def appendWithRanks(l, spps, group, at, toolbar=True, w=50):
+    """
+    :param a: list option['at']
+    :param spps: list spps[k]
+    :param group: str group
+    :param toolbar: bool
+    :param w: int width of toolbar
+    :return: list with ranks
+    """
+    n = len(spps)
+
+    for i in range(n):
+
+        l.append( "%s,%s,%s" % (ranks(spps[i], at), group, spps[i]) )
+
+        if toolbar:
+            # prop
+            p  = (i + 1) / n
+            # int of prop
+            ip = int(p * w)
+            # init message
+            m  = 'Adding ranks in ' + group
+            # format
+            f  = "\r%40s: [%s%s] (%6.2f %%)"
+            sys.stdout.write( f % (m, '#' * ip, '-' * (w - ip), p * 100))
+
+    if toolbar:
+        sys.stdout.write("\n")
+
+def main():
+    option = vars(getOpt())
+
+    if option['help']:
+        print(cUsage())
+        exit()
+
+    if option['input'] is None:
+        print(requirementsmsg())
+        exit()
+
+    # print(option)
+    # option = {"input": "data/bold.csv",
+    #           "group": "group",
+    #           "for": ['Reptilia'],
+    #           "at": ['Phylum'],
+    #           "output" : "input_based"
+    #            }
+
+    if option['quiet']:
+        sys.stdout.write("\nObtaining public records\n\n")
+
+    spps = OBc().boldSpps(bold=option['input'], group=option['group'], specificgroup= option['for'])
+
+    # if option['at'] != None and option['for'] != None:
+    #
+    #     if len(option['at']) != len(option['for']):
+    #         print("\033[0;31m\nError: Lengths of both specific groups and taxa are no equal\033[0m\n")
+    #         exit()
+    #
+    #     for for,at in zip(option['for'], option['at']):
+    #
+    #         if line == 0:
+    #             out.append('Taxa,Group,Species')
+    #             line += 1
+    #
+    #         for s in spps[for]:
+    #             out.append( "%s,%s,%s" % (ranks(s, at), for, s) )
+    out  = []
+    line = 0
+
+    if option['at'] != None :
+
+        for k in spps['order']:
+
+            if line == 0:
+                out.append('%s,Group,Species' % ",".join(option['at']) )
+                line += 1
+
+            appendWithRanks(out, list(spps[k]), k, option['at'], option['quiet'])
+
+    else:
+
+        for k in spps['order']:
+
+            if line == 0:
+                out.append('Group,Species')
+                line += 1
+
+            for s in spps[k]:
+                out.append("%s,%s" % (k, s))
+
+
+    fo = option['output'] if option['output'] != "input_based" else cname(option['input'])
+
+    f  = open(fo, "w")
+    for i in out:
+        f.write(i + "\n")
+    f.close()
+
+    if option['quiet']:
+        print("Plotting data\n")
+
+if __name__ == "__main__":
+    main()
+
+
+
