@@ -16,7 +16,7 @@ cd OBc
 make
 ```
 
-## Commands
+## Commands available
 
 * [checklists](https://github.com/Ulises-Rosas/OBc#checklists)
 * [joinfiles.py](https://github.com/Ulises-Rosas/OBc#joinfilespy)
