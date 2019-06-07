@@ -575,3 +575,30 @@ class OBc:
                         pass
 
         return head + out
+
+    def boldSpps(self, bold, group, specificgroup):
+
+        ### mock params
+        # bold = "data/bold.csv"
+        # specificgroup = None
+        # specifictaxa = None
+        # group = "group"
+        ### mock params
+        group = [group]
+
+        getSpps = lambda d,p: set([i.split(',')[p] for i in d if re.findall(",public_",i)])
+        # self  = OBc()
+
+        df     = self.readWithHeader(bold)
+        oGroup = self.getOrderedGroups(df=df, group=group, by=specificgroup, withN=False)
+        P      = self.__checkPos__(df[0], ['valid_name'])[0]
+
+        out = {"order": oGroup}
+
+        for g in oGroup:
+
+            tmp_sub = self.oneColSubset(df, group, g)
+
+            out.update( {g : getSpps(tmp_sub, P)} )
+
+        return out
