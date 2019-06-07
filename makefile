@@ -92,6 +92,7 @@ setupR: env check_py2 check_py3
         install circling_r/plot_bars.R    $$CONDA_PREFIX/bin &&\
         install circling_r/plot_upset.R   $$CONDA_PREFIX/bin &&\
         install circling_r/plot_sankey.R  $$CONDA_PREFIX/bin
+	sed -i -e "s/path_ssp/$${PWD//\//\\/}/g" ./circling_r/get_BIN.R
 	cp  BOLD-mineR/r/AuditionBarcode.v.2.R circling_r
 	cp  BOLD-mineR/r/SpecimenData.R circling_r 
 	rm -rf BOLD-mineR 
@@ -127,7 +128,8 @@ unsetup_bash:
 	if [[ ! -z $$(ls ./circling_sh/ | grep -e "sh-e") ]]; then rm ./circling_sh/*sh-e; fi
 
 unsetup: unsetup_py unsetup_bash
-	if [[ ! -z $$(ls ./circling_py/ | grep "__pycache__") ]]; then sudo rm -rf ./circling_py/__pycache__/; fi
+	if [[ ! -z $$(ls ./circling_py/ | grep "__pycache__") ]]; then rm -rf ./circling_py/__pycache__/; fi
+	sed -i -e "s/$${PWD//\//\\/}/path_ssp/g" ./circling_r/get_BIN.R
 	rm circling_r/AuditionBarcode.v.2.R
 	rm circling_r/SpecimenData.R
 	if [[ ! -z $$(ls ./circling_r/ | grep -e "R-e") ]]; then rm ./circling_r/*R-e; fi
