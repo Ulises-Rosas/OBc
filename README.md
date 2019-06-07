@@ -24,6 +24,7 @@ make
 * [barplot](https://github.com/Ulises-Rosas/OBc#barplot)
 * [sankeyplot](https://github.com/Ulises-Rosas/OBc#sankeyplot)
 * [upsetplot](https://github.com/Ulises-Rosas/OBc#upsetplot)
+* [auditspps](https://github.com/Ulises-Rosas/OBc#auditspps)
 * [radarplot](https://github.com/Ulises-Rosas/OBc#radarplot)
 
 
