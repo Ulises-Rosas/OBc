@@ -16,7 +16,7 @@ cd OBc
 make
 ```
 
-## Commands
+## Commands available
 
 * [checklists](https://github.com/Ulises-Rosas/OBc#checklists)
 * [joinfiles.py](https://github.com/Ulises-Rosas/OBc#joinfilespy)
@@ -24,6 +24,7 @@ make
 * [barplot](https://github.com/Ulises-Rosas/OBc#barplot)
 * [sankeyplot](https://github.com/Ulises-Rosas/OBc#sankeyplot)
 * [upsetplot](https://github.com/Ulises-Rosas/OBc#upsetplot)
+* [auditspps](https://github.com/Ulises-Rosas/OBc#auditspps)
 * [radarplot](https://github.com/Ulises-Rosas/OBc#radarplot)
 
 
