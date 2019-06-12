@@ -11,8 +11,7 @@ from circling_py.worms import *
 
 def cUsage():
     return """
-    
-sage: auditspps [-h] -i str [-g str] [--for str [str ...]]
+Usage: auditspps [-h] -i str [-g str] [--for str [str ...]]
                  [--at str [str ...]] [-o str]
 
 Audit species barcodes from OBc pipeline
@@ -83,7 +82,18 @@ def cname(s):
     :param s:
     :return:
     """
-    tail = "_audited.csv"
+    tail = "_audited.tsv"
+    try:
+        return s.split(".")[-2].split("/")[-1] + tail
+    except IndexError:
+        return s.split("/")[-1] + tail
+
+def cname2(s):
+    """
+    :param s:
+    :return:
+    """
+    tail = "_ranked.tsv"
     try:
         return s.split(".")[-2].split("/")[-1] + tail
     except IndexError:
@@ -114,22 +124,25 @@ def ranks(term, taxa):
     if len(spps.aphiaID) != 0 and spps.aphiaID != '-999':
         spps.get_taxonomic_ranges()
 
-    return ",".join( [spps.get_rank(i) for i in taxa] )
+    return "\t".join( [spps.get_rank(i) for i in taxa] )
 
 def appendWithRanks(l, spps, group, at, toolbar=True, w=50):
     """
-    :param a: list option['at']
-    :param spps: list spps[k]
+    :param at: list option['at'], at = option['at']
+    :param spps: dict spps[k], spps = spps[k]
     :param group: str group
     :param toolbar: bool
     :param w: int width of toolbar
     :return: list with ranks
     """
-    n = len(spps)
+    row = lambda t,a,g: "%s\t%s\t%s" % ( ranks(t[0], a), g, t[1] )
+
+    n   = len(spps)
+    prs = list(spps.items())
 
     for i in range(n):
 
-        l.append( "%s,%s,%s" % (ranks(spps[i], at), group, spps[i]) )
+        l.append( row(prs[i], at, group) )
 
         if toolbar:
             # prop
@@ -140,6 +153,7 @@ def appendWithRanks(l, spps, group, at, toolbar=True, w=50):
             m  = 'Adding ranks in ' + group
             # format
             f  = "\r%40s: [%s%s] (%6.2f %%)"
+
             sys.stdout.write( f % (m, '#' * ip, '-' * (w - ip), p * 100))
 
     if toolbar:
@@ -160,8 +174,9 @@ def main():
     # option = {"input": "data/bold.csv",
     #           "group": "group",
     #           "for": ['Reptilia'],
-    #           "at": ['Phylum'],
-    #           "output" : "input_based"
+    #           "at":  ['Phylum'],
+    #           "output" : "input_based",
+    #           'quiet': True
     #            }
 
     if option['quiet']:
@@ -189,34 +204,45 @@ def main():
     if option['at'] != None :
 
         for k in spps['order']:
+            # k = 'Reptilia'
 
             if line == 0:
-                out.append('%s,Group,Species' % ",".join(option['at']) )
+                out.append('%s\tGroup\tSpecies' % "\t".join(option['at']) )
                 line += 1
 
-            appendWithRanks(out, list(spps[k]), k, option['at'], option['quiet'])
+            appendWithRanks(out, spps[k], k, option['at'], option['quiet'])
 
     else:
 
         for k in spps['order']:
 
             if line == 0:
-                out.append('Group,Species')
+                out.append('Group\tSpecies')
                 line += 1
 
             for s in spps[k]:
-                out.append("%s,%s" % (k, s))
+                out.append("%s\t%s" % (k, s))
 
+    ranked_file = cname2(option['input'])
+
+    f = open( ranked_file, 'w' )
+    for i in out:
+        f.write(i + '\n')
+    f.close()
+
+    file_name = OBc().writeOut(out)
 
     fo = option['output'] if option['output'] != "input_based" else cname(option['input'])
 
-    f  = open(fo, "w")
-    for i in out:
-        f.write(i + "\n")
-    f.close()
-
     if option['quiet']:
-        print("Plotting data\n")
+        print("\nAccessing to BOLD database\n")
+
+    Ropt = ['get_BIN.R', '-i', ranked_file, '-o', fo]
+
+    if not option['quiet']:
+        Ropt.append('-q')
+
+    runShell(Ropt)
 
 if __name__ == "__main__":
     main()
