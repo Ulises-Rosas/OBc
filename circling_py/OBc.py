@@ -25,12 +25,15 @@ class OBc:
             return [i for i in df if compa.match(i)]
 
     def __checkPos__(self, head,vars):
+        """
+        :param head: 'valid_name,synonyms,...'
+        :param vars: [ 'group', 'region', ..]
+        :return:
+        """
+        # colPos = lambda h, p: [x for x, y in enumerate(h.split(",")) if re.findall(p, y)]
+        colPos = lambda h,v: [x for i in v for x,y in enumerate(h.split(',')) if y == i]
 
-        colPos = lambda h, p: [x for x, y in enumerate(h.split(",")) if re.findall(p, y)]
-
-        var_pattern = "(" + "|".join(["^%s$" % i for i in vars]) + ")"
-
-        pos = colPos(head, var_pattern)
+        pos = colPos(head, vars)
 
         if len(pos) == 0:
             print("\033[0;31m\nError: Column names do not match\033[0m")
@@ -581,17 +584,23 @@ class OBc:
         ### mock params
         # bold = "data/bold.csv"
         # specificgroup = None
-        # specifictaxa = None
         # group = "group"
-        ### mock params
-        group = [group]
+        # self = OBc()
+        # # ### mock params
 
-        getSpps = lambda d,p: set([i.split(',')[p] for i in d if re.findall(",public_",i)])
-        # self  = OBc()
+        def validSyn(df):
+
+            l2 = ['valid_name', 'synonyms', 'availability']
+            s  = ",public_"
+
+            ss_df = [ y for y in self.summarise(df, l2) if re.findall(s,y) ]
+
+            return { i.split(',')[0] : i.split(',')[1] for i in ss_df }
+
+        group = [group]
 
         df     = self.readWithHeader(bold)
         oGroup = self.getOrderedGroups(df=df, group=group, by=specificgroup, withN=False)
-        P      = self.__checkPos__(df[0], ['valid_name'])[0]
 
         out = {"order": oGroup}
 
@@ -599,6 +608,6 @@ class OBc:
 
             tmp_sub = self.oneColSubset(df, group, g)
 
-            out.update( {g : getSpps(tmp_sub, P)} )
+            out.update( { g :validSyn(tmp_sub) } )
 
         return out
