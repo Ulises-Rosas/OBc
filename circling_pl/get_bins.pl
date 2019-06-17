@@ -3,6 +3,8 @@
 use warnings;
 use strict;
 use Data::Dumper;
+use List::Util qw(sum);
+use HTTP::Tiny;
 # use LWP::Simple qw(get);
 
 
@@ -80,19 +82,96 @@ sub get_frame {
         my $t_g = $slt[$g];
 
         my $ref = {
-            $t_s => {
-                'meta' => join(",", @slt[@mPo]),
-                'bold' => undef,
-                'bin'  => undef
-            }
-        };
+            'spps'    => $t_s,
+            'meta'    => join(",", @slt[@mPo]),
+            'bin'     => undef,
+            'ninst'   => undef,
+            'n'       => undef,
+            'class'   => undef
+            };
+
         push( @{ $df{ $t_g } }, $ref );
     }
     return %df
 }
 
+sub checkUndef {
+    !$_[0]?  "NA": $_[0];
+}
+
+sub SpecimenData {
+
+    my($include_ncbi,@taxa) = @_;
+
+    my $host   = "http://www.boldsystems.org/index.php/API_Public/specimen?";
+    my $qtaxa  = "taxon=".join("|", map {s/ /%20/r} @taxa);
+    my $format = "format=tsv";
+    my $url    = $host.join("&", $qtaxa, $format);
+    my $ht     = HTTP::Tiny->new;
+
+    my $respo;
+
+    while ( not $respo->{success}  ) {
+
+        $respo = $ht->get($url);
+        sleep(1);
+    }
+
+    my @page = split("\n", $respo->{'content'});
+    my $pageHeader  = shift @page;
+    my($bi, $sp, $in) = &checkPos(
+                          $pageHeader, "F",
+                          qw/bin_uri species_name institution_storing/);
+
+    my $pat  = $include_ncbi eq 'T'? "(unvouchered|NA)" : "(Mined from GenBank| NCBI|unvouchered|NA)";
+    my %df2  = ();
+
+    for (@page){
+
+        my @pr = split /\t/;
+
+        my $pspps = &checkUndef( grep {/\b[A-Z][a-z]+ [a-z]+\b/} $pr[$sp] );
+        my $pinst = &checkUndef( grep {!/$pat/} $pr[$in] );
+        my $pbin  = &checkUndef( grep {/BOLD/} $pr[$bi] );
+        my $pN    = $pbin =~ 'NA' || $pinst =~ 'NA'? 0 : 1;
+
+
+        push( @{ $df2{$pspps}->{'n'}}, $pN);
+        push( @{ $df2{$pspps}->{'bin'}->{$pbin}}, 1);
+        push( @{ $df2{$pspps}->{'inst'}->{$pinst}}, 1);
+    }
+    return %df2;
+}
+
+sub collapseBins {
+
+    my($ke, @ar_hash) = @_;
+
+    return join( "|", map { grep {/BOLD/} @{$_->{$ke}} } @ar_hash);
+}
+
+sub fillFromMeta {
+
+    my($hashesFrames,%dfSppsData) = @_;
+    my @hashesFrames = @{ $hashesFrames };
+
+    for(@hashesFrames){
+        my $mArr = $dfSppsData{ $_->{'spps'} };
+
+        my $sum   = sum( @{$mArr->{n}} );
+        my $ninst = scalar grep {!/NA/} keys %{$mArr->{inst}};
+        my @bins  = grep {!/NA/} keys %{$mArr->{bin}};
+
+
+        $_->{bin}   = [@bins] if $sum;
+        $_->{ninst} = $ninst;
+        $_->{n}     = $sum;
+    }
+    return @hashesFrames
+}
+
 # my $chead = &header($input);
-# my $input = "repTest.tsv";
+# my $input = "mamrepTest.tsv";
 
 my @file   = &readThis($input);
 my $header = shift @file;
@@ -102,78 +181,16 @@ my @metaPos = &checkPos($header, "T", qw/Species Group/);
 
 my %df = &get_frame($pos[0], $pos[1], [@metaPos], @file);
 
-print Dumper \%df;
+while ( my($k,$v) = each %df) {
 
+    # my($k,$v) = %df;
+    print Dumper $k;
 
+    my @taxa = map {$_->{'spps'}} @{$v};
+    my %df2  = &SpecimenData( "F", @taxa );
 
-# my %df;
-#
-# my $s = $pos[0];
-# my $g = $pos[1];
-#
-# for (my $i = 0; $i <= $#file; $i++) {
-#
-#     my @slt = split /\t/, $file[$i];
-#
-#     my $t_s = $slt[$s];
-#     my $t_g = $slt[$g];
-#
-#     my $ref = {
-#         $t_s => {
-#             'meta' => join(",", @slt[@metaPos]),
-#             'bold' => undef,
-#             'bin'  => undef
-#         }
-#     };
-#     # print Dumper \$ref;
-#     push( @{ $df{ $t_g } }, $ref );
-# }
+    my @j = &fillFromMeta([@{$v}], %df2);
 
-# print $#{  $hgs{'Reptilia'} };
+    print Dumper &collapseBins('bin', @{$v});
 
-# print Dumper \%df
-
-
-
-
-# while ( my($k,@v) = each %chash) {
-#
-#     foreach my $n (@v){
-#         say $n;
-#     }
-# }
-
-# foreach my $k (keys %chash){
-#
-#     # for ( $chash{$k} ){
-#     #     print scalar $#_;
-#     # }
-#     print $chash{$k}[0];
-#
-#
-#
-#
-#
-# }
-
-
-#
-# # host
-# my $url = "http://www.boldsystems.org/index.php/API_Public/specimen?";
-# # host
-#
-# ## query
-# my $spps = "taxon=Alopias%20pelagicus";
-# my $format = "format=tsv";
-# my $query = join("&", $spps, $format);
-# # query
-#
-# my $cUrl =  $url . $query;
-# print $cUrl;
-#
-# my @html = get $cUrl;
-#
-# foreach(@html) {
-#     print "Line", $_;
-# }
-
+}
