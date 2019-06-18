@@ -82,12 +82,13 @@ sub get_frame {
         my $t_g = $slt[$g];
 
         my $ref = {
-            'spps'    => $t_s,
-            'meta'    => join(",", @slt[@mPo]),
-            'bin'     => undef,
-            'ninst'   => undef,
-            'n'       => undef,
-            'class'   => undef
+            'spps'   => $t_s,
+            'meta'   => join(",", @slt[@mPo]),
+            'bin'    => undef,
+            'onBins' => undef,
+            'ninst'  => undef,
+            'n'      => undef,
+            'class'  => undef
             };
 
         push( @{ $df{ $t_g } }, $ref );
@@ -120,10 +121,13 @@ sub SpecimenData {
     my @page = split("\n", $respo->{'content'});
     my $pageHeader  = shift @page;
     my($bi, $sp, $in) = &checkPos(
-                          $pageHeader, "F",
-                          qw/bin_uri species_name institution_storing/);
+                            $pageHeader, "F",
+                            qw/bin_uri species_name institution_storing/);
+    my($p1, $p2) = (
+        "(unvouchered|NA)",
+        "(Mined from GenBank| NCBI|unvouchered|NA)");
 
-    my $pat  = $include_ncbi eq 'T'? "(unvouchered|NA)" : "(Mined from GenBank| NCBI|unvouchered|NA)";
+    my $pat  = $include_ncbi eq 'T'? $p1 : $p2;
     my %df2  = ();
 
     for (@page){
@@ -147,7 +151,11 @@ sub collapseBins {
 
     my($ke, @ar_hash) = @_;
 
-    return join( "|", map { grep {/BOLD/} @{$_->{$ke}} } @ar_hash);
+    join("|",
+        &uniq(
+            map { grep {/BOLD/} @{$_->{$ke}} } @ar_hash
+        )
+    );
 }
 
 sub fillFromMeta {
@@ -170,8 +178,105 @@ sub fillFromMeta {
     return @hashesFrames
 }
 
+sub binData {
+
+    my ($bins,$include_ncbi, @withBins) = @_;
+
+    my($p1,$p2) = (
+        "(unvouchered|NA)",
+        "(Mined from GenBank| NCBI|unvouchered|NA)" );
+
+    my $pat  = $include_ncbi eq 'T'? $p1 : $p2;
+    my $sppat    = '\b[A-Z][a-z]+ [a-z]+\b';
+    my $notsppat = '\b[A-Z][a-z]+ sp[p|.]{0,2}\b';
+
+    my $host   = "http://www.boldsystems.org/index.php/API_Public/specimen?";
+    my $query  = "bin=".$bins."&format=tsv";
+    my $ht     = HTTP::Tiny->new;
+
+    my $respo;
+    while ( not $respo->{success}  ) {
+
+        $respo = $ht->get($host.$query);
+        sleep(1);
+    }
+    my @page          = split("\n", $respo->{'content'});
+    my $pageHeader    = shift @page;
+    my($bi, $sp, $in) = &checkPos(
+                          $pageHeader, "F",
+                          qw/bin_uri species_name institution_storing/);
+
+    my %df3 = ();
+    for ( @page ){
+
+        my @pr = split /\t/;
+
+        my $pspps = &checkUndef( grep {!/$notsppat/ and /$sppat/} $pr[$sp] );
+        my $pinst = &checkUndef( grep {!/$pat/} $pr[$in] );
+        my $pbin  = &checkUndef( grep {/BOLD/} $pr[$bi] );
+        # print "\n";
+        push( @{ $df3{$pbin}->{'spps'}->{$pspps} }, 1);
+        push( @{ $df3{$pbin}->{'inst'}->{$pinst} }, 1);
+    }
+    # print Dumper \%df3;
+    my %kspps = ();
+
+    while( my($k2, $v2) = each %df3 ){
+        push(
+            @{ $kspps{$k2} },
+            grep {!/NA/} keys $v2->{spps} );
+    }
+    # my @withBins = @{$v};
+    for(@withBins){
+        # with Bin array
+        my @wBa = &uniq( @{$_->{'bin'}} );
+        # print "\n";
+        # print Dumper @wBa;
+        if ( scalar @wBa ) {
+            # print "\n";
+            my @spps = ();
+            for my $ub ( @wBa ) {
+                # print Dumper $ub;
+                push(@spps, @{$_}) for( $kspps{$ub} );
+            }
+            # print Dumper &uniq(@spps);
+            $_->{onBins} = [ &uniq(@spps) ];
+        }
+    }
+    return @withBins
+}
+
+sub classifier {
+    my @withBin = @_;
+
+    for ( @withBin ) {
+
+        my $spps      = $_->{spps};
+        my $notTarget = scalar grep {not /$spps/} &checkUndef( @{$_->{onBins}} );
+        my $nbin      = scalar @{$_->{bin}};
+
+        if( $_->{n} <= 3 ) {
+            $_->{class} = "D";
+
+        }else{
+            if ( $nbin > 1 ) {
+                $_->{class} = $notTarget > 1? "E**":"C";
+
+            }else{
+                if ( $notTarget > 1 ) {
+                    $_->{class} = "E*";
+
+                }else{
+                    $_->{class} = $_->{ninst} > 1? "A":"B";
+                }
+            }
+        }
+    }
+    return @withBin;
+}
+
 # my $chead = &header($input);
-# my $input = "mamrepTest.tsv";
+my $input = "repTest.tsv";
 
 my @file   = &readThis($input);
 my $header = shift @file;
@@ -181,16 +286,20 @@ my @metaPos = &checkPos($header, "T", qw/Species Group/);
 
 my %df = &get_frame($pos[0], $pos[1], [@metaPos], @file);
 
-while ( my($k,$v) = each %df) {
-
-    # my($k,$v) = %df;
+while ( my($k,$v) = each %df ) {
+    my($k,$v) = %df;
     print Dumper $k;
 
     my @taxa = map {$_->{'spps'}} @{$v};
     my %df2  = &SpecimenData( "F", @taxa );
 
-    my @j = &fillFromMeta([@{$v}], %df2);
+    my @withMeta  = &fillFromMeta( [@{$v}], %df2 );
+    # my @withBin   = &binData( &collapseBins('bin', @withMeta), "F", @withMeta );
+    # my @withClass = &classifier( @withBin );
+    my @withClass = &classifier(
+                          &binData(
+                              &collapseBins( 'bin', @withMeta ), "F", @withMeta));
 
-    print Dumper &collapseBins('bin', @{$v});
-
+    @withClass;
 }
+
