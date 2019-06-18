@@ -96,8 +96,22 @@ sub get_frame {
     return %df
 }
 
-sub checkUndef {
-    !$_[0]?  "NA": $_[0];
+sub checkUndef { 
+    !$_[0]?  "NA": $_[0]; 
+}
+
+sub getContent {
+
+    my($host,$query) = @_;
+
+    my $ht = HTTP::Tiny->new;
+    my $respo;
+
+    while ( not $respo->{success}  ) {
+        $respo = $ht->get($host.$query);
+        sleep(1);
+    }
+    return split("\n", $respo->{'content'});
 }
 
 sub SpecimenData {
@@ -106,20 +120,10 @@ sub SpecimenData {
 
     my $host   = "http://www.boldsystems.org/index.php/API_Public/specimen?";
     my $qtaxa  = "taxon=".join("|", map {s/ /%20/r} @taxa);
-    my $format = "format=tsv";
-    my $url    = $host.join("&", $qtaxa, $format);
-    my $ht     = HTTP::Tiny->new;
+    my $format = "&format=tsv";
 
-    my $respo;
-
-    while ( not $respo->{success}  ) {
-
-        $respo = $ht->get($url);
-        sleep(1);
-    }
-
-    my @page = split("\n", $respo->{'content'});
-    my $pageHeader  = shift @page;
+    my @page          = &getContent($host, $qtaxa.$format);
+    my $pageHeader    = shift @page;
     my($bi, $sp, $in) = &checkPos(
                             $pageHeader, "F",
                             qw/bin_uri species_name institution_storing/);
@@ -180,31 +184,26 @@ sub fillFromMeta {
 
 sub binData {
 
-    my ($bins,$include_ncbi, @withBins) = @_;
+    my ($bins, $include_ncbi, @withBins) = @_;
 
-    my($p1,$p2) = (
+    my($p1, $p2) = (
         "(unvouchered|NA)",
         "(Mined from GenBank| NCBI|unvouchered|NA)" );
 
     my $pat  = $include_ncbi eq 'T'? $p1 : $p2;
-    my $sppat    = '\b[A-Z][a-z]+ [a-z]+\b';
-    my $notsppat = '\b[A-Z][a-z]+ sp[p|.]{0,2}\b';
 
-    my $host   = "http://www.boldsystems.org/index.php/API_Public/specimen?";
-    my $query  = "bin=".$bins."&format=tsv";
-    my $ht     = HTTP::Tiny->new;
+    my($sppat, $notsppat) = (
+        '\b[A-Z][a-z]+ [a-z]+\b',
+        '\b[A-Z][a-z]+ sp[p|.]{0,2}\b' );
 
-    my $respo;
-    while ( not $respo->{success}  ) {
+    my $host  = "http://www.boldsystems.org/index.php/API_Public/specimen?";
+    my $query = "bin=".$bins."&format=tsv";
 
-        $respo = $ht->get($host.$query);
-        sleep(1);
-    }
-    my @page          = split("\n", $respo->{'content'});
+    my @page          = &getContent($host, $query);
     my $pageHeader    = shift @page;
     my($bi, $sp, $in) = &checkPos(
-                          $pageHeader, "F",
-                          qw/bin_uri species_name institution_storing/);
+                            $pageHeader, "F",
+                            qw/bin_uri species_name institution_storing/);
 
     my %df3 = ();
     for ( @page ){
@@ -230,10 +229,9 @@ sub binData {
     for(@withBins){
         # with Bin array
         my @wBa = &uniq( @{$_->{'bin'}} );
-        # print "\n";
         # print Dumper @wBa;
         if ( scalar @wBa ) {
-            # print "\n";
+
             my @spps = ();
             for my $ub ( @wBa ) {
                 # print Dumper $ub;
