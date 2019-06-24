@@ -5,22 +5,40 @@ use strict;
 use Data::Dumper;
 use List::Util qw(sum);
 use HTTP::Tiny;
-# use LWP::Simple qw(get);
 
+local $| = 1;
 
-print  'number of args: ', $#ARGV, "\n";
+# print  'number of args: ', $#ARGV, "\n";
 # print @ARGV, "\n";
 
 my $input;
+my $output;
+my $include_ncbi = 'F';
+my $private = 0;
+my $quiet = 0;
 
 for(my $k = 0; $k <= $#ARGV; $k++){
 
-    if ( $ARGV[$k] eq '-i' ) {
-
-        $input = $ARGV[$k + 1];
-    }
+    $output = $ARGV[$k + 1] if ($ARGV[$k] eq '-o');
+    $input  = $ARGV[$k + 1] if ($ARGV[$k] eq '-i');
+    $include_ncbi = 'T'     if ($ARGV[$k] eq '-n');
+    $private = 1            if ($ARGV[$k] eq '-p');
+    $quiet   = 0            if ($ARGV[$k] eq '-q');
 }
 
+if ( not $input){
+    print "Please introduce an input file";
+    exit;
+}
+
+if ( not $output){
+    print "Please introduce an output file";
+    exit;
+}
+# print $output."_RM", "\n";
+# print $input."_RM", "\n";
+# print $include_ncbi."_RM", "\n";
+# print $private."_RM", "\n";
 sub readThis {
 
     die "Can't open file $_[0]: $!\n" if not open( INFILE, $_[0] );
@@ -88,7 +106,8 @@ sub get_frame {
             'onBins' => undef,
             'ninst'  => undef,
             'n'      => undef,
-            'class'  => undef
+            'class'  => undef,
+            'taxid'  => undef
             };
 
         push( @{ $df{ $t_g } }, $ref );
@@ -96,8 +115,8 @@ sub get_frame {
     return %df
 }
 
-sub checkUndef { 
-    !$_[0]?  "NA": $_[0]; 
+sub checkUndef {
+    !$_[0]?  "NA": $_[0];
 }
 
 sub getContent {
@@ -124,9 +143,9 @@ sub SpecimenData {
 
     my @page          = &getContent($host, $qtaxa.$format);
     my $pageHeader    = shift @page;
-    my($bi, $sp, $in) = &checkPos(
-                            $pageHeader, "F",
-                            qw/bin_uri species_name institution_storing/);
+    my($bi, $sp, $in, $taxid) = &checkPos(
+                                    $pageHeader, "F",
+                                    qw/bin_uri species_name institution_storing species_taxID/);
     my($p1, $p2) = (
         "(unvouchered|NA)",
         "(Mined from GenBank| NCBI|unvouchered|NA)");
@@ -138,15 +157,17 @@ sub SpecimenData {
 
         my @pr = split /\t/;
 
-        my $pspps = &checkUndef( grep {/\b[A-Z][a-z]+ [a-z]+\b/} $pr[$sp] );
-        my $pinst = &checkUndef( grep {!/$pat/} $pr[$in] );
-        my $pbin  = &checkUndef( grep {/BOLD/} $pr[$bi] );
-        my $pN    = $pbin =~ 'NA' || $pinst =~ 'NA'? 0 : 1;
+        my $pspps  = &checkUndef( grep {/\b[A-Z][a-z]+ [a-z]+\b/} $pr[$sp] );
+        my $pinst  = &checkUndef( grep {!/$pat/} $pr[$in] );
+        my $pbin   = &checkUndef( grep {/BOLD/} $pr[$bi] );
+        my $ptaxid = &checkUndef( $pr[$taxid] );
+        my $pN     = $pbin =~ 'NA' || $pinst =~ 'NA'? 0 : 1;
 
-
-        push( @{ $df2{$pspps}->{'n'}}, $pN);
-        push( @{ $df2{$pspps}->{'bin'}->{$pbin}}, 1);
-        push( @{ $df2{$pspps}->{'inst'}->{$pinst}}, 1);
+        # printf "%s,%s,%s,%s,%s\n", $pspps,$pinst, $pbin, $ptaxid, $pN;
+        push( @{ $df2{$pspps}->{'n'} }, $pN);
+        push( @{ $df2{$pspps}->{'taxid'} }, $ptaxid);
+        push( @{ $df2{$pspps}->{'bin'}->{$pbin} }, 1);
+        push( @{ $df2{$pspps}->{'inst'}->{$pinst} }, 1);
     }
     return %df2;
 }
@@ -173,11 +194,12 @@ sub fillFromMeta {
         my $sum   = sum( @{$mArr->{n}} );
         my $ninst = scalar grep {!/NA/} keys %{$mArr->{inst}};
         my @bins  = grep {!/NA/} keys %{$mArr->{bin}};
-
+        my @taxid = &uniq( @{$mArr->{taxid}} );
 
         $_->{bin}   = [@bins] if $sum;
         $_->{ninst} = $ninst;
         $_->{n}     = $sum;
+        $_->{taxid} = $taxid[0];
     }
     return @hashesFrames
 }
@@ -245,7 +267,7 @@ sub binData {
 }
 
 sub classifier {
-    my @withBin = @_;
+    my ($ncbied, @withBin) = @_;
 
     for ( @withBin ) {
 
@@ -254,7 +276,7 @@ sub classifier {
         my $nbin      = scalar @{$_->{bin}};
 
         if( $_->{n} <= 3 ) {
-            $_->{class} = "D";
+            $_->{class} = $ncbied eq 'T'? "D":($_->{ninst} > 0? "D":"F");
 
         }else{
             if ( $nbin > 1 ) {
@@ -273,9 +295,71 @@ sub classifier {
     return @withBin;
 }
 
-# my $chead = &header($input);
-my $input = "repTest.tsv";
+sub upgradeFs {
 
+    my ($printTool,$group,@publicClass) =  @_;
+    my $pat = "(Mined from GenBank, NCBI| NCBI|unvouchered|NA)";
+
+    my %dspps = ();
+
+    for my $wc (@publicClass) {
+
+        if ($wc->{class} eq 'F' ){
+            push( @{ $dspps{$wc->{spps}} }, $wc->{taxid});
+        }
+    }
+
+    my $n = 30;
+    my $nitems = scalar keys %dspps;
+
+    for (my $i = 1; $i <= $nitems; $i++) {
+
+        my($k3,$v3) = each %dspps;
+
+        my @p = &getContent(
+            "http://www.boldsystems.org/index.php/API_Tax/TaxonData?",
+            "taxId=@{$v3}&dataTypes=all" );
+
+        my %repos = %{ eval ( $p[0] =~ s/.*depositry":({.+?}),.*/$1/rg
+                                    =~ s/:/=>/rg
+                                    =~ s/"$pat"=>\d+,{0,}//rg ) };
+
+        my($re,$su) = (scalar keys %repos, sum values %repos);
+
+        if($re > 0){
+
+            for my $pc (@publicClass) {
+
+                if ($pc->{spps} eq $k3) {
+
+                    $pc->{class} = "D";
+                    $pc->{ninst} = $re;
+                    $pc->{n}     = $su;
+
+                }
+            }
+        }
+
+        if ($printTool) {
+
+            my $p  = $i/$nitems;
+            my $ip = int($n*$i/$nitems);
+
+            printf
+                "\r%40s[%s%s] (%6.2f %%)",
+                "Getting whole records in $group...",
+                '#'x$ip,
+                '-'x($n-$ip),
+                $p*100;
+        }
+
+    }
+    return @publicClass
+}
+
+# my $chead = &header($input);
+# my $input = "repTest.tsv";
+#
 my @file   = &readThis($input);
 my $header = shift @file;
 
@@ -284,20 +368,63 @@ my @metaPos = &checkPos($header, "T", qw/Species Group/);
 
 my %df = &get_frame($pos[0], $pos[1], [@metaPos], @file);
 
+open(my $fh, '>', $output);
+
 while ( my($k,$v) = each %df ) {
-    my($k,$v) = %df;
-    print Dumper $k;
-
+    # my($k,$v) = ();
+    # my($k,$v) = %df;
+    # print Dumper $k;
     my @taxa = map {$_->{'spps'}} @{$v};
-    my %df2  = &SpecimenData( "F", @taxa );
 
-    my @withMeta  = &fillFromMeta( [@{$v}], %df2 );
-    # my @withBin   = &binData( &collapseBins('bin', @withMeta), "F", @withMeta );
-    # my @withClass = &classifier( @withBin );
+    if(not $quiet){
+        print "\n";
+        printf "\r%40s%s","Getting metadata in $k...","";
+    }
+
+    my %df2  = &SpecimenData( $include_ncbi, @taxa );
+
+    if(not $quiet){
+        printf "\r%40s%s","Getting metadata in $k...","Ok";
+    }
+
+    my @withMeta  = &fillFromMeta(
+                        [@{$v}],
+                        %df2 );
+
+    if(not $quiet){
+        print "\n";
+        printf "\r%40s%s","Getting BINs in $k...","";
+    }
+
     my @withClass = &classifier(
-                          &binData(
-                              &collapseBins( 'bin', @withMeta ), "F", @withMeta));
+                        $include_ncbi,
+                        &binData(
+                            &collapseBins( 'bin', @withMeta ),
+                            $include_ncbi,
+                            @withMeta));
+    if(not $quiet){
+        printf "\r%40s%s","Getting BINs in $k...","Ok";
 
-    @withClass;
+    }
+
+    if($private){
+        print "\n";
+        @withClass = &upgradeFs( (not $quiet),$k, @withClass );
+        print "\n";
+    }
+
+    for(@withClass){
+        printf $fh
+            "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
+            $_->{meta} =~ s/,/\t/gr,
+            $_->{spps},
+            $_->{class},
+            join(",",@{$_->{onBins}}),
+            $_->{n},
+            $_->{ninst},
+            $_->{taxid},
+            join(",",@{$_->{bin}});
+    }
 }
-
+print "\n";
+close($fh);
