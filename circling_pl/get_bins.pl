@@ -99,18 +99,19 @@ sub get_frame {
         my $t_s = $slt[$s];
         my $t_g = $slt[$g];
 
-        my $ref = {
+        my %ref = (
             'spps'   => $t_s,
-            'meta'   => join(",", @slt[@mPo]),
             'bin'    => undef,
             'onBins' => undef,
             'ninst'  => undef,
             'n'      => undef,
             'class'  => undef,
             'taxid'  => undef
-            };
+        );
 
-        push( @{ $df{ $t_g } }, $ref );
+        $ref{meta} = join(",", @slt[@mPo]) if(@mPo);
+
+        push( @{ $df{ $t_g } }, \%ref );
     }
     return %df
 }
@@ -318,7 +319,7 @@ sub upgradeFs {
 
         my @p = &getContent(
             "http://www.boldsystems.org/index.php/API_Tax/TaxonData?",
-            "taxId=@{$v3}&dataTypes=all" );
+            "taxId=@{$v3}[0]&dataTypes=all" );
 
         my %repos = %{ eval ( $p[0] =~ s/.*depositry":({.+?}),.*/$1/rg
                                     =~ s/:/=>/rg
@@ -359,7 +360,9 @@ sub upgradeFs {
 
 # my $chead = &header($input);
 # my $input = "repTest.tsv";
-#
+# my $input = "mamrepTest.tsv";
+# my $input = "NoMetaRepTest.tsv";
+
 my @file   = &readThis($input);
 my $header = shift @file;
 
@@ -369,10 +372,20 @@ my @metaPos = &checkPos($header, "T", qw/Species Group/);
 my %df = &get_frame($pos[0], $pos[1], [@metaPos], @file);
 
 open(my $fh, '>', $output);
+printf  $fh
+    $header . "\t" . join(
+        "\t",
+        ("Classification",
+         "sppsOnBins",
+         "N",
+         "N_Institutes",
+         "taxIDs",
+         "BINs")
+        ) . "\n";
 
 while ( my($k,$v) = each %df ) {
     # my($k,$v) = ();
-    # my($k,$v) = %df;
+    # my($k,$v) = each %df;
     # print Dumper $k;
     my @taxa = map {$_->{'spps'}} @{$v};
 
@@ -381,15 +394,13 @@ while ( my($k,$v) = each %df ) {
         printf "\r%40s%s","Getting metadata in $k...","";
     }
 
-    my %df2  = &SpecimenData( $include_ncbi, @taxa );
+    my %df2  = &SpecimenData( $include_ncbi,  @taxa );
 
     if(not $quiet){
         printf "\r%40s%s","Getting metadata in $k...","Ok";
     }
 
-    my @withMeta  = &fillFromMeta(
-                        [@{$v}],
-                        %df2 );
+    my @withMeta  = &fillFromMeta( [@{$v}], %df2 );
 
     if(not $quiet){
         print "\n";
@@ -410,21 +421,28 @@ while ( my($k,$v) = each %df ) {
     if($private){
         print "\n";
         @withClass = &upgradeFs( (not $quiet),$k, @withClass );
+        printf  "\r%40s%-43s", "Getting whole records in $k...", "Ok";
         print "\n";
     }
 
     for(@withClass){
-        printf $fh
-            "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
-            $_->{meta} =~ s/,/\t/gr,
-            $_->{spps},
-            $_->{class},
-            join(",",@{$_->{onBins}}),
-            $_->{n},
-            $_->{ninst},
-            $_->{taxid},
-            join(",",@{$_->{bin}});
+
+        my $bStr =
+            sprintf(
+                join("\t", ("%s")x8)."\n",
+                $k,
+                $_->{spps} ,
+                $_->{class},
+                join(",", @{$_->{onBins}}),
+                $_->{n},
+                $_->{ninst},
+                $_->{taxid},
+                join(",", @{$_->{bin}})
+            );
+        $bStr = ($_->{meta} =~ s/,/\t/gr)."\t$bStr" if (@metaPos);
+        printf $fh "$bStr";
     }
+    print "\n";
 }
 print "\n";
 close($fh);
