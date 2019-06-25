@@ -358,6 +358,32 @@ sub upgradeFs {
     return @publicClass
 }
 
+sub writeOut {
+
+    my($group,$file,$pos,@frame) = @_;
+
+    my @metaPos = @{$pos};
+
+    for(@frame){
+
+        my $bStr =
+            sprintf(
+                join("\t", ("%s")x8)."\n",
+                $group,
+                $_->{spps} ,
+                $_->{class},
+                join(",", @{$_->{onBins}}),
+                $_->{n},
+                $_->{ninst},
+                $_->{taxid},
+                join(",", @{$_->{bin}})
+            );
+        $bStr = ($_->{meta} =~ s/,/\t/gr)."\t$bStr" if (@metaPos);
+        printf $file "$bStr";
+    }
+
+}
+
 # my $chead = &header($input);
 # my $input = "repTest.tsv";
 # my $input = "mamrepTest.tsv";
@@ -425,24 +451,8 @@ while ( my($k,$v) = each %df ) {
         print "\n";
     }
 
-    for(@withClass){
-
-        my $bStr =
-            sprintf(
-                join("\t", ("%s")x8)."\n",
-                $k,
-                $_->{spps} ,
-                $_->{class},
-                join(",", @{$_->{onBins}}),
-                $_->{n},
-                $_->{ninst},
-                $_->{taxid},
-                join(",", @{$_->{bin}})
-            );
-        $bStr = ($_->{meta} =~ s/,/\t/gr)."\t$bStr" if (@metaPos);
-        printf $fh "$bStr";
-    }
+    &writeOut( $k, $fh, [@metaPos], @withClass);
     print "\n";
 }
-print "\n";
+# print "\n";
 close($fh);
