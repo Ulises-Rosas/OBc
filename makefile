@@ -117,6 +117,10 @@ setupBash:
         mv $$CONDA_PREFIX/bin/get_checkLists.sh  $$CONDA_PREFIX/bin/checkspps &&\
         mv $$CONDA_PREFIX/bin/loop_checkLists.sh $$CONDA_PREFIX/bin/checklists
 
+setupPerl:
+	chmod +x ./circling_pl/*
+	$(brc) && install circling_pl/get_bins.pl $$CONDA_PREFIX/bin
+
 start_message:
 	echo -e "\n\nAll dependencies installed. Please run to activate:\n\n\033[1;32m    source activate OBc\n\033[0m" &&\
 	echo -e "And to deactivate:\n\n\033[1;32m    conda deactivate\n\033[0m"
