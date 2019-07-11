@@ -284,9 +284,15 @@ class Worms:
         if len(spell) == 0:
             return "check_spell"
 
-        return  re.sub('.*"rank":"' + spell[0] + '","scientificname":"([A-Za-z ]+)".*',
-                       "\\1",
-                       self.classification_page)
+        rankMatch = re.sub('.*"rank":"' +
+                           spell[0]     +
+                           '","scientificname":"([A-Za-z\[\] ]+)".*',
+                           "\\1", self.classification_page)
+
+        if re.findall("\[unassigned\]", rankMatch):
+            return 'unassigned'
+        else:
+            return rankMatch
 
     def get_synonyms(self):
         """
