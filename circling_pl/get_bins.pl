@@ -23,7 +23,7 @@ for(my $k = 0; $k <= $#ARGV; $k++){
     $input  = $ARGV[$k + 1] if ($ARGV[$k] eq '-i');
     $include_ncbi = 'T'     if ($ARGV[$k] eq '-n');
     $private = 1            if ($ARGV[$k] eq '-p');
-    $quiet   = 0            if ($ARGV[$k] eq '-q');
+    $quiet   = 1            if ($ARGV[$k] eq '-q');
 }
 
 if ( not $input){
@@ -35,10 +35,7 @@ if ( not $output){
     print "Please introduce an output file";
     exit;
 }
-# print $output."_RM", "\n";
-# print $input."_RM", "\n";
-# print $include_ncbi."_RM", "\n";
-# print $private."_RM", "\n";
+
 sub readThis {
 
     die "Can't open file $_[0]: $!\n" if not open( INFILE, $_[0] );
