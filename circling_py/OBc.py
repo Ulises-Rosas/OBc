@@ -583,7 +583,7 @@ class OBc:
 
         ### mock params
         # bold = "data/bold.csv"
-        # specificgroup = None
+        # specificgroup = ['Elasmobranchii']
         # group = "group"
         # self = OBc()
         # # ### mock params
@@ -594,8 +594,17 @@ class OBc:
             s  = ",public_"
 
             ss_df = [ y for y in self.summarise(df, l2) if re.findall(s,y) ]
+            out   = {}
 
-            return { i.split(',')[0] : i.split(',')[1] for i in ss_df }
+            for idic in ss_df:
+
+                slt = idic.split(",")
+
+                if not out.__contains__(slt[0]):
+
+                    out.update( {slt[0]: slt[1]} )
+
+            return out
 
         group = [group]
 
@@ -608,6 +617,6 @@ class OBc:
 
             tmp_sub = self.oneColSubset(df, group, g)
 
-            out.update( { g :validSyn(tmp_sub) } )
+            out.update( {g :validSyn(tmp_sub)} )
 
         return out
