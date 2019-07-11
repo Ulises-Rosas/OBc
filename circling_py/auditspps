@@ -23,6 +23,12 @@ optional arguments:
   --for [str ...]  [Optional] Specific group for auditing species [Default = None]
   --at  [str ...]  [Optional] Introduce futher taxonomical ranks to species. 
                     This is used for enhancing graphical reports [Default = None]
+  -q, --quiet      [Optional] If selected, suppress running messages.
+  -n, --ncbi       [Optional] If selected, auditspps includes genbank records and 
+                    suppress creation of `F` grade (i.e. records completely
+                    mined from genbank) inside analyses.
+  -p, --private    [Optional] If selected and `-n` is not selected, auditspps includes
+                    private records for trying to upgrade `F` grades to `D`.
   -o, --output     [Optional] Output name [Default = <input_based>.csv]
 """
 
@@ -62,6 +68,12 @@ def getOpt():
                         type=str,
                         default='input_based',
                         help='[Optional] Output name [Default = <input_based>.csv]')
+    parser.add_argument('-p', '--private',
+                        action='store_true',
+                        help='[Optional] If selected, auditspps includes private data')
+    parser.add_argument('-n', '--ncbi',
+                        action='store_true',
+                        help='[Optional] If selected, auditspps includes genbank records')
     parser.add_argument('-q', '--quiet',
                         action='store_false',
                         help='[Optional] If selected, suppress running messages')
@@ -136,6 +148,9 @@ def appendWithRanks(l, spps, group, at, toolbar=True, w=50):
     :return: list with ranks
     """
     row = lambda t,a,g: "%s\t%s\t%s" % ( ranks(t[0], a), g, t[1] )
+    ## out "Nephtyidae\tNephtys\tInvertebrates\tNephtys paradoxa"
+    ###     ^^^^^^^^^^^^^^^^^^^^       g               t[1]
+    ###   <out from ranks fun>      <group>      <name from bold repo>
 
     n   = len(spps)
     prs = list(spps.items())
@@ -173,38 +188,23 @@ def main():
     # print(option)
     # option = {"input": "data/bold.csv",
     #           "group": "group",
-    #           "for": ['Reptilia'],
-    #           "at":  ['Phylum'],
+    #           "for": ['Elasmobranchii'],
+    #           "at":  None,
     #           "output" : "input_based",
     #           'quiet': True
     #            }
 
     if option['quiet']:
-        sys.stdout.write("\nObtaining public records\n\n")
+        sys.stdout.write("\nObtaining public records from input\n")
 
     spps = OBc().boldSpps(bold=option['input'], group=option['group'], specificgroup= option['for'])
 
-    # if option['at'] != None and option['for'] != None:
-    #
-    #     if len(option['at']) != len(option['for']):
-    #         print("\033[0;31m\nError: Lengths of both specific groups and taxa are no equal\033[0m\n")
-    #         exit()
-    #
-    #     for for,at in zip(option['for'], option['at']):
-    #
-    #         if line == 0:
-    #             out.append('Taxa,Group,Species')
-    #             line += 1
-    #
-    #         for s in spps[for]:
-    #             out.append( "%s,%s,%s" % (ranks(s, at), for, s) )
     out  = []
     line = 0
 
     if option['at'] != None :
 
         for k in spps['order']:
-            # k = 'Reptilia'
 
             if line == 0:
                 out.append('%s\tGroup\tSpecies' % "\t".join(option['at']) )
@@ -220,29 +220,29 @@ def main():
                 out.append('Group\tSpecies')
                 line += 1
 
-            for s in spps[k]:
-                out.append("%s\t%s" % (k, s))
-
-    ranked_file = cname2(option['input'])
-
-    f = open( ranked_file, 'w' )
-    for i in out:
-        f.write(i + '\n')
-    f.close()
+            for _,v2 in spps[k].items():
+                out.append("%s\t%s" % (k, v2))
 
     file_name = OBc().writeOut(out)
 
     fo = option['output'] if option['output'] != "input_based" else cname(option['input'])
 
     if option['quiet']:
-        print("\nAccessing to BOLD database\n")
+        print("\nAccessing to BOLD database")
 
-    Ropt = ['get_BIN.R', '-i', ranked_file, '-o', fo]
+    Perlopt = ['get_bins.pl', '-i', str(file_name), '-o', fo]
 
     if not option['quiet']:
-        Ropt.append('-q')
+        Perlopt.append('-q')
 
-    runShell(Ropt)
+    if option['private']:
+        Perlopt.append('-p')
+
+    if option['ncbi']:
+        Perlopt.append('-n')
+
+    runShell( Perlopt )
+    runShell( ['rm', str(file_name)] )
 
 if __name__ == "__main__":
     main()
