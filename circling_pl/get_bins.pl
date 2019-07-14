@@ -13,17 +13,22 @@ local $| = 1;
 
 my $input;
 my $output;
+my $refnamesfile;
 my $include_ncbi = 'F';
 my $private = 0;
 my $quiet = 0;
 
+
+my %refnames  = ();
+
 for(my $k = 0; $k <= $#ARGV; $k++){
 
-    $output = $ARGV[$k + 1] if ($ARGV[$k] eq '-o');
-    $input  = $ARGV[$k + 1] if ($ARGV[$k] eq '-i');
-    $include_ncbi = 'T'     if ($ARGV[$k] eq '-n');
-    $private = 1            if ($ARGV[$k] eq '-p');
-    $quiet   = 1            if ($ARGV[$k] eq '-q');
+    $output = $ARGV[$k + 1]       if ($ARGV[$k] eq '-o');
+    $input  = $ARGV[$k + 1]       if ($ARGV[$k] eq '-i');
+    $refnamesfile = $ARGV[$k + 1] if ($ARGV[$k] eq '-r');
+    $include_ncbi = 'T'           if ($ARGV[$k] eq '-n');
+    $private = 1                  if ($ARGV[$k] eq '-p');
+    $quiet   = 1                  if ($ARGV[$k] eq '-q');
 }
 
 if ( not $input){
@@ -204,7 +209,11 @@ sub fillFromMeta {
 
 sub binData {
 
-    my ($bins, $include_ncbi, @withBins) = @_;
+    my ($bins, $include_ncbi, $refnamesi, @withBins) = @_;
+    # my $refnamesi = [%refnames];
+    # my $bins = &collapseBins( 'bin', @withMeta );
+    # my @withBins = @withMeta;
+    my %refnamesi = @{$refnamesi};
 
     my($p1, $p2) = (
         "(unvouchered|NA)",
@@ -212,9 +221,10 @@ sub binData {
 
     my $pat  = $include_ncbi eq 'T'? $p1 : $p2;
 
-    my($sppat, $notsppat) = (
+    my($sppat, $notsppat, $notsppat2) = (
         '\b[A-Z][a-z]+ [a-z]+\b',
-        '\b[A-Z][a-z]+ sp[p|.]{0,2}\b' );
+        '\b[A-Z][a-z]+ sp[p|.]{0,2}\b',
+        '[A-Z][a-z]+ cf\.');
 
     my $host  = "http://www.boldsystems.org/index.php/API_Public/specimen?";
     my $query = "bin=".$bins."&format=tsv";
@@ -228,64 +238,123 @@ sub binData {
     my %df3 = ();
     for ( @page ){
 
-        my @pr = split /\t/;
+        my @pr    = split /\t/;
+        my $pspps = &checkUndef(grep {!/$notsppat/ and !/$notsppat2/ and /$sppat/} $pr[$sp] );
 
-        my $pspps = &checkUndef( grep {!/$notsppat/ and /$sppat/} $pr[$sp] );
-        my $pinst = &checkUndef( grep {!/$pat/} $pr[$in] );
-        my $pbin  = &checkUndef( grep {/BOLD/} $pr[$bi] );
-        # print "\n";
-        push( @{ $df3{$pbin}->{'spps'}->{$pspps} }, 1);
-        push( @{ $df3{$pbin}->{'inst'}->{$pinst} }, 1);
+        if ( not $pspps =~ /NA/){
+            # print "\n\n", $pspps, "\n";
+
+            my @t = (split " ", $pspps);
+            ## downgrade tax status if there are
+            ## subspecies i.e. three-word names
+            if ( (scalar @t) ge 2 ){
+                $pspps = join( " ", @t[0,1] );
+            }
+
+            my $pinst = &checkUndef( grep {!/$pat/} $pr[$in] );
+            my $pbin  = &checkUndef( grep {/BOLD/} $pr[$bi] );
+
+            if ( (not $pinst =~ /NA/) and (not $pbin =~ /NA/) ){
+                # taking validated names
+                if( %refnamesi ){
+
+                     $pspps = $refnamesi{$pspps} if exists $refnamesi{$pspps};
+                 }
+                push( @{ $df3{$pbin}->{$pspps}->{$pinst} }, 1);
+            }
+        }
     }
     # print Dumper \%df3;
-    my %kspps = ();
-
-    while( my($k2, $v2) = each %df3 ){
-        push(
-            @{ $kspps{$k2} },
-            grep {!/NA/} keys $v2->{spps} );
-    }
-    # my @withBins = @{$v};
-    for(@withBins){
+    for my $h (@withBins){
         # with Bin array
-        my @wBa = &uniq( @{$_->{'bin'}} );
+        # my $h = @withBins[3];
+        my @wBa = &uniq( @{$h->{'bin'}} );
         # print Dumper @wBa;
+        # print "\n";
         if ( scalar @wBa ) {
 
-            my @spps = ();
+            my %spps = ();
             for my $ub ( @wBa ) {
-                # print Dumper $ub;
-                push(@spps, @{$_}) for( $kspps{$ub} );
+
+                for my $ub3 ( $df3{$ub} ){
+
+                    if( defined $ub3 ){
+
+                        while (my ($k1, $v1) = each %{$ub3}) {
+                            # print Dumper $k1;
+                            # print Dumper $v1;
+                            for(keys $v1){
+
+                                push(@{$spps{$k1}->{inst}->{$_}}, 1);
+                                push(@{$spps{$k1}->{n}}, sum @{$v1->{$_}} );
+                            }
+                        }
+                    }
+                }
             }
-            # print Dumper &uniq(@spps);
-            $_->{onBins} = [ &uniq(@spps) ];
+            for my $k2 (keys %spps){
+
+                $spps{$k2}->{n}    = sum @{ $spps{$k2}->{n} };
+                $spps{$k2}->{inst} = scalar keys $spps{$k2}->{inst};
+            }
+
+            $h->{onBins} = \%spps;
         }
     }
     return @withBins
 }
 
+sub seekAndDestroy {
+
+    my ($refnamesi, @withOnBins) = @_;
+
+    my %refnamesi = @{$refnamesi};
+
+    for my $sad (@withOnBins){
+
+        if( scalar  @{$sad->{bin}} ){
+
+            my $spps = $sad->{spps};
+
+            if(%refnamesi){
+
+                $spps = $refnamesi{$spps} if exists $refnamesi{$spps};
+            }
+
+            $sad->{n}      = $sad->{onBins}->{$spps}->{n};
+            $sad->{ninst}  = $sad->{onBins}->{$spps}->{inst};
+            $sad->{spps}   = $spps;
+            $sad->{onBins} = [keys $sad->{onBins}];
+        }
+    }
+    return @withOnBins;
+}
+
 sub classifier {
     my ($ncbied, @withBin) = @_;
+    # my $ncbied = $include_ncbi;
+    # my @withBin = @destroyed;
+    for my $c ( @withBin ) {
 
-    for ( @withBin ) {
-
-        my $spps      = $_->{spps};
-        my $notTarget = scalar grep {not /$spps/} &checkUndef( @{$_->{onBins}} );
-        my $nbin      = scalar @{$_->{bin}};
-
-        if( $_->{n} <= 3 ) {
-            $_->{class} = $ncbied eq 'T'? "D":($_->{ninst} > 0? "D":"F");
+        my $spps      = $c->{spps};
+        my $notTarget = scalar grep {(not /$spps/) and defined} @{$c->{onBins}};
+        my $nbin      = scalar @{$c->{bin}};
+        # printf "%s,%s,%s\n", $spps, $notTarget, $nbin;
+        if( $c->{n} <= 3 ) {
+            $c->{class} =  $ncbied eq 'T'? "D": ($c->{ninst} > 0? "D": "F");
 
         }else{
+
             if ( $nbin > 1 ) {
-                $_->{class} = $notTarget > 1? "E**":"C";
+                $c->{class} = $notTarget > 0? "E**":"C";
 
             }else{
-                if ( $notTarget > 1 ) {
-                    $_->{class} = "E*";
+
+                if ( $notTarget > 0 ) {
+                    $c->{class} =  "E*";
 
                 }else{
-                    $_->{class} = $_->{ninst} > 1? "A":"B";
+                    $c->{class} =  $c->{ninst} > 1? "A":"B";
                 }
             }
         }
@@ -296,10 +365,10 @@ sub classifier {
 sub upgradeFs {
 
     my ($printTool,$group,@publicClass) =  @_;
+    # my ($printTool,$group,@publicClass) =  ( (not $quiet),$k, @withClass );
     my $pat = "(Mined from GenBank, NCBI| NCBI|unvouchered|NA)";
 
     my %dspps = ();
-
     for my $wc (@publicClass) {
 
         if ($wc->{class} eq 'F' ){
@@ -317,6 +386,23 @@ sub upgradeFs {
         my @p = &getContent(
             "http://www.boldsystems.org/index.php/API_Tax/TaxonData?",
             "taxId=@{$v3}[0]&dataTypes=all" );
+
+        if (not $p[0] =~ m/depositry":{/ ){
+
+            if ($printTool) {
+
+                my $p  = $i/$nitems;
+                my $ip = int($n*$i/$nitems);
+
+                printf
+                    "\r%40s[%s%s] (%6.2f %%)",
+                    "Getting whole records in $group...",
+                    '#'x$ip,
+                    '-'x($n-$ip),
+                    $p*100;
+            }
+            next;
+        }
 
         my %repos = %{ eval ( $p[0] =~ s/.*depositry":({.+?}),.*/$1/rg
                                     =~ s/:/=>/rg
@@ -369,16 +455,28 @@ sub writeOut {
                 $group,
                 $_->{spps} ,
                 $_->{class},
-                join(",", @{$_->{onBins}}),
+                join(",", grep {defined} @{$_->{onBins}}),
                 $_->{n},
                 $_->{ninst},
                 $_->{taxid},
-                join(",", @{$_->{bin}})
+                join(",", grep {defined} @{$_->{bin}})
             );
         $bStr = ($_->{meta} =~ s/,/\t/gr)."\t$bStr" if (@metaPos);
         printf $file "$bStr";
     }
 
+}
+
+if ($refnamesfile){
+
+    my @reffile   = &readThis($refnamesfile);
+    my $refheader = shift @reffile;
+    my ($va,$si)  = &checkPos($refheader, "F", qw/valid_name synonyms/);
+
+    for( @reffile ){
+        my @refline = split /\t/;
+        $refnames{$refline[$si]} = $refline[$va];
+    }
 }
 
 # my $chead = &header($input);
@@ -432,10 +530,14 @@ while ( my($k,$v) = each %df ) {
 
     my @withClass = &classifier(
                         $include_ncbi,
-                        &binData(
-                            &collapseBins( 'bin', @withMeta ),
-                            $include_ncbi,
-                            @withMeta));
+                        &seekAndDestroy(
+                            [%refnames],
+                            &binData(
+                                &collapseBins('bin', @withMeta),
+                                $include_ncbi,
+                                [%refnames],
+                                @withMeta)));
+
     if(not $quiet){
         printf "\r%40s%s","Getting BINs in $k...","Ok";
 
