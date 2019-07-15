@@ -420,9 +420,9 @@ class OBc:
 
         return out
 
-    def writeOut(self, out):
+    def writeOut(self, out, name = None):
 
-        tmp_filename = uuid.uuid4().hex[:14].upper()
+        tmp_filename = uuid.uuid4().hex[:14].upper() if name is None else name
         f = open(tmp_filename, "w")
 
         for i in out:
@@ -620,3 +620,20 @@ class OBc:
             out.update( {g :validSyn(tmp_sub)} )
 
         return out
+
+    def refnames(self, file, write):
+        #
+        # file = "data/bold.csv"
+        # self = OBc()
+        #
+        df = self.readWithHeader(file)
+        va = self.__checkPos__(df[0], ["valid_name"])[0]
+        si = self.__checkPos__(df[0], ["synonyms"])[0]
+
+        out = ['valid_name\tsynonyms']
+
+        for i in df[1:]:
+            out.append(
+                "%s\t%s" %  (i.split(',')[va], i.split(',')[si]) )
+
+        return self.writeOut(out) if write else out
