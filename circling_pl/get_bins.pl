@@ -190,6 +190,8 @@ sub fillFromMeta {
 
     my($hashesFrames,%dfSppsData) = @_;
     my @hashesFrames = @{ $hashesFrames };
+    # my @hashesFrames = @{$v};
+    # my %dfSppsData = %df2;
 
     for(@hashesFrames){
         my $mArr = $dfSppsData{ $_->{'spps'} };
@@ -198,6 +200,8 @@ sub fillFromMeta {
         my $ninst = scalar grep {!/NA/} keys %{$mArr->{inst}};
         my @bins  = grep {!/NA/} keys %{$mArr->{bin}};
         my @taxid = &uniq( @{$mArr->{taxid}} );
+
+        $sum = 0 if not defined $sum;
 
         $_->{bin}   = [@bins] if $sum;
         $_->{ninst} = $ninst;
@@ -333,8 +337,9 @@ sub seekAndDestroy {
 sub classifier {
     my ($ncbied, @withBin) = @_;
     # my $ncbied = $include_ncbi;
-    # my @withBin = @destroyed;
+    # my @withBin = @bb;
     for my $c ( @withBin ) {
+        # my $c = $withBin[1];
 
         my $spps      = $c->{spps};
         my $notTarget = scalar grep {(not /$spps/) and defined} @{$c->{onBins}};
@@ -365,7 +370,7 @@ sub classifier {
 sub upgradeFs {
 
     my ($printTool,$group,@publicClass) =  @_;
-    # my ($printTool,$group,@publicClass) =  ( (not $quiet),$k, @withClass );
+    # my ($printTool,$group,@publicClass) =  ( (not $quiet),$k, @bb );
     my $pat = "(Mined from GenBank, NCBI| NCBI|unvouchered|NA)";
 
     my %dspps = ();
@@ -382,6 +387,23 @@ sub upgradeFs {
     for (my $i = 1; $i <= $nitems; $i++) {
 
         my($k3,$v3) = each %dspps;
+
+        if(not defined @{$v3}[0]){
+
+            if ($printTool) {
+
+                my $p  = $i/$nitems;
+                my $ip = int($n*$i/$nitems);
+
+                printf
+                    "\r%40s[%s%s] (%6.2f %%)",
+                    "Getting whole records in $group...",
+                    '#'x$ip,
+                    '-'x($n-$ip),
+                    $p*100;
+            }
+            next;
+        }
 
         my @p = &getContent(
             "http://www.boldsystems.org/index.php/API_Tax/TaxonData?",
@@ -444,10 +466,14 @@ sub upgradeFs {
 sub writeOut {
 
     my($group,$file,$pos,@frame) = @_;
+    # my($group,$file,$pos,@frame) = ($k, $fh, [@metaPos], @withClass);
 
     my @metaPos = @{$pos};
 
     for(@frame){
+
+        $_->{ninst} = '' if not defined $_->{ninst};
+        $_->{taxid} = '' if not defined $_->{taxid};
 
         my $bStr =
             sprintf(
