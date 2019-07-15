@@ -5,14 +5,15 @@
 import argparse
 import subprocess
 import sys
+import uuid
 from circling_py.OBc import *
 from circling_py.worms import *
 
 
 def cUsage():
     return """
-Usage: auditspps [-h] -i str [-g str] [--for str [str ...]]
-                 [--at str [str ...]] [-o str]
+usage: auditspps [-i str] [-g str] [--for str [str ...]] [--at str [str ...]]
+                 [-o str] [-p] [-n] [-q] [-r int]
 
 Audit species barcodes from OBc pipeline
 
@@ -29,13 +30,14 @@ optional arguments:
                     mined from genbank) inside analyses.
   -p, --private    [Optional] If selected and `-n` is not selected, auditspps includes
                     private records for trying to upgrade `F` grades to `D`.
+  -r, --rate       [Optional] Number of species per iteration [Default = 500]
   -o, --output     [Optional] Output name [Default = <input_based>.csv]
 """
 
 def requirementsmsg():
     return """
-usage: auditspps [-h] -i str [-g str] [--for str [str ...]]
-                 [--at str [str ...]] [-o str]
+usage: auditspps [-i str] [-g str] [--for str [str ...]] [--at str [str ...]]
+                 [-o str] [-p] [-n] [-q] [-r int]
 auditspps: error: the following arguments are required: -i/--input
 """
 
@@ -77,6 +79,12 @@ def getOpt():
     parser.add_argument('-q', '--quiet',
                         action='store_false',
                         help='[Optional] If selected, suppress running messages')
+    parser.add_argument('-r', '--rate',
+                        metavar = 'int',
+                        type=int,
+                        default = 500,
+                        help = '[Optional] Number of species per iteration',
+                        required = False)
     parser.add_argument('-h',
                         '--help',
                         action='store_true',
@@ -175,6 +183,9 @@ def appendWithRanks(l, spps, group, at, toolbar=True, w=50):
         sys.stdout.write("\n")
 
 def main():
+
+    nameGenerator = lambda: uuid.uuid4().hex[:14].upper()
+
     option = vars(getOpt())
 
     if option['help']:
@@ -188,10 +199,13 @@ def main():
     # print(option)
     # option = {"input": "data/bold.csv",
     #           "group": "group",
-    #           "for": ['Elasmobranchii'],
+    #           "for": None,
     #           "at":  None,
     #           "output" : "input_based",
-    #           'quiet': True
+    #           'quiet': True,
+    #           'private': True,
+    #           'ncbi': False,
+    #           'rate': 500
     #            }
 
     if option['quiet']:
@@ -213,7 +227,6 @@ def main():
             appendWithRanks(out, spps[k], k, option['at'], option['quiet'])
 
     else:
-
         for k in spps['order']:
 
             if line == 0:
@@ -223,14 +236,12 @@ def main():
             for _,v2 in spps[k].items():
                 out.append("%s\t%s" % (k, v2))
 
-    file_name = OBc().writeOut(out)
+    ref_names = str(OBc().refnames(file = option['input'], write = True))
 
     fo = option['output'] if option['output'] != "input_based" else cname(option['input'])
 
-    if option['quiet']:
-        print("\nAccessing to BOLD database")
-
-    Perlopt = ['get_bins.pl', '-i', str(file_name), '-o', fo]
+    Perlopt = ['get_bins.pl',
+               '-r', str(ref_names) ]
 
     if not option['quiet']:
         Perlopt.append('-q')
@@ -241,11 +252,69 @@ def main():
     if option['ncbi']:
         Perlopt.append('-n')
 
-    runShell( Perlopt )
-    runShell( ['rm', str(file_name)] )
+    header = out[0]
+    target = out[1:]
+
+    if len(target) <= option['rate']:
+
+        file_name = OBc().writeOut(out)
+
+        if option['quiet']:
+            print("\nAccessing to BOLD database")
+
+        Perlopt.append('-i')
+        Perlopt.append(str(file_name))
+
+        Perlopt.append('-o')
+        Perlopt.append( fo )
+
+        runShell(Perlopt)
+        runShell(['rm', str(file_name)])
+
+    else:
+
+        nspps     = 0
+        sppscount = 0
+        collapsedPerlOut = []
+        lt  = len(target)
+        ltf = '\n(%' + str(len(str( lt ))) + 's/%s) Accessing to BOLD database'
+
+        while nspps < lt:
+            # window   = nspps + 20
+            window     = nspps + option['rate']
+            tmp_df     = target[nspps:window]
+            sppscount += len(tmp_df)
+
+            if option['quiet']:
+                print( ltf % (sppscount, lt) )
+
+            tmp_perlIn  = str( OBc().writeOut( [header] + tmp_df ) )
+            tmp_perlOut = str( nameGenerator() )
+
+            Perlopt.append('-i')
+            Perlopt.append(tmp_perlIn)
+
+            Perlopt.append('-o')
+            Perlopt.append(tmp_perlOut)
+
+            runShell(Perlopt)
+            ## temporal perl out opened
+            tpoo =  open( tmp_perlOut, 'r' ).read().split("\n")
+
+            collapsedPerlOut += tpoo if nspps == 0 else tpoo[1:]
+
+            runShell( ['rm', tmp_perlIn ] )
+            runShell( ['rm', tmp_perlOut] )
+            nspps = window
+
+        f = open(fo, 'w')
+
+        for i in collapsedPerlOut:
+            f.write(i + "\n")
+
+        f.close()
+
+    runShell(['rm', ref_names])
 
 if __name__ == "__main__":
     main()
-
-
-
