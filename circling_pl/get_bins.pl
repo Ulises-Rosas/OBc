@@ -463,6 +463,18 @@ sub upgradeFs {
     return @publicClass
 }
 
+sub quickVal {
+
+    my ($refnamesi, @finalOut) = @_;
+    my %refnamesi = @{$refnamesi};
+
+    for my $f (@finalOut){
+        # $spps = $refnamesi{$spps} if exists $refnamesi{$spps};
+        $f->{spps} = $refnamesi{$f->{spps}} if exists $refnamesi{$f->{spps}};
+    }
+    return @finalOut
+}
+
 sub writeOut {
 
     my($group,$file,$pos,@frame) = @_;
@@ -574,6 +586,10 @@ while ( my($k,$v) = each %df ) {
         @withClass = &upgradeFs( (not $quiet),$k, @withClass );
         printf  "\r%40s%-43s", "Getting whole records in $k...", "Ok";
         print "\n";
+    }
+
+    if ($refnamesfile){
+        @withClass = &quickVal([%refnames], @withClass);
     }
 
     &writeOut( $k, $fh, [@metaPos], @withClass);
