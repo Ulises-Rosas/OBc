@@ -309,7 +309,7 @@ def main():
 
         f = open(fo, 'w')
 
-        for i in collapsedPerlOut:
+        for i in filter(None, collapsedPerlOut):
             f.write(i + "\n")
 
         f.close()
