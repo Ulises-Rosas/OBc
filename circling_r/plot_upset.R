@@ -98,12 +98,15 @@ opt = parse_args(opt_parser)
 
 ### params ####
 # opt = list()
-# opt$`input` = "C6C8EF9EEFF74A"
-# opt$`barplot` = "9DF81C34204B40"
+# opt$`input` = "C0E64BD8B76243"
+# opt$`barplot` = "FC78E7380ACD44"
 # opt$`palette` = "RdYlBu"
 # opt$`lines` = NULL
 # opt$`width` = 12.5
 # opt$`height` = 3.25
+# opt$textsize = 3.25
+# opt$basesize = 14
+# opt$pointsize = 3.25
 # opt$`resolution` = 100
 # opt$`output` = "testUpset.jpeg"
 ### params ####
@@ -127,9 +130,12 @@ factor(
 # > Colors::Start ####
 suppressWarnings({ 
   cols1 = colorRampPalette( brewer.pal(12, opt$`palette`) )( length(MajorGroups) ) 
+  names(cols1) <- MajorGroups
   })
 fillcol = DescTools::MixColor(col1 = "black", col2 = cols1, 0.3)
+names(fillcol) <- MajorGroups
 textcol = DescTools::MixColor(col1 = "black", col2 = cols1, 0.7)
+names(textcol) <- MajorGroups
 # < Colors::End   ####
 
 # > ggplotThemeBase::Start ####
