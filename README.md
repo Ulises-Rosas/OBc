@@ -207,7 +207,7 @@ Actinopterygii	Acanthemblemaria hancocki	D		2	1	18109		Chordata	Perciformes	Chae
 
 ## radarplot
 
-This command use radar plot to depict composition of audition performed by `auditspps`
+This command uses radar plot to depict composition of audition performed by `auditspps`
 
 ```Bash
 radarplot -i bold_audited.tsv --at Order --n 4 -l
