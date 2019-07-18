@@ -178,7 +178,7 @@ upsetplot -i data/bold.csv
 ```Bash
 sankeyplot -b data/bold.csv -o data/obis.csv
 ```
-![](https://github.com/Ulises-Rosas/OBc/blob/master/data/img/testSankey.jpeg)
+![](https://github.com/Ulises-Rosas/OBc/blob/master/data/img/obis_bold_SankeyPlot.jpeg)
 
 
 ## auditspps
