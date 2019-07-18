@@ -146,6 +146,10 @@ def getOpt():
                         default=None,
                         help='''[Optional] Specific order for columns (i.e. 'Region', 'OBIS', 'BOLD' and 'Distribution') in CSV format.
                          E.g. 'OBIS,BOLD,Region,Distribution'. Number of values must match with number of column previously selected [Default = None]''')
+    parser.add_argument('-e', '--remove',
+                        action="store_true",
+                        default=False,
+                        help='''[Optional] If selected, source table is removed''')
     parser.add_argument('-H',
                         metavar='float',
                         type=float,
@@ -202,6 +206,8 @@ def main():
         exit()
 
     OutName = lambda i1, i2: "_".join([cname(i1), cname(i2)]) + "_SankeyPlot.jpeg"
+    OutName2 = lambda i1, i2: "_".join([cname(i1), cname(i2)]) + "_SourceTable.csv"
+
     #
     OBclass = OBc()
     out = OBclass.SankeyData(
@@ -211,8 +217,13 @@ def main():
                 debug      = options['quiet'],
                 groupsort  = options['G'] if options['G'] is None else options['G'].split(","),
                 regionsort = options['R'] if options['R'] is None else options['R'].split(",")  )
+    #
+    if options['remove']:
+        out_file = OBclass.writeOut(out=out)
 
-    out_file = OBclass.writeOut(out = out)
+    else:
+        fo0 = OutName2(options['obis'], options['bold'])
+        out_file = OBclass.writeOut(out=out,name=fo0)
 
     fo = options['output'] if options['output'] != "input_based" else OutName( options['obis'], options['bold'] )
 
@@ -248,7 +259,8 @@ def main():
 
     runShell(Ropt)
 
-    runShell( ['rm', str(out_file)] )
+    if options['remove']:
+        runShell( ['rm', str(out_file)] )
 
 if __name__ == "__main__":
     main()
