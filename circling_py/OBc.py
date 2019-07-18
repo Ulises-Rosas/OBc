@@ -230,7 +230,7 @@ class OBc:
         :return:     ['group,region,n', ...]
         """
         ## class calling
-        # file = "data/invertebrate_bold.txt"
+        # file = "data/bold.csv"
         # vars = 'region'
         # fill = "subgroup"
         # prop = True
@@ -392,6 +392,8 @@ class OBc:
         # group = "group"
         # order = "Reptilia,Mammalia".split(',')
         # sep = True
+        # block = None
+        # line = None
         # output = OBc().UpsetData(file=file, group=group,
         #                          block=block, line = line, sep=sep)
         ##
