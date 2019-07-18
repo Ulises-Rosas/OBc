@@ -152,7 +152,7 @@ def main():
     fo = option['output'] if option['output'] != "input_based" else cname(option['input'])
 
 
-    Ropt = [ 'circling_r/plot_radar.R',
+    Ropt = [ 'plot_radar.R',
              '-a', rinput,
              '-i', rindications,
              '-g', ",".join(sorted(option['grades'])),
