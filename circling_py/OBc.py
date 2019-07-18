@@ -12,6 +12,7 @@ class OBc:
 
         self.obis_header = ["valid_name,region,subgroup,group"]
         self.bold_header = ["valid_name,synonyms,availability,region,subgroup,group"]
+        self.levels      = ["A","B","C","D","E*","E**","F"]
 
     def __subset__(self, df, key, inv = False):
 
@@ -635,5 +636,221 @@ class OBc:
         for i in df[1:]:
             out.append(
                 "%s\t%s" %  (i.split(',')[va], i.split(',')[si]) )
+
+        return self.writeOut(out) if write else out
+
+    def findPos(self, cols, header, sep="\t"):
+        # cols = ["Species", "Group"]
+
+        if isinstance(cols, str):
+            cols = [cols]
+
+        out = []
+        for i in cols:
+            for a, b in enumerate(header.split(sep)):
+                if re.findall("^" + i + "$", b):
+                    out.append(a)
+        return out
+
+    def RadarPlotOpt(self, file, for_g, at, n):
+        ####
+        # file = "bold_auditedWithRanks.tsv"
+        # for_g = ['Reptilia']
+        # at = ['Genus']
+        # n = [ 2]
+        # self = OBc()
+        ####
+        def orderGroups(df, pos):
+
+            toCount = filter(None, [i.split("\t")[pos] for i in df[1:]])
+            items = collections.Counter(toCount).items()
+            tup = sorted( items, key= lambda kv: kv[1], reverse=True )
+
+            return  [i[0] for i in tup]
+
+        def wholeOption(out, groups = None, at = None, n = None):
+
+            if isinstance(groups, str):
+                groups = [groups]
+
+            if isinstance(at, list):
+                at = at[0]
+
+            if isinstance(n, list):
+                n = n[0]
+
+            if at != None and n == None:
+
+                for i in groups:
+                    out.append("%s,%s,NA,FALSE" % (i, at))
+
+            elif at != None and n != None:
+
+                for i in groups:
+                    out.append("%s,%s,%s,FALSE" % (i, at, n))
+
+            else:
+                for i in groups:
+                    out.append("%s,Group,NA,TRUE" % i)
+
+        def errorMessage(kind):
+
+            if kind == 1:
+                print("\033[0;31m\nError: Column name do not match\033[0m")
+            elif kind == 2:
+                print("\033[0;31m\nError: Size of both `Group` selected and `--at` option do not match\033[0m")
+            elif kind == 3:
+                print("\033[0;31m\nError: Size of both `Group` selected and `--n` option do not match\033[0m")
+            elif kind == 4:
+                print("\033[0;31m\nError: Size of `Group` selected, `--at` and `--n` options do not match\033[0m")
+            elif kind == 5:
+                print("\033[0;31m\nError: Available groups do not match with given `--for` option values\033[0m")
+            exit()
+
+        def matchGroups(df, gr):
+            # gr = for_g
+
+            pos  =  self.findPos('Group', df[0])[0]
+            groups = set([i.split("\t")[pos] for i in df[1:]])
+
+            counts = 0
+
+            for g in gr:
+                for ag in filter(None, groups):
+                    if re.findall("^" + g + "$", ag):
+                        counts += 1
+
+            return counts == len(gr)
+
+        for_g = [] if for_g is None else for_g
+        at = [] if at is None else at
+        n = [] if n is None else n
+
+        df  = open(file, 'r').read().split("\n")
+        out = ['MajorGroup,taxonomicalRank,select,whole']
+
+        if len(for_g) == 0:
+            pos = self.findPos('Group', df[0])[0]
+            for_g = orderGroups(df[1:], pos)
+
+
+        if not matchGroups(df, for_g):
+            errorMessage(5)
+
+        if len(at) == 1 and len(n) == 0:
+
+            if not self.findPos(at, df[0]):
+                errorMessage(1)
+
+            wholeOption(out, for_g, at)
+
+        elif len(at) == 1 and len(n) == 1:
+
+            if not self.findPos(at, df[0]):
+                errorMessage(1)
+
+            wholeOption(out, for_g, at, n)
+
+        elif len(at) == 1 and len(n) > 1:
+
+            if len(n) != len(for_g):
+                errorMessage(3)
+
+            if not self.findPos(at, df[0]):
+                errorMessage(1)
+
+            for f, a, n1 in zip(for_g, at * len(n), n):
+                wholeOption(out, f, a, n1)
+
+        elif len(at) > 1 and len(n) == 0:
+
+            if len(at) != len(for_g):
+                errorMessage(2)
+
+            if len(self.findPos(at, df[0])) != len(at):
+                errorMessage(1)
+
+            for f, a, n1 in zip(for_g, at, ['NA'] * len(at)):
+                wholeOption(out, f, a, n1)
+
+        elif len(at) > 1 and len(n) == 1:
+
+            if len(at) != len(for_g):
+                errorMessage(2)
+
+            if len(self.findPos(at, df[0])) != len(at):
+                errorMessage(1)
+
+            for f, a, n1 in zip(for_g, at, n * len(at)):
+                wholeOption(out,  f, a, n1)
+
+        elif len(at) > 1 and len(n) > 1:
+
+            if not len(for_g) == len(at) == len(n):
+                errorMessage(4)
+
+            if len(self.findPos(at, df[0])) != len(at):
+                errorMessage(1)
+
+            for f, a, n1 in zip(for_g, at, n):
+                wholeOption(out,  f, a, n1)
+        else:
+
+            if len(n) != 0:
+                print('Ignoring `--n` option')
+
+            wholeOption(out, for_g)
+
+        return out
+
+    def changeGrades(self, file, ggrades, write):
+        ##
+        # self = OBc()
+        # file = "bold_auditedWithRanks.tsv"
+        # ggrades = ['A/B', 'C/D', 'E*/E**']
+        # ggrades = ['G']
+        ##
+        anyMatch = lambda l, k: len(set(l) - set(k)) == len(l)
+
+        def errorMessages(kind):
+
+            if kind == 1:
+                print("\033[0;31m\nError: Use at least three grades\033[0m")
+            elif kind == 2:
+                print("\033[0;31m\nError: Given grades do not match with regular grades\033[0m")
+            elif kind == 2:
+                print("\033[0;31m\nError: Entire input does not contain given grades\033[0m")
+            exit()
+
+        ggrades = [i.upper() for i in ggrades]
+
+        if len(ggrades) < 3:
+            errorMessages(1)
+
+        refn = {}
+        for g in ggrades:
+            for gs in g.split("/"):
+                refn.update( {gs : g} )
+
+        if anyMatch(self.levels, refn.keys()):
+            errorMessages(2)
+
+        df  = open(file, 'r').read().split("\n")
+        hdr = df[0]
+        pos = self.findPos('Classification',hdr)[0]
+
+        out = [ hdr ]
+        for i in filter( None, df[1:] ):
+
+            tmp_spl = i.split('\t')
+            tmp_g   = tmp_spl[pos]
+
+            if refn.__contains__(tmp_g):
+                tmp_spl[pos] = refn[tmp_g]
+
+                out.append("\t".join(tmp_spl))
+
+        if len(out) == 1:
+            errorMessages(3)
 
         return self.writeOut(out) if write else out

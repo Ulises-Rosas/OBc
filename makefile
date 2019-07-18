@@ -92,12 +92,12 @@ setupR: env check_py2 check_py3
         install circling_r/plot_bars.R    $$CONDA_PREFIX/bin &&\
         install circling_r/plot_upset.R   $$CONDA_PREFIX/bin &&\
         install circling_r/plot_sankey.R  $$CONDA_PREFIX/bin &&\
-        install circling_r/get_BIN.R      $$CONDA_PREFIX/bin
-	sed -i -e "s/path_ssp/$${PWD//\//\\/}/g" ./circling_r/get_BIN.R
+        install circling_r/plot_radar.R   $$CONDA_PREFIX/bin
 	cp  BOLD-mineR/r/AuditionBarcode.v.2.R circling_r
 	cp  BOLD-mineR/r/SpecimenData.R circling_r 
 	rm -rf BOLD-mineR 
 	chmod +wx ./circling_r/*
+#     sed -i -e "s/path_ssp/$${PWD//\//\\/}/g" ./circling_r/get_BIN.R
 
 setupPython:
 	chmod +x ./circling_py/*
@@ -107,7 +107,9 @@ setupPython:
         install circling_py/barplot      $$CONDA_PREFIX/bin &&\
         install circling_py/upsetplot    $$CONDA_PREFIX/bin &&\
         install circling_py/sankeyplot   $$CONDA_PREFIX/bin &&\
-        install circling_py/auditspps    $$CONDA_PREFIX/bin
+        install circling_py/auditspps    $$CONDA_PREFIX/bin &&\
+        install circling_py/radarplot.py $$CONDA_PREFIX/bin &&\
+        mv $$CONDA_PREFIX/bin/radarplot.py $$CONDA_PREFIX/bin/radarplot.py
 	
 setupBash:
 	sed -i -e "s/path_ssp/$${PWD//\//\\/}/g" ./circling_sh/get_checkLists.sh
