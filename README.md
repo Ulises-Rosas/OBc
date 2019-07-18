@@ -55,7 +55,7 @@ ls *.txt
 Chile_260_Acanthocephala_bold_validated.txt    Chile_260_Reptilia_bold_validated.txt          Colombia_38_Acanthocephala_bold_validated.txt  Colombia_38_Reptilia_bold_validated.txt
 Chile_260_Acanthocephala_obis_validated.txt    Chile_260_Reptilia_obis_validated.txt          Colombia_38_Acanthocephala_obis_validated.txt  Colombia_38_Reptilia_obis_validated.txt
 ```
-
+**\*** Intermediate files generated up while running this command are the same at each run. Therefore, if this command is running in parallel, specific directory per run must be used in order to avoid intermediate file crashing. Since the following example is a single run, repo directory is used as the working directory.
 
 ## joinfiles.py
 
@@ -157,6 +157,7 @@ checkspps Reptilia\
 
 It will return both: [Peru_Reptilia_obis_validated.txt](https://github.com/Ulises-Rosas/OBc/blob/master/data/Peru_Reptilia_obis_validated.txt) and [Peru_Reptilia_bold_validated.txt](https://github.com/Ulises-Rosas/OBc/blob/master/data/Peru_Reptilia_bold_validated.txt). Their format are the same from `joinfiles.py` command. Values of `subgroup` column are taken from a taxonomical rank of species specified with `--at` option. Remaining values for both `group` and `country` columns are filled with the positional argument (i.e. Reptilia in above case) and `--area-name` option correspondingly.
 
+**\*** Intermediate files generated up while running this command are the same at each run. Therefore, if this command is running in parallel, specific directory per run must be used in order to avoid intermediate file crashing. Since the following example is a single run, repo directory is used as the working directory.
 
 ## barplot
 
@@ -180,5 +181,38 @@ sankeyplot -b data/bold.csv -o data/obis.csv
 ![](https://github.com/Ulises-Rosas/OBc/blob/master/data/img/testSankey.jpeg)
 
 
+## auditspps
 
-**\*** Intermediate files generated up while running this command are the same at each run. Therefore, if this command is running in parallel, specific directory per run must be used in order to avoid intermediate file crashing. Since the following example is a single run, repo directory is used as the working directory.
+This command adds both an **audition** step ([Oliveira _et al._ 2016](https://onlinelibrary.wiley.com/doi/full/10.1111/jfb.13169)) and custom taxonomical ranks (i.e. according to [WoRMS database](http://www.marinespecies.org/))to each selected specimen with public records in BOLD repository:
+
+```Bash
+auditspps -i data/bold.csv --at Phylum Order Family Genus
+```
+Output name is based on its input and `--at` option is used for specifying taxonomical ranks to look for.
+
+```Bash
+head bold_audited.tsv
+
+Group	Species	Classification	sppsOnBins	N	N_Institutes	taxIDs	BINs	Phylum	Order	Family	Genus
+Actinopterygii	Ablennes hians	C	Ablennes hians	14	6	13055	BOLD:AAB9824,BOLD:AAC1231,BOLD:AAC1232,BOLD:AAH7716	Chordata	Beloniformes	Belonidae	Ablennes
+Actinopterygii	Abudefduf concolor	D		3	1	11481		Chordata	Perciformes	Pomacentridae	Abudefduf
+Actinopterygii	Abudefduf saxatilis	E**	Abudefduf taurus,Abudefduf saxatilis	58	7	34219	BOLD:AAA7276,BOLD:AAA7275	Chordata	Perciformes	Pomacentridae	Abudefduf
+Actinopterygii	Abudefduf taurus	E*	Abudefduf taurus,Abudefduf saxatilis	9	3	60120	BOLD:AAA7276	Chordata	Perciformes	Pomacentridae	Abudefduf
+Actinopterygii	Abudefduf troschelii	D	Abudefduf troschelii	3	1	11480	BOLD:AAC8011	Chordata	Perciformes	Pomacentridae	Abudefduf
+Actinopterygii	Acanthemblemaria balanorum	D	Acanthemblemaria balanorum	1	1	374819	BOLD:ABU5784	Chordata	Perciformes	Chaenopsidae	Acanthemblemaria
+Actinopterygii	Acanthemblemaria castroi	D	Acanthemblemaria castroi	1	1	175464	BOLD:AAJ3429	Chordata	Perciformes	Chaenopsidae	Acanthemblemaria
+Actinopterygii	Acanthemblemaria exilispinus	D		3	1	18107		Chordata	Perciformes	Chaenopsidae	Acanthemblemaria
+Actinopterygii	Acanthemblemaria hancocki	D		2	1	18109		Chordata	Perciformes	Chaenopsidae	Acanthemblemaria
+```
+
+## radarplot
+
+This command uses radar plot to depict composition of audition performed by `auditspps`
+
+```Bash
+radarplot -i bold_audited.tsv --at Order --n 4 -l
+```
+![](https://github.com/Ulises-Rosas/OBc/blob/master/data/img/bold_audited_RadarPlot.jpeg)
+
+The prior example plot radars in order according to species counts and uses `Order` category for making inner polygons. Furthermore, `--n` option indicate the maximum amount of polygons per radar and `-l` is used to include legends. There are options available to aesthetically enhance radars which can be explored with `radarplot -h`.
+
