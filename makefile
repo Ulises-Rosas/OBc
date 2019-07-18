@@ -109,7 +109,7 @@ setupPython:
         install circling_py/sankeyplot   $$CONDA_PREFIX/bin &&\
         install circling_py/auditspps    $$CONDA_PREFIX/bin &&\
         install circling_py/radarplot.py $$CONDA_PREFIX/bin &&\
-        mv $$CONDA_PREFIX/bin/radarplot.py $$CONDA_PREFIX/bin/radarplot.py
+        mv $$CONDA_PREFIX/bin/radarplot.py $$CONDA_PREFIX/bin/radarplot
 	
 setupBash:
 	sed -i -e "s/path_ssp/$${PWD//\//\\/}/g" ./circling_sh/get_checkLists.sh
