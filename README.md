@@ -194,7 +194,6 @@ Output name is based on its input and `--at` option is used for specifying taxon
 head bold_audited.tsv
 ```
 ```
-
 Group	Species	Classification	sppsOnBins	N	N_Institutes	taxIDs	BINs	Phylum	Order	Family	Genus
 Actinopterygii	Ablennes hians	C	Ablennes hians	14	6	13055	BOLD:AAB9824,BOLD:AAC1231,BOLD:AAC1232,BOLD:AAH7716	Chordata	Beloniformes	Belonidae	Ablennes
 Actinopterygii	Abudefduf concolor	D		3	1	11481		Chordata	Perciformes	Pomacentridae	Abudefduf
