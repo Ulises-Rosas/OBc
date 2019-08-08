@@ -307,9 +307,10 @@ class OBc:
 
         ## class calling
         # file = "data/bold.csv"
-        # block = None
-        # line = ['Colombia', 'Ecuador']
+        # block = ['Reptilia']
+        # line = ['Colombia', 'Ecuador', 'Peru', 'Chile']
         # group = ["group"]
+        # sep = False
         # self  = OBc()
         ##
 
@@ -324,9 +325,11 @@ class OBc:
         regexPair     = lambda iter: "(" + "|".join(iter) + ")"
         howManyRegion = lambda regex: re.findall("\|", regex).__len__() + 1
         uniqC         = lambda p, l: collections.Counter([i.split(',')[p] for i in l])
-        matchCounts   = lambda n, d: [k for k, v in d.items() if v == n].__len__()
-        getPos        = lambda p, d: set([i.split(',')[p] for i in d])
-        subtract      = lambda d1, d2, p: len(getPos(p, d1) - getPos(p,d2))
+        # matchCounts   = lambda n, d: [k for k, v in d.items() if v == n].__len__()
+        matchCounts = lambda n, d: [k for k, v in d.items() if v == n]
+        # getPos        = lambda p, d: set([i.split(',')[p] for i in d])
+        getSets = lambda d, p: set([i.split(',')[p] for i in d])
+        # subtract      = lambda d1, d2, p: len(getPos(p, d1) - getPos(p,d2))
 
         df = self.readWithHeader(file)
 
@@ -339,8 +342,8 @@ class OBc:
 
         for z,n in majorGroups:
             # print(z,n)
-            # z = "Invertebrates"
-            # n = 1196
+            # z = "Reptilia"
+            # n = 6
             dfZeta = self.oneColSubset(regionGroup, group, z)
 
             oneOut   = []
@@ -354,22 +357,39 @@ class OBc:
                     # pat = "(Ecuador|Chile)"
                     nRegion = howManyRegion(pat)
                     # print(nRegion)
-                    tmp_list = self.oneColSubset(dfZeta, ['region'], pat)
-                    pos      = self.__checkPos__(tmp_list[0], ['valid_name'])[0]
-                    # [print(i) for i in tmp_list]
-                    if nRegion > 1:
+                    tmp_list    = self.oneColSubset(dfZeta, ['region'], pat)
+                    notTmp_list = self.oneColSubset(dfZeta, ['region'], pat, inv=True)
+                    pos         = self.__checkPos__(tmp_list[0], ['valid_name'])[0]
 
-                        nspps = matchCounts(nRegion, uniqC(pos, tmp_list[1:]))
-                        groupOut.append( [z, pat, nspps*100/n, nspps] )
-                    else:
+                    spps  = matchCounts(nRegion, uniqC(pos, tmp_list[1:]))
+                    nspps = len(set(spps) - getSets(notTmp_list[1:], pos))
 
-                        notTmp_list = self.oneColSubset(dfZeta, ['region'], pat, inv=True)
-                        nspps       = subtract(tmp_list[1:], notTmp_list[1:], pos )
-
+                    if nRegion == 1:
                         pat += "<%s>" % len(tmp_list[1:])
-                        oneOut.append(   [z, pat, nspps*100/n, nspps] )
+                        oneOut.append([z, pat, nspps * 100 / n, nspps])
 
-            twoGroups = orderByNspps(oneOut)+orderByNspps(groupOut) if sep else orderByNspps(oneOut+groupOut)
+                    else:
+                        groupOut.append([z, pat, nspps * 100 / n, nspps])
+
+                    # [print(i) for i in tmp_list]
+                    # if nRegion > 1:
+                    #
+                    #     nspps = matchCounts(nRegion, uniqC(pos, tmp_list[1:]))
+                    #     groupOut.append( [z, pat, nspps*100/n, nspps] )
+                    # else:
+                    #
+                    #     spps = matchCounts( nRegion, uniqC(pos, tmp_list[1:]) )
+                    #     notTmp_list = self.oneColSubset( dfZeta, ['region'], pat, inv = True )
+                    #
+                    #     # nspps = len( set(spps) - getSets(notTmp_list[1:], pos) )
+                    #     # nspps       = subtract(tmp_list[1:], notTmp_list[1:], pos )
+                    #
+                    #     if nRegion == 1:
+                    #         pat += "<%s>" % len(tmp_list[1:])
+                    #
+                    #     oneOut.append(   [z, pat, nspps*100/n, nspps] )
+
+            twoGroups = orderByNspps(oneOut) + orderByNspps(groupOut) if sep else orderByNspps(oneOut + groupOut)
 
             for zout in twoGroups:
 
@@ -820,7 +840,7 @@ class OBc:
                 print("\033[0;31m\nError: Use at least three grades\033[0m")
             elif kind == 2:
                 print("\033[0;31m\nError: Given grades do not match with regular grades\033[0m")
-            elif kind == 2:
+            elif kind == 3:
                 print("\033[0;31m\nError: Entire input does not contain given grades\033[0m")
             exit()
 
