@@ -272,7 +272,12 @@ readWithLevels <- function(f, col, lin, de = F){
 
 bardat = readWithLevels(opt$`barplot`, "region", opt$`lines`)
 
-ggplot( data = bardat, aes(x = region, y = -n, fill = group) ) +
+bardat$group <- factor(x = bardat$group,
+                       levels = MajorGroups,
+                       ordered = T )
+
+
+ggplot( data = bardat, aes(x = region, y = -n, fill = group, order = group ) )+
   geom_bar(stat = "identity") +
   scale_fill_manual(values = fillcol) +
   coord_flip() +
