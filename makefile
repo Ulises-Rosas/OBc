@@ -86,16 +86,11 @@ check_py3:
 
 setupR: env check_py2 check_py3
 	$(brc) &&\
-        Rscript --save ./circling_r/get_packages.R &&\
-        git clone https://github.com/Ulises-Rosas/BOLD-mineR.git &&\
-        bash ./circling_r/source --turn on &&\
         install circling_r/plot_bars.R    $$CONDA_PREFIX/bin &&\
         install circling_r/plot_upset.R   $$CONDA_PREFIX/bin &&\
         install circling_r/plot_sankey.R  $$CONDA_PREFIX/bin &&\
-        install circling_r/plot_radar.R   $$CONDA_PREFIX/bin
-	cp  BOLD-mineR/r/AuditionBarcode.v.2.R circling_r
-	cp  BOLD-mineR/r/SpecimenData.R circling_r 
-	rm -rf BOLD-mineR 
+        install circling_r/plot_radar.R   $$CONDA_PREFIX/bin &&\
+        install circling_r/species_bold.R $$CONDA_PREFIX/bin
 	chmod +wx ./circling_r/*
 #     sed -i -e "s/path_ssp/$${PWD//\//\\/}/g" ./circling_r/get_BIN.R
 
@@ -103,21 +98,20 @@ setupPython:
 	chmod +x ./circling_py/*
 	$(brc) &&\
         python3 -c "import site; print(site.getsitepackages()[0])" | xargs cp -rf ./circling_py &&\
-        install circling_py/joinfiles.py $$CONDA_PREFIX/bin &&\
-        install circling_py/barplot      $$CONDA_PREFIX/bin &&\
-        install circling_py/upsetplot    $$CONDA_PREFIX/bin &&\
-        install circling_py/sankeyplot   $$CONDA_PREFIX/bin &&\
-        install circling_py/auditspps    $$CONDA_PREFIX/bin &&\
-        install circling_py/radarplot.py $$CONDA_PREFIX/bin &&\
-        mv $$CONDA_PREFIX/bin/radarplot.py $$CONDA_PREFIX/bin/radarplot
+        install circling_py/bin/joinfiles   $$CONDA_PREFIX/bin &&\
+        install circling_py/bin/barplot     $$CONDA_PREFIX/bin &&\
+        install circling_py/bin/upsetplot   $$CONDA_PREFIX/bin &&\
+        install circling_py/bin/sankeyplot  $$CONDA_PREFIX/bin &&\
+        install circling_py/bin/auditspps   $$CONDA_PREFIX/bin &&\
+        install circling_py/bin/radarplot   $$CONDA_PREFIX/bin &&\
+        install circling_py/bin/obis        $$CONDA_PREFIX/bin &&\
+        install circling_py/bin/select_ids  $$CONDA_PREFIX/bin
 	
 setupBash:
-	sed -i -e "s/path_ssp/$${PWD//\//\\/}/g" ./circling_sh/get_checkLists.sh
+# 	sed -i -e "s/path_ssp/$${PWD//\//\\/}/g" ./circling_sh/get_checkLists.sh
 	$(brc) &&\
-        install circling_sh/get_checkLists.sh    $$CONDA_PREFIX/bin &&\
-        install circling_sh/loop_checkLists.sh   $$CONDA_PREFIX/bin &&\
-        mv $$CONDA_PREFIX/bin/get_checkLists.sh  $$CONDA_PREFIX/bin/checkspps &&\
-        mv $$CONDA_PREFIX/bin/loop_checkLists.sh $$CONDA_PREFIX/bin/checklists
+        install circling_sh/checkspps    $$CONDA_PREFIX/bin &&\
+        install circling_sh/checklists   $$CONDA_PREFIX/bin 
 
 setupPerl:
 	chmod +x ./circling_pl/*
@@ -137,7 +131,7 @@ unsetup_bash:
 
 unsetup: unsetup_py unsetup_bash
 	if [[ ! -z $$(ls ./circling_py/ | grep "__pycache__") ]]; then rm -rf ./circling_py/__pycache__/; fi
-	sed -i -e "s/$${PWD//\//\\/}/path_ssp/g" ./circling_r/get_BIN.R
+	#sed -i -e "s/$${PWD//\//\\/}/path_ssp/g" ./circling_r/get_BIN.R
 	rm circling_r/AuditionBarcode.v.2.R
 	rm circling_r/SpecimenData.R
 	if [[ ! -z $$(ls ./circling_r/ | grep -e "R-e") ]]; then rm ./circling_r/*R-e; fi
