@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
 alias grep='grep --color=never'
 
 RED='\033[0;31m'
@@ -98,7 +99,7 @@ set -- "${POSITIONAL[@]}" # restore positional parameters
 # #AREA_NAME="Colombia"
 
 # AREA_NAME=$(format "${AREA_NAME[@]}")
-OBC_PREFIX="path_ssp"
+# OBC_PREFIX="path_ssp"
 
 if [[ ! -z $SL ]]; then
     
@@ -127,10 +128,9 @@ else
     # mv $uuid'.csv' ${POSITIONAL[@]}'.csv'
     # rm "$uuid"
 
-    python3 $OBC_PREFIX'/circling_py/obis.py'\
-             --areaid $AREA_ID\
-             --scientificname ${POSITIONAL[@]} > ${POSITIONAL[@]}'.csv'
-
+    obis\
+     --areaid $AREA_ID\
+     --scientificname ${POSITIONAL[@]} > ${POSITIONAL[@]}'.csv'
     # cat ${POSITIONAL[@]}'.csv' |\
     #  grep -Ee "^[0-9]+,[A-Z][a-z]+ [a-z]+," -o |\
     #   sed -Ee "s/^[0-9]+,([A-Z][a-z]+ [a-z]+),/\1/g" |\
@@ -183,7 +183,7 @@ for i in $(cat ${POSITIONAL[@]}'_obis'); do
         touch obi_syns
         while [[ $(cat obi_syns | wc -l) -lt 1 ]]; do
 
-            python3 $OBC_PREFIX'/circling_py/select_ids.py'\
+            select_ids\
                     --tax \
                     --type   synonyms\
                     --string "${i[@]}"\
@@ -270,7 +270,7 @@ for spps_valid in $(cat $obi_file); do
             main_string_bold=""
             while [[ $main_string_bold = "" ]]; do
 
-                main_string_bold=$( Rscript --vanilla $OBC_PREFIX'/circling_r/species_bold.R'\
+                main_string_bold=$(species_bold.R\
                                             --taxa    "$spps_syns"\
                                             --prefix  "${POSITIONAL[@]}" )
             done
