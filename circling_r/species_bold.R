@@ -1,12 +1,15 @@
-#!/usr/bin/Rscript
+#!/usr/bin/env Rscript --vanilla
 
-suppressMessages({
+suppressWarnings({
   
-  library(data.table)
-  library(dplyr)
-  library(ape)
-  library(RCurl)
-  library(optparse)
+    suppressMessages({
+      
+      library(data.table)
+      library(dplyr)
+      library(ape)
+      library(RCurl)
+      library(optparse)
+    })
 })
 
 option_list = list(
