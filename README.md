@@ -19,7 +19,7 @@ make
 ## Commands available
 
 * [checklists](https://github.com/Ulises-Rosas/OBc#checklists)
-* [joinfiles.py](https://github.com/Ulises-Rosas/OBc#joinfilespy)
+* [joinfiles](https://github.com/Ulises-Rosas/OBc#joinfilespy)
 * [checkspps](https://github.com/Ulises-Rosas/OBc#checkspps)
 * [barplot](https://github.com/Ulises-Rosas/OBc#barplot)
 * [sankeyplot](https://github.com/Ulises-Rosas/OBc#sankeyplot)
@@ -62,7 +62,7 @@ Chile_260_Acanthocephala_obis_validated.txt    Chile_260_Reptilia_obis_validated
 As its name suggests, this command merge results from `checklists` command by adding metadata that is already stated on filenames:
 
 ```Shell
-joinfiles.py --matching _obis_
+joinfiles --matching _obis_
 ```
 
 ```
@@ -75,7 +75,7 @@ Eretmochelys imbricata,Colombia,Reptilia,Reptilia
 ```
 
 ```Shell
-joinfiles.py --matching _bold_
+joinfiles --matching _bold_
 ```
 
 ```
@@ -90,7 +90,7 @@ Eretmochelys imbricata,Eretmochelys imbricata,public_inside,Colombia,Reptilia,Re
 Default value of `--matching` option is `_bold_`. It is, however, stated as a matter of clearness. While default values of  column `group` is the same from `subgroup`, this can be modified with `--as` option. This is particularly usefull when merging an entire directory (i.e. using `--from` option) under a custom group:
 
 ```Shell
-joinfiles.py\
+joinfiles \
    --from data/Invertebrate\
    --as Invertebrate\
    --matching _bold_ > invertebrate_bold.txt 
@@ -105,7 +105,7 @@ Amphitrite kerguelensis,Amphitrite kerguelensis,private,Chile,Annelida,Invertebr
 Ancistrosyllis groenlandica,Ancistrosyllis groenlandica,public_outside,Chile,Annelida,Invertebrate
 ```
 ```Shell
-joinfiles.py\
+joinfiles \
    --from data/Invertebrate\
    --as Invertebrate\
    --matching _obis_ > invertebrate_obis.txt
@@ -124,14 +124,14 @@ Likewise, this command can also join files from different directories while addi
 
 ```Shell
 
-joinfiles.py\
+joinfiles \
    --from data/Invertebrate data/Actinopterygii data/Elasmobranchii data/Reptilia data/Mammalia\
    --as Invertebrate Actinopterygii Elasmobranchii Reptilia Mammalia\
    --matching _bold_ > WholeDirectories_bold.txt
 ```
 
-```Bash
-joinfiles.py\
+```Shell
+joinfiles \
    --from data/Invertebrate data/Actinopterygii data/Elasmobranchii data/Reptilia data/Mammalia\
    --as Invertebrate Actinopterygii Elasmobranchii Reptilia Mammalia\
    --matching _obis_ > WholeDirectories_obis.txt
