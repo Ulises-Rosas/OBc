@@ -18,6 +18,10 @@ my $include_ncbi = 'F';
 my $private = 0;
 my $quiet = 0;
 
+## delete this shit
+# $input = "testinput";
+# $refnamesfile = "testrefnames";  
+##
 
 my %refnames  = ();
 
@@ -32,12 +36,12 @@ for(my $k = 0; $k <= $#ARGV; $k++){
 }
 
 if ( not $input){
-    print "Please introduce an input file";
+    print "Please introduce an input file\n";
     exit;
 }
 
 if ( not $output){
-    print "Please introduce an output file";
+    print "Please introduce an output file\n";
     exit;
 }
 
@@ -280,14 +284,24 @@ sub binData {
             my %spps = ();
             for my $ub ( @wBa ) {
 
+                ## delete this
+                # my $ub = $wBa[0];
+                ## delete this
                 for my $ub3 ( $df3{$ub} ){
+
+                    # delete this
+                    # my $ub3 = {
+                    #      "Astrometis sertulifera" => { "Centre for Biodiversity Genomics" => [ 1 ] },
+                    #      "Astrometis sertulifera2" => { "Centre for Biodiversity Genomics" => [ 1 ] } 
+                    #      };      
+                    # delete this
 
                     if( defined $ub3 ){
 
                         while (my ($k1, $v1) = each %{$ub3}) {
                             # print Dumper $k1;
                             # print Dumper $v1;
-                            for(keys $v1){
+                            for(keys %{$v1}){
 
                                 push(@{$spps{$k1}->{inst}->{$_}}, 1);
                                 push(@{$spps{$k1}->{n}}, sum @{$v1->{$_}} );
@@ -299,7 +313,7 @@ sub binData {
             for my $k2 (keys %spps){
 
                 $spps{$k2}->{n}    = sum @{ $spps{$k2}->{n} };
-                $spps{$k2}->{inst} = scalar keys $spps{$k2}->{inst};
+                $spps{$k2}->{inst} = scalar keys %{ $spps{$k2}->{inst} };
             }
 
             $h->{onBins} = \%spps;
@@ -328,7 +342,7 @@ sub seekAndDestroy {
             $sad->{n}      = $sad->{onBins}->{$spps}->{n};
             $sad->{ninst}  = $sad->{onBins}->{$spps}->{inst};
             $sad->{spps}   = $spps;
-            $sad->{onBins} = [keys $sad->{onBins}];
+            $sad->{onBins} = [keys %{ $sad->{onBins} }];
         }
     }
     return @withOnBins;
