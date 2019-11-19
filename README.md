@@ -7,17 +7,13 @@ These shells generate check list with currently accepted names of species from [
 ![](https://github.com/Ulises-Rosas/OBc/blob/master/data/img/pipe-3.png)
 
 Software requierements:
-* git
-* make
-* Xcode (for MAC)
-* anaconda3 (prefereable)
+* conda 
 
 ### Installing OBc
 
 ```Shell
-git clone https://github.com/Ulises-Rosas/OBc.git
-cd OBc
-make
+conda config --add channels urosas
+conda install OBc
 ```
 
 ## Commands available
