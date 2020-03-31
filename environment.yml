@@ -1,0 +1,27 @@
+name: OBc
+channels:
+  - r
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3
+  - pip
+  - perl
+  - r-base
+  - r-desctools
+  - r-rcolorbrewer
+  - r-rcurl
+  - r-ape
+  - r-cowplot
+  - r-data.table
+  - r-dplyr
+  - r-ggalluvial
+  - r-ggplot2
+  - r-ggpubr
+  - r-ggrepel
+  - r-optparse
+  - r-viridis
+  - r-viridislite
+  - pip:
+    - git+https://github.com/Ulises-Rosas/OBc.git#egg=OBc[complete]
