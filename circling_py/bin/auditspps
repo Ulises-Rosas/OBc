@@ -6,6 +6,8 @@ import argparse
 import subprocess
 import sys
 import uuid
+import os
+import circling_pl
 from circling_py.OBc import *
 from circling_py.worms import *
 
@@ -239,8 +241,10 @@ def main():
     ref_names = str(OBc().refnames(file = option['input'], write = True))
 
     fo = option['output'] if option['output'] != "input_based" else cname(option['input'])
+    get_bins_pl = os.path.join(circling_pl.__path__[0], 'get_bins.pl')
 
-    Perlopt = ['get_bins.pl',
+    Perlopt = ['perl',
+                get_bins_pl,
                '-r', str(ref_names) ]
 
     if not option['quiet']:

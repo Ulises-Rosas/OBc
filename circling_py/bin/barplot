@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
 # -*- coding: utf-8 -*- #
-
+import os
 import argparse
 import subprocess
+import circling_r
 from circling_py.OBc import *
 
 
@@ -120,18 +121,20 @@ def main():
 
     out = options['output'] if options['output'] != "input_based" else cname(options['input'])
 
-    Ropt = ['plot_bars.R',
-            '-i', str(tmp_filename),
-            '-v', options['var'],
-            '-f', options['fill'],
-            '-x', options['xtitle'],
-            '-y', options['ytitle'],
-            '-l', options['ltitle'],
-            '-p', options['pal'],
-            '-H', str(options['H']),
-            '-W', str(options['W']),
-            '-r', str(options['r']),
-            '-o', out]
+    bar_r = os.path.join(circling_r.__path__[0], 'plot_bars.R')
+    Ropt  = ['Rscript',
+             bar_r,
+             '-i', str(tmp_filename),
+             '-v', options['var'],
+             '-f', options['fill'],
+             '-x', options['xtitle'],
+             '-y', options['ytitle'],
+             '-l', options['ltitle'],
+             '-p', options['pal'],
+             '-H', str(options['H']),
+             '-W', str(options['W']),
+             '-r', str(options['r']),
+             '-o', out]
 
     # print(Ropt)
 

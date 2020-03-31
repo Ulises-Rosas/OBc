@@ -101,6 +101,11 @@ set -- "${POSITIONAL[@]}" # restore positional parameters
 # AREA_NAME=$(format "${AREA_NAME[@]}")
 # OBC_PREFIX="path_ssp"
 
+# defining python exec
+if [[ $(python --version) =~ "3" ]]; then python="python"; else python="python3" ; fi
+
+species_bold_r=$($python -c "import circling_r; import os; print(os.path.join(circling_r.__path__[0], 'species_bold.R'))")
+
 if [[ ! -z $SL ]]; then
     
     touch backUp_obis
@@ -264,13 +269,12 @@ for spps_valid in $(cat $obi_file); do
         echo -e "synonym: $spps_syns"
 
         check_inBackUp=$(cat backUp_bold | grep -Ee "^${POSITIONAL[@]},$spps_syns," )
-
-        if [[ -z $check_inBackUp ]]; then
-
+"
+"
             main_string_bold=""
             while [[ $main_string_bold = "" ]]; do
 
-                main_string_bold=$(species_bold.R\
+                main_string_bold=$(Rscript $species_bold_r\
                                             --taxa    "$spps_syns"\
                                             --prefix  "${POSITIONAL[@]}" )
             done

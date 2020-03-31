@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
 # -*- coding: utf-8 -*- #
-
+import os
 import argparse
 import subprocess
+import circling_r
 from circling_py.OBc import *
 
 
@@ -113,7 +114,9 @@ def main():
     fo = options['output'] if options['output'] != "input_based" else cname(options['input'])
     # print(fo)
     # print(upsetFile, barFile)
-    Ropt = ['plot_upset.R',
+    upset_r = os.path.join(circling_r.__path__[0], "plot_upset.R")
+    Ropt = ['Rscript',
+            upset_r,
             '-i', str(upsetFile),
             '-y', str(barFile),
             '-p', options['pal'],

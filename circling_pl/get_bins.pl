@@ -18,10 +18,6 @@ my $include_ncbi = 'F';
 my $private = 0;
 my $quiet = 0;
 
-## delete this shit
-# $input = "testinput";
-# $refnamesfile = "testrefnames";  
-##
 
 my %refnames  = ();
 
@@ -423,7 +419,7 @@ sub upgradeFs {
             "http://www.boldsystems.org/index.php/API_Tax/TaxonData?",
             "taxId=@{$v3}[0]&dataTypes=all" );
 
-        if (not $p[0] =~ m/depositry":{/ ){
+        if (not $p[0] =~ m/depositry"\:\{/ ){
 
             if ($printTool) {
 

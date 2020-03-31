@@ -3,14 +3,33 @@
 import setuptools
 from distutils.core import setup
 
+rcode = [
+      "plot_sankey.R",
+      "plot_radar.R",
+      "plot_bars.R",
+      "plot_upset.R",
+      "species_bold.R"
+      ]
+
+perlcode = [
+      "get_bins.pl"
+      ]
 
 setup(name="OBc",
       version='0.1',
       author='Ulises Rosas',
       author_email='ulisesfrosasp@gmail.com',
       url='https://github.com/Ulises-Rosas/OBc',
-      packages = ['circling_py'],
-      package_dir = {'circling_py': 'circling_py'},
+      packages = ['circling_py', 'circling_r', 'circling_pl'],
+      package_dir = {
+            'circling_py': 'circling_py',
+            'circling_r' : 'circling_r',
+            'circling_pl' : 'circling_pl'
+            },
+      package_data = {
+            "circling_r" : rcode,
+            "circling_pl" : perlcode
+            },
       scripts = [
             'circling_py/bin/auditspps',
             'circling_py/bin/barplot',
@@ -19,17 +38,9 @@ setup(name="OBc",
             'circling_py/bin/upsetplot',
             'circling_py/bin/obis',
             'circling_py/bin/radarplot',
-            # r code
-            'circling_r/plot_bars.R',
-            'circling_r/plot_radar.R',
-            'circling_r/plot_sankey.R',
-            'circling_r/plot_upset.R',
-            'circling_r/species_bold.R',
             # bash code
             'circling_sh/checklists',
-            'circling_sh/checkspps',
-            # perl code
-            'circling_pl/get_bins.pl'
+            'circling_sh/checkspps'
             ],
       classifiers=[
             'Programming Language :: Python :: 3',

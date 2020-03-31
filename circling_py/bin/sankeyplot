@@ -2,9 +2,12 @@
 
 # -*- coding: utf-8 -*- #
 
+import os
 import argparse
 import subprocess
+import circling_r
 from circling_py.OBc import *
+
 
 def cUsage():
     return """
@@ -227,7 +230,9 @@ def main():
 
     fo = options['output'] if options['output'] != "input_based" else OutName( options['obis'], options['bold'] )
 
-    Ropt = ["plot_sankey.R",
+    sankey_r = os.path.join(circling_r.__path__[0], "plot_sankey.R")
+    Ropt = ["Rscript",
+            sankey_r,
             "-i", str(out_file),
             "-p", options['pal'],
             "-a", str(options['alpha']),
