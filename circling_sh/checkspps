@@ -269,12 +269,13 @@ for spps_valid in $(cat $obi_file); do
         echo -e "synonym: $spps_syns"
 
         check_inBackUp=$(cat backUp_bold | grep -Ee "^${POSITIONAL[@]},$spps_syns," )
-"
-"
+
+        if [[ -z $check_inBackUp ]]; then
+
             main_string_bold=""
             while [[ $main_string_bold = "" ]]; do
 
-                main_string_bold=$(Rscript $species_bold_r\
+                main_string_bold=$(species_bold.R\
                                             --taxa    "$spps_syns"\
                                             --prefix  "${POSITIONAL[@]}" )
             done
